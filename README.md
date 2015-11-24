@@ -29,6 +29,6 @@ I will never create release version for this application. This projech has no va
 
 - 
 
-You can see [full change log](CHANHELOG.md)
+You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
 
