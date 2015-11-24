@@ -31,9 +31,37 @@ public class Decode
 {
     public static String getStationName(int turnstile){
         switch (turnstile) {
+            case 13482:
+                return "Тропарёво";
+            case 13001:
+            case 13442:
+            case 13083:
+                return "Пролетарская";
+            case 13321:
+            case 12877:
+            case 13405:
+                return "Крестьянская застава";
+            case 12519:
+                return "Алтуфьево";
+            case 10394:
+            case 10396:
+                return "Коньково";
+            case 11501:
+                return "Киевская";
+            case 13033:
+                return "Проспект Вернадского";
+            case 12493:
+            case 11556:
+                return "Деловой центер";
+            case 12254:
+            case 12036:
+                return "Фрунзенская";
+            case 12473:
+                return "Савёловская";
             case 1230:
             case 2290:
                 return "Парк культуры (радиальная)";
+            case 12958:
             case 1228:
             case 2211:
                 return "Авиамоторная";
@@ -65,7 +93,6 @@ public class Decode
                 return "20 " + Lang.getNounCase(20, R.array.trip_cases, c);
             case 129:
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
-            case 410:
             case 411:
                 return "Universal, 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 412:
