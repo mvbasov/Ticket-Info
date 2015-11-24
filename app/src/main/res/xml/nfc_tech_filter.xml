@@ -2,4 +2,7 @@
     <tech-list>
         <tech>android.nfc.tech.MifareUltralight</tech>
     </tech-list>
+    <tech-list>
+        <tech>android.nfc.tech.NfcA</tech>
+    </tech-list>
 </resources>

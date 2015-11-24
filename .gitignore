@@ -36,6 +36,8 @@ gradlew.bat
 # built application files
 *.apk
 *.ap_
+!app/Ticket-Info.*b.apk
+!app/old_versions/Ticket-Info.*b.apk
 
 # files for the dex VM
 *.dex

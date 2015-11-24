@@ -32,10 +32,9 @@ import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.nfc.tech.MifareUltralight;
+import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.widget.TextView;
 import java.text.DateFormat;
@@ -70,12 +69,7 @@ public final class MainActivity extends Activity {
             Log.e(TAG, "fail", e);
         }
         filters = new IntentFilter[]{filter};
-        techLists = new String[][]{new String[]{MifareUltralight.class.getName()}};
-        
-        
-        
-       
-
+        techLists = new String[][]{new String[]{NfcA.class.getName()}};
     }
 
     @Override
@@ -97,17 +91,19 @@ public final class MainActivity extends Activity {
             try {
                 Bundle extras = intent.getExtras();
                 Tag tag = (Tag) extras.get(NfcAdapter.EXTRA_TAG);
-                final MifareUltralight ultralight = MifareUltralight.get(tag);
+                final NfcA nfca = NfcA.get(tag);
                 text.setText(getString(R.string.ticket_is_reading));
-                new AsyncTask<MifareUltralight, Void, String>() {
+                new AsyncTask<NfcA, Void, String>() {
 
                     @Override
-                    protected String doInBackground(MifareUltralight... paramss) {
+                    protected String doInBackground(NfcA... paramss) {
                         try {
-                            ultralight.connect();
-                            byte[] pages3bytes = ultralight.readPages(3);
-                            byte[] pages8bytes = ultralight.readPages(8);
-                            ultralight.close();
+                            nfca.connect();
+                            byte[] cmd3 = { 0x30, (byte) 3};
+                            byte[] pages3bytes = nfca.transceive(cmd3);
+                            byte[] cmd8 = { 0x30, (byte) 8};
+                            byte[] pages8bytes = nfca.transceive(cmd8);
+                            nfca.close();
                             return decodeUltralight(toIntPages(pages3bytes), toIntPages(pages8bytes));
                         } catch (Throwable th) {
                             return getString(R.string.ticket_read_error);
@@ -118,7 +114,7 @@ public final class MainActivity extends Activity {
                     protected void onPostExecute(String result) {
                         text.setText(result);
                     }
-                }.execute(ultralight);
+                }.execute(nfca);
 
             } catch (Throwable th) {
                 text.setText(getString(R.string.ticket_read_error));
