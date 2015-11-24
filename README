@@ -1,6 +1,15 @@
-add your keystore info to the local.properties, then 
-#ant release install
+Tis project is update to actual state of another [old project](https://github.com/ValleZ/Ticket-Info.git)
 
 source files encoding is utf-8
 
-I live in california now, so I can not update the app. 
+Author of original project said:
+> I live in california now, so I can not update the app.
+
+I doing my best to make this project actual.
+
+### Change Log:
+
+2015-11-24 19:15 +0300
+
+* Migraion to modern Android Studio (version 1.5)
+
