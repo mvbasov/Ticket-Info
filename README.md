@@ -27,11 +27,7 @@ I will never create release version for this application. This projech has no va
 
 ### Last changes:
 
-- Version changed 1.01 -> 2.00
-- README updated
-- Build configuration changed. 
-  It allow to make 3 version of android package (release, betta and alfa) with differnt package name from one source tree
-- Low level calls to NFC changed from MifareUltralight to NfcA. It allow to read JSC Micron made tickets.
+- 
 
 You can see [full change log](CHANHELOG.md)
 
