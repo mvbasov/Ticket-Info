@@ -19,8 +19,8 @@ Some restrictions exist:
 
 ### Version numbering:
 
-* 2.00  - alfa version, very unstable, experimental
-* 2.00b - betta version, based on alfa version with the same number, more stable
+* 2.00  - alpha version, very unstable, experimental
+* 2.00b - betta version, based on alpha version with the same number, more stable
 * 2.00r - stable release
 
 I will never create release version for this application. This projech has no value as application (see below)
