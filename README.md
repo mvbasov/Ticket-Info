@@ -27,11 +27,7 @@ I will never create release version for this application. This projech has no va
 
 ### Last changes:
 
-- Add information about stations.
-- Code reorganized.
-- Bug with show large ticket number as negative value fixed.
-- New tickets layout implemented.
-- Link to CHANGELOG from README corrected
+-
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
