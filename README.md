@@ -2,8 +2,8 @@ This is Android application to see what inside Moscow trasportation system ticke
 
 Tis project is update to actual state of another [old project](https://github.com/ValleZ/Ticket-Info.git)
 
-This project has no value as Android application because several projects with better functionality exist in Android Market now.
-This project interesting as open source example of working with NFC and for understanding "How things made" (about Moscow transportation system tickets)
+This project has no value as Android application because several projects with better functionality exist in Android Market now (for example [Транспортные карты Москвы](https://play.google.com/store/apps/details?id=eu.dedb.nfc.moscow)).
+This project interesting as open source example of working with NFC and for understanding "How things made" (about Moscow transportation system tickets). It is not a target of this project "brake" security system to make "unlimited" ticket.
 
 source files encoding is utf-8
 

@@ -20,7 +20,9 @@
   <string name="unknown_ticket_category">неизвестная категория билета</string>
   <string name="ticket_main_type_mosmetro">Билет московского метро</string>
   <string name="ticket_main_type_mosground">Билет наземного транспорта москвы</string>
-  <string name="ticket_main_type_mosuniversal">Единый социальный билет Москвы и МО</string>
+  <string name="ticket_main_type_mosuniversal">Единый метро и наземного транспора</string>
   <string name="ticket_main_type_mosmetrolight">Билет легкого метро</string>
   <string name="ticket_main_type_unknown">Билет неизвестного типа</string>
+  <string name="last_enter_date">Использовался</string>
+  <string name="ticket_main_type_mossocial">Единый социальный билет Москвы и МО</string>
 </resources>

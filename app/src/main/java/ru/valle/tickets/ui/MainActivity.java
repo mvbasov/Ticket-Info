@@ -26,10 +26,10 @@ package ru.valle.tickets.ui;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.content.pm.PackageInfo;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
@@ -40,7 +40,6 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 import ru.valle.tickets.R;
 
 public final class MainActivity extends Activity {
@@ -57,7 +56,14 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         text = (TextView) findViewById(R.id.body);
-        df = new SimpleDateFormat("dd MMMM yyyy");
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            this.setTitle(getResources().getString(R.string.app_name)+" "+pInfo.versionName);
+        } catch (Throwable th) {
+            Log.e(TAG, "get package info error", th);
+        }
+
+        df = new SimpleDateFormat("dd.MM.yyyy");
         onNewIntent(getIntent());
         adapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this, 0,
@@ -66,7 +72,7 @@ public final class MainActivity extends Activity {
         try {
             filter.addDataType("*/*");
         } catch (MalformedMimeTypeException e) {
-            Log.e(TAG, "fail", e);
+            Log.e(TAG, "Add data type fail", e);
         }
         filters = new IntentFilter[]{filter};
         techLists = new String[][]{new String[]{NfcA.class.getName()}};
@@ -75,7 +81,7 @@ public final class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        df = new SimpleDateFormat("dd MMMM yyyy");
+        df = new SimpleDateFormat("dd.MM.yyyy");
         adapter.enableForegroundDispatch(this, pendingIntent, filters, techLists);
     }
 
@@ -133,27 +139,52 @@ public final class MainActivity extends Activity {
         int p8 = pages8[0];
         int p9 = pages8[1];
         int p10 = pages8[2];
+        int p11 = pages8[3];
         StringBuilder sb = new StringBuilder();
-        sb.append(descAppId(this, p4 >>> 22)).append('\n');
-        sb.append(descCardType(this, (p4 >>> 12) & 0x3ff)).append('\n');
+        sb.append(Decode.getAppIdDesc(this, p4 >>> 22)).append('\n');
+        sb.append(Decode.descCardType(this, (p4 >>> 12) & 0x3ff)).append('\n');
+        sb.append("- - - -\n");
         int mask12 = 0;
         for (int i = 0; i < 12; i++) {
             mask12 <<= 1;
             mask12 |= 1;
         }
-        long cardId = ((p4 & mask12) << 20) | (p5 >>> 12);
-        sb.append(getString(R.string.ticket_num)).append(' ').append(cardId).append('\n');
         int cardLayout = ((p5 >> 8) & 0xf);
-        if (cardLayout == 8) {
-            sb.append(getString(R.string.passes_left)).append(": ").append(p9 >>> 16).append('\n');
-            sb.append(getString(R.string.issued)).append(": ").append(getReadableDate((p8 >>> 16) & 0xffff)).append('\n');
-            sb.append(getString(R.string.best_in_days)).append(": ").append((p8 >>> 8) & 0xff).append('\n');
-            sb.append(getString(R.string.station_last_enter)).append(": ").append(getGateDesc(p9 & 0xffff)).append('\n');
-            sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p10)).append('\n');
-            sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(((p5 & 0xff) << 8) | (p6 >>> 24))).append('\n');
-        } else {
-            sb.append(getString(R.string.unknown_layout)).append(": ").append(cardLayout).append('\n');
+        switch (cardLayout) {
+            case 8:
+                sb.append(getString(R.string.ticket_num)).append(' ').append( ( ((p4 & mask12) << 20) | (p5 >>> 12)) &  0xffffffffL ).append('\n');
+                sb.append(getString(R.string.passes_left)).append(": ").append(p9 >>> 16).append('\n');
+                sb.append(getString(R.string.issued)).append(": ").append(getReadableDate((p8 >>> 16) & 0xffff)).append('\n');
+                sb.append(getString(R.string.best_in_days)).append(": ").append((p8 >>> 8) & 0xff).append('\n');
+                if((p9 & 0xffff) != 0){
+                    sb.append(getString(R.string.station_last_enter)).append(": ").append(getGateDesc(p9 & 0xffff)).append('\n');
+                }
+                sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p10)).append('\n');
+                sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(((p5 & 0xff) << 8) | (p6 >>> 24))).append('\n');
+                sb.append("Layuot 8 (0x08).").append('\n');
+                break;
+            case 13:
+                sb.append(getString(R.string.ticket_num)).append(' ').append( ( ((p4 & mask12) << 20) | (p5 >>> 12)) &  0xffffffffL).append('\n');
+                sb.append(getString(R.string.issued)).append(": ").append(getReadableDate(((p8 >>> 16) - 1) & 0xffff)).append('\n');
+                sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(p6 >>> 16)).append('\n');
+                sb.append(getString(R.string.best_in_days)).append(": ").append((p8 >>> 8) & 0xff).append('\n');
+                sb.append("- - - -\n");
+                sb.append(getString(R.string.passes_left)).append(": ").append((p9 >>> 16) & 0xff).append('\n');
+                if((p9 & 0xffff) != 0){
+                    sb.append(getString(R.string.last_enter_date)).append(": ").append(getReadableDate((p11 >>> 16) - 1));
+                    sb.append(" at ").append(String.format("%02d:%02d", ((p11 & 0xfff0) >>> 5)/60, ((p11 & 0xfff0) >>> 5) % 60)).append('\n');
+                    sb.append(getString(R.string.station_last_enter)).append(": ").append(getGateDesc(p9 & 0xffff)).append('\n');
+                }
+                sb.append("- - - -\n");
+                sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p10)).append('\n');
+                sb.append("New layuot 13 (0x0d).").append('\n');
+                break;
+
+            default:
+                sb.append(getString(R.string.unknown_layout)).append(": ").append(cardLayout).append('\n');
+                break;
         }
+
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p3)).append('\n');
         return sb.toString();
     }
@@ -167,68 +198,8 @@ public final class MainActivity extends Activity {
         return df.format(c.getTime());
     }
 
-    private static String descCardType(Context c, int ct) {
-        switch (ct) {
-            case 120:
-                return "1 " + getNounCase(1, R.array.trip_cases, c);
-            case 121:
-                return "2 " + getNounCase(2, R.array.trip_cases, c);
-            case 122:
-                return "3 " + getNounCase(3, R.array.trip_cases, c);
-            case 123:
-                return "4 " + getNounCase(4, R.array.trip_cases, c);
-            case 126:
-                return "5 " + getNounCase(5, R.array.trip_cases, c);
-            case 127:
-                return "10 " + getNounCase(10, R.array.trip_cases, c);
-            case 128:
-                return "20 " + getNounCase(20, R.array.trip_cases, c);
-            case 129:
-                return "60 " + getNounCase(60, R.array.trip_cases, c);
-            case 130:
-                return c.getString(R.string.baggage_and_pass);
-            case 131:
-                return c.getString(R.string.baggage_only);
-            case 149:
-                return c.getString(R.string.universal_ultralight_70);
-            case 150:
-                return c.getString(R.string.vesb);
-            default:
-                return c.getString(R.string.unknown_ticket_category) + ": " + ct;
-
-        }
-    }
-
-    private static String descAppId(Context c, int id) {
-        switch (id) {
-            case 262:
-                return c.getString(R.string.ticket_main_type_mosmetro);
-            case 264:
-                return c.getString(R.string.ticket_main_type_mosground);
-            case 266:
-                return c.getString(R.string.ticket_main_type_mosuniversal);
-            case 270:
-                return c.getString(R.string.ticket_main_type_mosmetrolight);
-            default:
-                return c.getString(R.string.ticket_main_type_unknown) + ": " + id;
-        }
-    }
-
     private String getGateDesc(int id) {
-        switch (id) {
-            case 1230:
-            case 2290:
-                return "№" +id+" "+trans("Парк культуры (радиальная)");
-            case 1228:
-            case 2211:
-                return "№" +id+" "+trans("Авиамоторная");
-            case 2194:
-                return "№" +id+" "+trans("Юго-Западная");
-            case 2233:
-                return "№" +id+" "+trans("Спортивная");
-            default:
-                return "№" + id;
-        }
+        return "№" +id+" "+Lang.tarnliterate(Decode.getStationName(id));
     }
 
     private static int[] toIntPages(byte[] pagesBytes) {
@@ -244,46 +215,4 @@ public final class MainActivity extends Activity {
         return pages;
     }
 
-    public static String getNounCase(int n, int arrayID, Context c) {
-        n = Math.abs(n);
-        String[] cases = c.getResources().getStringArray(arrayID);
-        String lang = Locale.getDefault().getLanguage();
-        int form = n != 1 ? 2 : 0;
-        if ("ru".equals(lang) || "ua".equals(lang) || "be".equals(lang)) {
-            form = (n % 10 == 1 && n % 100 != 11 ? 0 : (n % 10) >= 2 && (n % 10) <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
-        } else if ("tr".equals(lang)) {
-            form = n > 1 ? 2 : 0;
-        }
-        return cases[form];
-    }
-
-    private String trans(String string) {
-        String lang = Locale.getDefault().getLanguage();
-        if ("ru".equals(lang) || "ua".equals(lang) || "be".equals(lang)) {
-            return string;
-        } else {
-            StringBuilder sb = new StringBuilder(string.length() * 3 / 2);
-            for (int i = 0; i < string.length(); i++) {
-                char ch = string.charAt(i);
-                int ind = rusAlpha.indexOf(ch);
-                if (ind >= 0) {
-                    sb.append(transAlpha[ind]);
-                } else if ((ind = rusAlphaUpper.indexOf(ch)) >= 0) {
-                    String trans = transAlpha[ind];
-                    sb.append(Character.toUpperCase(trans.charAt(0)));
-                    if (trans.length() > 1) {
-                        sb.append(trans.substring(1));
-                    }
-                } else {
-                    sb.append(ch);
-                }
-            }
-            return sb.toString();
-        }
-    }
-    private static final String rusAlpha = "абвгдеёжзиыйклмнопрстуфхцчшщьэюя";
-    private static final String rusAlphaUpper = "АБВГДЕЁЖЗИЫЙКЛМНОПРСТУФХЦЧШЩЬЭЮЯ";
-    private static final String[] transAlpha = {"a", "b", "v", "g", "d", "e", "yo", "g", "z", "i", "y", "i",
-        "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
-        "f", "h", "tz", "ch", "sh", "sh", "'", "e", "yu", "ya"};
 }
