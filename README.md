@@ -25,9 +25,14 @@ Some restrictions exist:
 
 I will never create release version for this application. This projech has no value as application (see below)
 
+### How to build:
+
+Open this project in Android Studio. Allow Android Studio renerate gradle wrapper. Click on "app" in Project tree. Select "Build>Edit Build Types". Select module "app" and "Signing" tab.
+Set Signing options according to you local settings. If you want to build only unsigned debug version - clean all settings there and select "Build>Build APK". In this case created APK can be found in app/build/outputs/apk directory.
+
 ### Last changes:
 
--
+- Add build information to README.
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
