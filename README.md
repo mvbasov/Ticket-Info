@@ -37,8 +37,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- Add information about used tools and build instructions to README.
-- Station information update.
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
