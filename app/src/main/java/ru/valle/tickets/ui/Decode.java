@@ -45,6 +45,7 @@ public class Decode
                 return "Алтуфьево";
             case 10394:
             case 10396:
+            case 13347:
                 return "Коньково";
             case 11501:
                 return "Киевская";
@@ -61,6 +62,8 @@ public class Decode
             case 1230:
             case 2290:
                 return "Парк культуры (радиальная)";
+            case 11715:
+                return "Текстильщики";
             case 12958:
             case 1228:
             case 2211:
