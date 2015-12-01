@@ -7,8 +7,9 @@
   <string name="ticket_num">Ticket number</string>
   <string name="passes_left">Trips left</string>
   <string name="issued">Issued</string>
+	<string name="universal">Univrsal</string>
   <string name="best_in_days">Valid in days</string>
-  <string name="station_last_enter">Last gate entered</string>
+  <string name="station_last_enter">gate entered</string>
   <string name="ticket_hash">Secret hash</string>
   <string name="ticket_blank_best_before">Ticket blank is valid before</string>
   <string name="unknown_layout">Unknown ticket layout</string>
@@ -20,9 +21,11 @@
   <string name="unknown_ticket_category">unknown ticket category</string>
   <string name="ticket_main_type_mosmetro">Moscow metro ticket</string>
   <string name="ticket_main_type_mosground">Moscow ground transit ticket</string>
-  <string name="ticket_main_type_mosuniversal">Universal social ticket of Moscow and Moscow state</string>
+  <string name="ticket_main_type_mosuniversal">Universal ticket of Moscow metro and ground transit</string>
   <string name="ticket_main_type_mosmetrolight">Light metro ticket</string>
   <string name="ticket_main_type_unknown">An unknown ticket</string>
   <string name="last_enter_date">Last used</string>
+	<string name="at">at</string>
+	<string name="station">on station</string>
   <string name="ticket_main_type_mossocial">Social ticket of Moscow and Moscow state</string>
 </resources>

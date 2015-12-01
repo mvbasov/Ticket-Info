@@ -73,7 +73,7 @@ public class Decode
             case 2233:
                 return "Спортивная";
             default:
-                return "Has no information";
+                return "";
         }
     }
 
@@ -97,15 +97,15 @@ public class Decode
             case 129:
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 411:
-                return "Universal, 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
+                return c.getString(R.string.universal) + ", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 412:
-                return "Universal, 2 " + Lang.getNounCase(2, R.array.trip_cases, c);
+                return c.getString(R.string.universal) + ", 2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case 413:
-                return "Universal, 5 " + Lang.getNounCase(5, R.array.trip_cases, c);
+                return c.getString(R.string.universal) + ", 5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case 415:
-                return "Universal, 11 " + Lang.getNounCase(11, R.array.trip_cases, c);
+                return c.getString(R.string.universal) + ", 11 " + Lang.getNounCase(11, R.array.trip_cases, c);
             case 418:
-                return "Universal, 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
+                return c.getString(R.string.universal) + ", 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 421:
                 return "90 minutes, 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 130:

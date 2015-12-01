@@ -172,13 +172,13 @@ public final class MainActivity extends Activity {
                 sb.append("- - - -\n");
                 sb.append(getString(R.string.passes_left)).append(": ").append((p9 >>> 16) & 0xff).append('\n');
                 if((p9 & 0xffff) != 0){
-                    sb.append(getString(R.string.last_enter_date)).append(": ").append(getReadableDate((p11 >>> 16) - 1));
-                    sb.append(" at ").append(String.format("%02d:%02d", ((p11 & 0xfff0) >>> 5)/60, ((p11 & 0xfff0) >>> 5) % 60)).append('\n');
-                    sb.append(getString(R.string.station_last_enter)).append(": ").append(getGateDesc(p9 & 0xffff)).append('\n');
+                    sb.append(getString(R.string.last_enter_date)).append(": \n").append(getReadableDate((p11 >>> 16) - 1)).append(" ");
+                    sb.append(getString(R.string.at)).append(String.format(" %02d:%02d, ", ((p11 & 0xfff0) >>> 5)/60, ((p11 & 0xfff0) >>> 5) % 60));
+                    sb.append(getString(R.string.station_last_enter)).append(" ").append(getGateDesc(p9 & 0xffff)).append('\n');
                 }
                 sb.append("- - - -\n");
                 sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p10)).append('\n');
-                sb.append("New layuot 13 (0x0d).").append('\n');
+                sb.append("Layuot 13 (0x0d).").append('\n');
                 break;
 
             default:
@@ -200,7 +200,12 @@ public final class MainActivity extends Activity {
     }
 
     private String getGateDesc(int id) {
-        return "№" +id+" "+Lang.tarnliterate(Decode.getStationName(id));
+				String SN=Lang.tarnliterate(Decode.getStationName(id));
+				if ( SN.length() != 0 ) {
+            return "№" + id +" " +getString(R.string.station) + " " + Lang.tarnliterate(Decode.getStationName(id));
+				} else {
+						return "№" + id ;
+				}
     }
 
     private static int[] toIntPages(byte[] pagesBytes) {
