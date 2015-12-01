@@ -7,10 +7,10 @@
   <string name="ticket_num">Номер билета</string>
   <string name="passes_left">Осталось поездок</string>
   <string name="issued">Выдан</string>
-	<string name="universal">Единый</string>
+  <string name="universal">Единый</string>
   <string name="best_in_days">Годен, дней</string>
   <string name="station_last_enter">для входа через турникет</string>
-  <string name="ticket_hash">Секретный хеш</string>
+  <string name="ticket_hash">Хеш</string>
   <string name="ticket_blank_best_before">Использовать до</string>
   <string name="unknown_layout">Неизвестная разметка билета</string>
   <string name="otp">OTP</string>
@@ -23,9 +23,9 @@
   <string name="ticket_main_type_mosground">Билет наземного транспорта москвы</string>
   <string name="ticket_main_type_mosuniversal">Единый метро и наземного транспора</string>
   <string name="ticket_main_type_mosmetrolight">Билет легкого метро</string>
+  <string name="ticket_main_type_mossocial">Единый социальный билет Москвы и МО</string>
   <string name="ticket_main_type_unknown">Билет неизвестного типа</string>
   <string name="last_enter_date">Использовался</string>
-	<string name="at">в</string>
-	<string name="station">станции</string>
-  <string name="ticket_main_type_mossocial">Единый социальный билет Москвы и МО</string>
+  <string name="at">в</string>
+  <string name="station">станции</string>
 </resources>
