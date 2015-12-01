@@ -174,7 +174,7 @@ public final class MainActivity extends Activity {
                 sb.append("Layuot 8 (0x08).").append('\n');
                 break;
             case 13:
-                sb.append(getString(R.string.ticket_num)).append(' ').append( ( ((p4 & mask12) << 20) | (p5 >>> 12)) &  0xffffffffL).append('\n');
+                sb.append(getString(R.string.ticket_num)).append(' ').append(String.format("%010d", ( ((p4 & mask12) << 20) | (p5 >>> 12)) &  0xffffffffL)).append('\n');
                 sb.append(getString(R.string.issued)).append(": ").append(getReadableDate(((p8 >>> 16) - 1) & 0xffff)).append('\n');
                 sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(p6 >>> 16)).append('\n');
                 sb.append(getString(R.string.best_in_days)).append(": ").append((p8 >>> 8) & 0xff).append('\n');
@@ -207,7 +207,7 @@ public final class MainActivity extends Activity {
         sb.append("Chip manufacturer: ");
         switch (mf_code){
             case 0x04:
-                sb.append("NXP (Philips)\n");
+                sb.append("NXP Semiconductors (Philips) Germany\n");
                 break;
             case 0x34:
                 sb.append("JSC Micron Russia\n");
