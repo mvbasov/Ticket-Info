@@ -98,6 +98,9 @@ public final class MainActivity extends Activity {
             try {
                 Bundle extras = intent.getExtras();
                 Tag tag = (Tag) extras.get(NfcAdapter.EXTRA_TAG);
+                
+                final String[] techList = tag.getTechList();
+
                 final NfcA nfca = NfcA.get(tag);
                 text.setText(getString(R.string.ticket_is_reading));
                 new AsyncTask<NfcA, Void, String>() {
@@ -116,8 +119,9 @@ public final class MainActivity extends Activity {
                             byte[] pages3bytes = nfca.transceive(cmd3);
                             byte[] cmd8 = { 0x30, (byte) 8};
                             byte[] pages8bytes = nfca.transceive(cmd8);
+
                             nfca.close();
-                            return decodeUltralight(toIntPages(pages0bytes), toIntPages(pages3bytes), toIntPages(pages8bytes), atqa, sak);
+                            return decodeUltralight(toIntPages(pages0bytes), toIntPages(pages3bytes), toIntPages(pages8bytes), atqa, sak, techList);
                         } catch (Throwable th) {
                             return getString(R.string.ticket_read_error);
                         }
@@ -138,7 +142,8 @@ public final class MainActivity extends Activity {
         }
     }
 
-    public String decodeUltralight(int[] pages0, int[] pages3, int[] pages8, byte[] atqa, byte sak) {
+    public String decodeUltralight(int[] pages0, int[] pages3, int[] pages8, byte[] atqa, byte sak, String[] techList) {
+        String prefix = "android.nfc.tech.";
         int p0 = pages0[0];
         int p1 = pages0[1];
         int p2 = pages0[2];
@@ -198,12 +203,21 @@ public final class MainActivity extends Activity {
         byte mf_code = (byte)((p0 & 0xff000000L) >> 24);
         int int_byte = (int)((p2 & 0x00ff0000L) >> 16);
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p3)).append('\n');
-        sb.append("Int. ID: ").append(String.format("%08x %08x %02x\n", p0,p1,(p2 & 0xff000000L) >> 24));
-        sb.append("Int. byte: ").append(String.format("%02x\n", int_byte));
+        sb.append("UID: ").append(String.format("%08x %08x\n", p0,p1));
+        sb.append(String.format("BCC0: %02x, BCC1: %02x\n", (p0 & 0xffL),(p2 & 0xff000000L) >> 24));
+        sb.append("Manufacturer internal byte: ").append(String.format("%02x\n", int_byte));
         sb.append(String.format("ATQA: %02x %02x\n", atqa[1], atqa[0]));
         sb.append(String.format("SAK: %02x\n", sak));
 
-        sb.append("- - - -\n");
+        sb.append("Andriod technologies: \n   ");
+        for (int i = 0; i < techList.length; i++){
+            if (i != 0){
+                sb.append(", ");
+            }
+            sb.append(techList[i].substring(prefix.length()));
+        }
+        sb.append('\n');
+
         sb.append("Chip manufacturer: ");
         switch (mf_code){
             case 0x04:
@@ -214,10 +228,10 @@ public final class MainActivity extends Activity {
                 sb.append("Chip (probably): ");
                 switch (int_byte) {
                     case 0x0b:
-                        sb.append("~80 bytes~");
+                        sb.append("MIK64PTAS(MIK640D) (80 bytes)");
                         break;
                     case 0xe0:
-                        sb.append("~164 bytes~");
+                        sb.append("MIK1312ED(?K5016XC1M1H4?) (164 bytes)");
                         break;
                     default:
                         sb.append("Unknown");

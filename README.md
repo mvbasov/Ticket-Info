@@ -38,6 +38,8 @@ Set Signing options according to you local settings. If you want to build only u
 ### Last changes:
 
 - Display ATQA, SAK, internal ID (and its checksum), internal manufacturer byte (probabli depend on chip info)
+- Display Unique ID (UID) of card and it chechsums (BCC0 and BCC1)
+- Display Android discovered technologyes
 - Start implementing code to determinate used chip
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)

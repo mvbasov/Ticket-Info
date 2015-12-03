@@ -32,10 +32,12 @@ public class Decode
     public static String getStationName(int turnstile){
         switch (turnstile) {
             case 13482:
+            case 13354:
                 return "Тропарёво";
             case 13001:
             case 13442:
             case 13083:
+            case 10781:
                 return "Пролетарская";
             case 13321:
             case 12877:
@@ -63,6 +65,7 @@ public class Decode
             case 2290:
                 return "Парк культуры (радиальная)";
             case 11715:
+            case 11482:
                 return "Текстильщики";
             case 12958:
             case 1228:
