@@ -1,5 +1,12 @@
 ### Change log.
 
+#### Version 2.03b
+##### Date:   Thu Dec 3 14:55:58 2015 +0300, commit 52e6340c893d816fa944b76eb80c28096dd8a19d
+
+- Display ATQA, SAK, internal ID (and its checksum), internal manufacturer byte (probabli depend on chip info)
+- Display Unique ID (UID) of card and it chechsums (BCC0 and BCC1)
+- Display Android discovered technologyes
+- Start implementing code to determinate used chip
 
 #### Version 2.02b
 ##### Date:   Thu Nov 26 16:51:35 2015 +0300, commit 1117bb660a503d8f156c9174c7ffa4a7f258a63e
