@@ -231,7 +231,7 @@ public final class MainActivity extends Activity {
                         sb.append("MIK64PTAS(MIK640D) (80 bytes)");
                         break;
                     case 0xe0:
-                        sb.append("MIK1312ED(?K5016XC1M1H4?) (164 bytes)");
+                        sb.append("?MIK1312ED?(K5016XC1M1H4) (164 bytes)");
                         break;
                     default:
                         sb.append("Unknown");
