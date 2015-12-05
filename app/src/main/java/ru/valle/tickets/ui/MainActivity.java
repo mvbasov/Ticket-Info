@@ -42,6 +42,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import ru.valle.tickets.R;
+import android.text.method.*;
 
 public final class MainActivity extends Activity {
 
@@ -57,6 +58,7 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         text = (TextView) findViewById(R.id.body);
+        text.setMovementMethod(new ScrollingMovementMethod());
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             this.setTitle(getResources().getString(R.string.app_name)+" "+pInfo.versionName);
