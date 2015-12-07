@@ -117,15 +117,17 @@ public final class MainActivity extends Activity {
 
                             byte[] cmd0 = { 0x30, (byte) 0};
                             byte[] pages0bytes = nfca.transceive(cmd0);
-                            byte[] cmd3 = { 0x30, (byte) 3};
-                            byte[] pages3bytes = nfca.transceive(cmd3);
+                            byte[] cmd4 = { 0x30, (byte) 4};
+                            byte[] pages4bytes = nfca.transceive(cmd4);
                             byte[] cmd8 = { 0x30, (byte) 8};
                             byte[] pages8bytes = nfca.transceive(cmd8);
+                            byte[] cmd12 = { 0x30, (byte) 12};
+                            byte[] pages12bytes = nfca.transceive(cmd12);
 
                             nfca.close();
-                            return decodeUltralight(pages0bytes, pages3bytes, pages8bytes, atqa, sak, techList);
+                            return decodeUltralight(pages0bytes, pages4bytes, pages8bytes, pages12bytes, atqa, sak, techList);
                         } catch (Throwable th) {
-                            return getString(R.string.ticket_read_error)+"i";
+                            return getString(R.string.ticket_read_error);
                         }
                     }
 
@@ -136,7 +138,7 @@ public final class MainActivity extends Activity {
                 }.execute(nfca);
 
             } catch (Throwable th) {
-                text.setText(getString(R.string.ticket_read_error)+"o");
+                text.setText(getString(R.string.ticket_read_error));
                 Log.e(TAG, "read err", th);
             }
         } else {
@@ -144,24 +146,17 @@ public final class MainActivity extends Activity {
         }
     }
 
-    public String decodeUltralight(byte[] pages0byte, byte[] pages3byte, byte[] pages8byte, byte[] atqa, byte sak, String[] techList) {
+    public String decodeUltralight(byte[] pages0byte, byte[] pages4byte, byte[] pages8byte, byte[] pages12byte, byte[] atqa, byte sak, String[] techList) {
         String prefix = "android.nfc.tech.";
         int[] pages0 = toIntPages(pages0byte);
-        int[] pages3 = toIntPages(pages3byte);
+        int[] pages4 = toIntPages(pages4byte);
         int[] pages8 = toIntPages(pages8byte);
+        int[] pages12 = toIntPages(pages12byte);
         int[] p = {
-          pages0[0],
-          pages0[1],
-          pages0[2],
-          pages3[0],
-          pages3[1],
-          pages3[2],
-          pages3[3],
-          0,
-          pages8[0],
-          pages8[1],
-          pages8[2],
-          pages8[3]
+          pages0[0], pages0[1], pages0[2], pages0[3],
+          pages4[0], pages4[1], pages4[2], pages4[3],
+          pages8[0], pages8[1], pages8[2], pages8[3],
+          pages12[0], pages12[1], pages12[2], pages12[3]
         };
         StringBuilder sb = new StringBuilder();
         sb.append(Decode.getAppIdDesc(this, p[4] >>> 22)).append('\n');
@@ -173,33 +168,27 @@ public final class MainActivity extends Activity {
             mask12 |= 1;
         }
         int cardLayout = ((p[5] >> 8) & 0xf);
+
+        sb.append(getString(R.string.ticket_num)).append(' ').append(String.format("%010d", ( ((p[4] & mask12) << 20) | (p[5] >>> 12)) &  0xffffffffL)).append('\n');
+        sb.append(getString(R.string.issued)).append(": ").append(getReadableDate(((p[8] >>> 16) - 1) & 0xffff)).append('\n');
+        sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(p[6] >>> 16)).append('\n');
+        sb.append(getString(R.string.best_in_days)).append(": ").append((p[8] >>> 8) & 0xff).append('\n');
+        sb.append("- - - -\n");
+        sb.append(getString(R.string.passes_left)).append(": ").append((p[9] >>> 16) & 0xff).append('\n');
+
         switch (cardLayout) {
             case 8:
-                sb.append(getString(R.string.ticket_num)).append(' ').append( ( ((p[4] & mask12) << 20) | (p[5] >>> 12)) &  0xffffffffL ).append('\n');
-                sb.append(getString(R.string.passes_left)).append(": ").append(p[9] >>> 16).append('\n');
-                sb.append(getString(R.string.issued)).append(": ").append(getReadableDate((p[8] >>> 16) & 0xffff)).append('\n');
-                sb.append(getString(R.string.best_in_days)).append(": ").append((p[8] >>> 8) & 0xff).append('\n');
                 if((p[9] & 0xffff) != 0){
                     sb.append(getString(R.string.station_last_enter)).append(": ").append(getGateDesc(p[9] & 0xffff)).append('\n');
                 }
-                sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
-                sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(((p[5] & 0xff) << 8) | (p[6] >>> 24))).append('\n');
                 sb.append("Layuot 8 (0x08).").append('\n');
                 break;
             case 13:
-                sb.append(getString(R.string.ticket_num)).append(' ').append(String.format("%010d", ( ((p[4] & mask12) << 20) | (p[5] >>> 12)) &  0xffffffffL)).append('\n');
-                sb.append(getString(R.string.issued)).append(": ").append(getReadableDate(((p[8] >>> 16) - 1) & 0xffff)).append('\n');
-                sb.append(getString(R.string.ticket_blank_best_before)).append(": ").append(getReadableDate(p[6] >>> 16)).append('\n');
-                sb.append(getString(R.string.best_in_days)).append(": ").append((p[8] >>> 8) & 0xff).append('\n');
-                sb.append("- - - -\n");
-                sb.append(getString(R.string.passes_left)).append(": ").append((p[9] >>> 16) & 0xff).append('\n');
                 if((p[9] & 0xffff) != 0){
                     sb.append(getString(R.string.last_enter_date)).append(": \n").append(getReadableDate((p[11] >>> 16) - 1)).append(" ");
                     sb.append(getString(R.string.at)).append(String.format(" %02d:%02d, ", ((p[11] & 0xfff0) >>> 5)/60, ((p[11] & 0xfff0) >>> 5) % 60));
                     sb.append(getString(R.string.station_last_enter)).append(" ").append(getGateDesc(p[9] & 0xffff)).append('\n');
                 }
-                sb.append("- - - -\n");
-                sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
                 sb.append("Layuot 13 (0x0d).").append('\n');
                 break;
 
@@ -210,6 +199,8 @@ public final class MainActivity extends Activity {
 
         byte mf_code = (byte)((p[0] & 0xff000000L) >> 24);
         int int_byte = (int)((p[2] & 0x00ff0000L) >> 16);
+        sb.append("- - - -\n");
+        sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
         sb.append("UID: ").append(String.format("%08x %08x\n", p[0],p[1]));
         sb.append(String.format("BCC0: %02x, BCC1: %02x\n", (p[0] & 0xffL),(p[2] & 0xff000000L) >> 24));
