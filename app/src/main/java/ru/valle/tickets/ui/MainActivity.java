@@ -36,13 +36,15 @@ import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
+
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import ru.valle.tickets.R;
-import android.text.method.*;
 
 public final class MainActivity extends Activity {
 
@@ -51,7 +53,8 @@ public final class MainActivity extends Activity {
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
     private IntentFilter[] filters;
-    private String[][] techLists;
+    private String[][] techList;
+    private DateFormat df;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,14 +81,14 @@ public final class MainActivity extends Activity {
             Log.e(TAG, "Add data type fail", e);
         }
         filters = new IntentFilter[]{filter};
-        techLists = new String[][]{new String[]{NfcA.class.getName()}};
+        techList = new String[][]{new String[]{NfcA.class.getName()}};
     }
 
     @Override
     public void onResume() {
         super.onResume();
         df = new SimpleDateFormat("dd.MM.yyyy");
-        adapter.enableForegroundDispatch(this, pendingIntent, filters, techLists);
+        adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
     }
 
     @Override
@@ -112,21 +115,48 @@ public final class MainActivity extends Activity {
                         try {
                             nfca.connect();
 
+                            byte[][] readBlocks = new byte[32][];
+                            int lastSucessBlockIndex=0; // index of last successfully obtained 4 pages block
+
+                            for (int i=0;i<32;i++){
+                                byte[] cmd = { 0x30, (byte)(i*4)};
+                                try {
+                                    //read 4 pages (4 bytes each) block
+                                    //catch IOException if index of page out of band
+                                    //wrap around p0 if try to read more then exists pages
+                                    readBlocks[i] = nfca.transceive(cmd);
+                                    lastSucessBlockIndex=i;
+                                } catch (IOException ignored0) {
+                                    break; // this 4 pages block totally out of band
+                                }
+                            }
+
                             byte[] atqa = nfca.getAtqa();
                             byte sak = (byte)nfca.getSak();
 
-                            byte[] cmd0 = { 0x30, (byte) 0};
-                            byte[] pages0bytes = nfca.transceive(cmd0);
-                            byte[] cmd4 = { 0x30, (byte) 4};
-                            byte[] pages4bytes = nfca.transceive(cmd4);
-                            byte[] cmd8 = { 0x30, (byte) 8};
-                            byte[] pages8bytes = nfca.transceive(cmd8);
-                            byte[] cmd12 = { 0x30, (byte) 12};
-                            byte[] pages12bytes = nfca.transceive(cmd12);
-
                             nfca.close();
-                            return decodeUltralight(pages0bytes, pages4bytes, pages8bytes, pages12bytes, atqa, sak, techList);
-                        } catch (Throwable th) {
+
+                            /*
+                            Attempt to exclude wrapped around information
+                            from last page.
+                            WARNING:
+                            Not strong algorithm. It is possible
+                            to write id on last page to brake it
+                             */
+                            int lastBlockValidPages = 0; //last block page valid number
+                            for (int i = 0; i<4; i++){
+
+                                if (readBlocks[lastSucessBlockIndex][i*4] == readBlocks[0][0]
+                                    && readBlocks[lastSucessBlockIndex][i*4+1] == readBlocks[0][1]
+                                    && readBlocks[lastSucessBlockIndex][i*4+2] == readBlocks[0][2]
+                                    && readBlocks[lastSucessBlockIndex][i*4+3] == readBlocks[0][3]){
+                                    break;
+                                }
+                                lastBlockValidPages++;
+                            }
+
+                            return decodeUltralight(readBlocks, lastSucessBlockIndex+1, lastBlockValidPages, atqa, sak, techList);
+                        } catch (IOException ie) {
                             return getString(R.string.ticket_read_error);
                         }
                     }
@@ -146,28 +176,30 @@ public final class MainActivity extends Activity {
         }
     }
 
-    public String decodeUltralight(byte[] pages0byte, byte[] pages4byte, byte[] pages8byte, byte[] pages12byte, byte[] atqa, byte sak, String[] techList) {
+    public String decodeUltralight(byte[][] readBlocks, int readBlocksNumber, int lastBlockValidPages, byte[] atqa, byte sak, String[] techList) {
         String prefix = "android.nfc.tech.";
-        int[] pages0 = toIntPages(pages0byte);
-        int[] pages4 = toIntPages(pages4byte);
-        int[] pages8 = toIntPages(pages8byte);
-        int[] pages12 = toIntPages(pages12byte);
+        int[] pages0 = toIntPages(readBlocks[0]);
+        int[] pages4 = toIntPages(readBlocks[1]);
+        int[] pages8 = toIntPages(readBlocks[2]);
+        int[] pages12 = toIntPages(readBlocks[3]);
+
         int[] p = {
           pages0[0], pages0[1], pages0[2], pages0[3],
           pages4[0], pages4[1], pages4[2], pages4[3],
           pages8[0], pages8[1], pages8[2], pages8[3],
           pages12[0], pages12[1], pages12[2], pages12[3]
         };
+
         StringBuilder sb = new StringBuilder();
         sb.append(Decode.getAppIdDesc(this, p[4] >>> 22)).append('\n');
         sb.append(Decode.descCardType(this, (p[4] >>> 12) & 0x3ff)).append('\n');
         sb.append("- - - -\n");
+
         int mask12 = 0;
         for (int i = 0; i < 12; i++) {
             mask12 <<= 1;
             mask12 |= 1;
         }
-        int cardLayout = ((p[5] >> 8) & 0xf);
 
         sb.append(getString(R.string.ticket_num)).append(' ').append(String.format("%010d", ( ((p[4] & mask12) << 20) | (p[5] >>> 12)) &  0xffffffffL)).append('\n');
         sb.append(getString(R.string.issued)).append(": ").append(getReadableDate(((p[8] >>> 16) - 1) & 0xffff)).append('\n');
@@ -176,6 +208,7 @@ public final class MainActivity extends Activity {
         sb.append("- - - -\n");
         sb.append(getString(R.string.passes_left)).append(": ").append((p[9] >>> 16) & 0xff).append('\n');
 
+        int cardLayout = ((p[5] >> 8) & 0xf);
         switch (cardLayout) {
             case 8:
                 if((p[9] & 0xffff) != 0){
@@ -199,9 +232,11 @@ public final class MainActivity extends Activity {
 
         byte mf_code = (byte)((p[0] & 0xff000000L) >> 24);
         int int_byte = (int)((p[2] & 0x00ff0000L) >> 16);
+
         sb.append("- - - -\n");
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
+        sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocksNumber-1) * 4 + lastBlockValidPages, ((readBlocksNumber-1) * 4 + lastBlockValidPages)*4));
         sb.append("UID: ").append(String.format("%08x %08x\n", p[0],p[1]));
         sb.append(String.format("BCC0: %02x, BCC1: %02x\n", (p[0] & 0xffL),(p[2] & 0xff000000L) >> 24));
         sb.append("Manufacturer internal byte: ").append(String.format("%02x\n", int_byte));
@@ -242,9 +277,30 @@ public final class MainActivity extends Activity {
                 break;
         }
 
+        sb.append("--- Dump: ---\n");
+        for (int l=0;l<readBlocksNumber-1;l++){
+            for (int k=0;k<4;k++){
+                sb.append(String.format("p%02d: ",l*4+k));
+                for (int m=0;m<4;m++){
+                    sb.append(String.format("%02x ",readBlocks[l][k*4+m]));
+                }
+                sb.append("\n");
+            }
+        }
+        // print only valid pages of last block
+        for (int i=0; i<lastBlockValidPages; i++ ) {
+            sb.append(String.format("p%02d: ", ((readBlocksNumber-1) * 4 + i)));
+            for (int m = 0; m < 4; m++) {
+                sb.append(String.format("%02x ", readBlocks[readBlocksNumber-1][i*4+m]));
+            }
+            sb.append("\n");
+        }
+        // warning, because fuzzy algorithm used
+        if (lastBlockValidPages != 4)
+            sb.append(String.format("---\n[!]Last block valid pages: %d\n", lastBlockValidPages));
+
         return sb.toString();
     }
-    private DateFormat df;
 
     private String getReadableDate(int days) {
         Calendar c = Calendar.getInstance();
