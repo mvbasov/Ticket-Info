@@ -139,6 +139,12 @@ public final class MainActivity extends Activity {
                             }
 
                             /*
+                            If try to read Mifare 1K on devices without support this tag type 0 blocks returned
+                            If try to read using NfcA library Mifare 1K on devices with support only one block with one byte returned
+                             */
+                            if (readBlocks.isEmpty() || readBlocks.get(0).length == 1) return getString(R.string.unsupported_tag_type);
+
+                            /*
                             On some devices (Sony Xperia Z1 with Android 5.1.1, for example)
                             last block with only one byte generated.
                             On other devices (Smsung Galaxy S IV with Andpoid 5.0.1, for example)
@@ -148,6 +154,7 @@ public final class MainActivity extends Activity {
                             if (readBlocks.get(readBlocks.size() - 1).length == 1) {
                                 readBlocks.remove(readBlocks.size() - 1);
                             }
+
 
                             byte[] atqa = nfca.getAtqa();
                             byte sak = (byte) nfca.getSak();

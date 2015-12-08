@@ -28,4 +28,5 @@
   <string name="last_enter_date">Использовался</string>
   <string name="at">в</string>
   <string name="station">станции</string>
+  <string name="unsupported_tag_type">Не прочитанно ни одной страницы. Возможно, не поддерживаемый тип карты</string>
 </resources>
