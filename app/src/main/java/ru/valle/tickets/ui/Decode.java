@@ -44,6 +44,7 @@ public class Decode
             case 13321:
             case 12877:
             case 13405:
+            case 12854:
                 return "Крестьянская застава";
             case 12519:
                 return "Алтуфьево";

@@ -43,6 +43,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import ru.valle.tickets.R;
 
@@ -108,31 +109,48 @@ public final class MainActivity extends Activity {
 
                 final NfcA nfca = NfcA.get(tag);
                 text.setText(getString(R.string.ticket_is_reading));
-                new AsyncTask<NfcA, Void, String>() {
+                AsyncTask<NfcA, Void, String> execute = new AsyncTask<NfcA, Void, String>() {
 
                     @Override
                     protected String doInBackground(NfcA... paramss) {
                         try {
                             nfca.connect();
 
-                            byte[][] readBlocks = new byte[32][];
-                            int lastSucessBlockIndex=0; // index of last successfully obtained 4 pages block
+                            ArrayList<byte[]> readBlocks = new ArrayList<byte[]>();
 
-                            for (int i=0;i<32;i++){
-                                byte[] cmd = { 0x30, (byte)(i*4)};
+                            for (int i = 0; i < 32; i++) {
+                                byte[] cmd = {0x30, (byte) (i * 4)};
                                 try {
                                     //read 4 pages (4 bytes each) block
                                     //catch IOException if index of page out of band
                                     //wrap around p0 if try to read more then exists pages
-                                    readBlocks[i] = nfca.transceive(cmd);
-                                    lastSucessBlockIndex=i;
+                                    readBlocks.add(nfca.transceive(cmd));
+
+//                                    StringBuilder sbx = new StringBuilder();
+//                                    for (byte b : readBlocks.get(readBlocks.size() - 1)) {
+//                                        sbx.append(String.format("%02x, ", b & 0xff));
+//                                    }
+//                                    sbx.setLength(sbx.length() - 2);
+//                                    Log.d(TAG, String.format("%02x: %s\n", i, sbx));
+
                                 } catch (IOException ignored0) {
                                     break; // this 4 pages block totally out of band
                                 }
                             }
 
+                            /*
+                            On some devices (Sony Xperia Z1 with Android 5.1.1, for example)
+                            last block with only one byte generated.
+                            On other devices (Smsung Galaxy S IV with Andpoid 5.0.1, for example)
+                            it is not true.
+                            The following code remove it unnessesary block
+                             */
+                            if (readBlocks.get(readBlocks.size() - 1).length == 1) {
+                                readBlocks.remove(readBlocks.size() - 1);
+                            }
+
                             byte[] atqa = nfca.getAtqa();
-                            byte sak = (byte)nfca.getSak();
+                            byte sak = (byte) nfca.getSak();
 
                             nfca.close();
 
@@ -144,18 +162,18 @@ public final class MainActivity extends Activity {
                             to write id on last page to brake it
                              */
                             int lastBlockValidPages = 0; //last block page valid number
-                            for (int i = 0; i<4; i++){
+                            for (int i = 0; i < 4; i++) {
 
-                                if (readBlocks[lastSucessBlockIndex][i*4] == readBlocks[0][0]
-                                    && readBlocks[lastSucessBlockIndex][i*4+1] == readBlocks[0][1]
-                                    && readBlocks[lastSucessBlockIndex][i*4+2] == readBlocks[0][2]
-                                    && readBlocks[lastSucessBlockIndex][i*4+3] == readBlocks[0][3]){
+                                if (readBlocks.get(readBlocks.size() - 1)[i * 4] == readBlocks.get(0)[0]
+                                        && readBlocks.get(readBlocks.size() - 1)[i * 4 + 1] == readBlocks.get(0)[1]
+                                        && readBlocks.get(readBlocks.size() - 1)[i * 4 + 2] == readBlocks.get(0)[2]
+                                        && readBlocks.get(readBlocks.size() - 1)[i * 4 + 3] == readBlocks.get(0)[3]) {
                                     break;
                                 }
                                 lastBlockValidPages++;
                             }
 
-                            return decodeUltralight(readBlocks, lastSucessBlockIndex+1, lastBlockValidPages, atqa, sak, techList);
+                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, techList);
                         } catch (IOException ie) {
                             return getString(R.string.ticket_read_error);
                         }
@@ -176,12 +194,12 @@ public final class MainActivity extends Activity {
         }
     }
 
-    public String decodeUltralight(byte[][] readBlocks, int readBlocksNumber, int lastBlockValidPages, byte[] atqa, byte sak, String[] techList) {
+    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, String[] techList) {
         String prefix = "android.nfc.tech.";
-        int[] pages0 = toIntPages(readBlocks[0]);
-        int[] pages4 = toIntPages(readBlocks[1]);
-        int[] pages8 = toIntPages(readBlocks[2]);
-        int[] pages12 = toIntPages(readBlocks[3]);
+        int[] pages0 = toIntPages(readBlocks.get(0));
+        int[] pages4 = toIntPages(readBlocks.get(1));
+        int[] pages8 = toIntPages(readBlocks.get(2));
+        int[] pages12 = toIntPages(readBlocks.get(3));
 
         int[] p = {
           pages0[0], pages0[1], pages0[2], pages0[3],
@@ -237,7 +255,7 @@ public final class MainActivity extends Activity {
 
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
-        sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocksNumber-1) * 4 + lastBlockValidPages, ((readBlocksNumber-1) * 4 + lastBlockValidPages)*4));
+        sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocks.size()-1) * 4 + lastBlockValidPages, ((readBlocks.size()-1) * 4 + lastBlockValidPages)*4));
         sb.append("UID: ").append(String.format("%08x %08x\n", p[0],p[1]));
         sb.append(String.format("BCC0: %02x, BCC1: %02x\n", (p[0] & 0xffL),(p[2] & 0xff000000L) >> 24));
         sb.append("Manufacturer internal byte: ").append(String.format("%02x\n", int_byte));
@@ -280,20 +298,20 @@ public final class MainActivity extends Activity {
 
         sb.append("- - - Dump: - - -\n");
         // print all read blocks except last
-        for (int l=0;l<readBlocksNumber-1;l++){
+        for (int l=0;l<readBlocks.size()-1;l++){
             for (int k=0;k<4;k++){
                 sb.append(String.format("%02x: ",l*4+k));
                 for (int m=0;m<4;m++){
-                    sb.append(String.format("%02x ",readBlocks[l][k*4+m]));
+                    sb.append(String.format("%02x ",readBlocks.get(l)[k*4+m]));
                 }
                 sb.append("\n");
             }
         }
         // print only valid pages of last block
         for (int i=0; i<lastBlockValidPages; i++ ) {
-            sb.append(String.format("%02x: ", ((readBlocksNumber-1) * 4 + i)));
+            sb.append(String.format("%02x: ", ((readBlocks.size()-1) * 4 + i)));
             for (int m = 0; m < 4; m++) {
-                sb.append(String.format("%02x ", readBlocks[readBlocksNumber-1][i*4+m]));
+                sb.append(String.format("%02x ", readBlocks.get(readBlocks.size() - 1)[i*4+m]));
             }
             sb.append("\n");
         }
