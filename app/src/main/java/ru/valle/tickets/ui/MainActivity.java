@@ -214,14 +214,16 @@ public final class MainActivity extends Activity {
                 if((p[9] & 0xffff) != 0){
                     sb.append(getString(R.string.station_last_enter)).append(": ").append(getGateDesc(p[9] & 0xffff)).append('\n');
                 }
+                sb.append("- - - -\n");
                 sb.append("Layuot 8 (0x08).").append('\n');
                 break;
             case 13:
                 if((p[9] & 0xffff) != 0){
-                    sb.append(getString(R.string.last_enter_date)).append(": \n").append(getReadableDate((p[11] >>> 16) - 1)).append(" ");
-                    sb.append(getString(R.string.at)).append(String.format(" %02d:%02d, ", ((p[11] & 0xfff0) >>> 5)/60, ((p[11] & 0xfff0) >>> 5) % 60));
+                    sb.append(getString(R.string.last_enter_date)).append(": \n  ").append(getReadableDate((p[11] >>> 16) - 1)).append(" ");
+                    sb.append(getString(R.string.at)).append(String.format(" %02d:%02d,\n  ", ((p[11] & 0xfff0) >>> 5)/60, ((p[11] & 0xfff0) >>> 5) % 60));
                     sb.append(getString(R.string.station_last_enter)).append(" ").append(getGateDesc(p[9] & 0xffff)).append('\n');
                 }
+                sb.append("- - - -\n");
                 sb.append("Layuot 13 (0x0d).").append('\n');
                 break;
 
@@ -233,7 +235,6 @@ public final class MainActivity extends Activity {
         byte mf_code = (byte)((p[0] & 0xff000000L) >> 24);
         int int_byte = (int)((p[2] & 0x00ff0000L) >> 16);
 
-        sb.append("- - - -\n");
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
         sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocksNumber-1) * 4 + lastBlockValidPages, ((readBlocksNumber-1) * 4 + lastBlockValidPages)*4));
@@ -277,10 +278,11 @@ public final class MainActivity extends Activity {
                 break;
         }
 
-        sb.append("--- Dump: ---\n");
+        sb.append("- - - Dump: - - -\n");
+        // print all read blocks except last
         for (int l=0;l<readBlocksNumber-1;l++){
             for (int k=0;k<4;k++){
-                sb.append(String.format("p%02d: ",l*4+k));
+                sb.append(String.format("%02x: ",l*4+k));
                 for (int m=0;m<4;m++){
                     sb.append(String.format("%02x ",readBlocks[l][k*4+m]));
                 }
@@ -289,7 +291,7 @@ public final class MainActivity extends Activity {
         }
         // print only valid pages of last block
         for (int i=0; i<lastBlockValidPages; i++ ) {
-            sb.append(String.format("p%02d: ", ((readBlocksNumber-1) * 4 + i)));
+            sb.append(String.format("%02x: ", ((readBlocksNumber-1) * 4 + i)));
             for (int m = 0; m < 4; m++) {
                 sb.append(String.format("%02x ", readBlocks[readBlocksNumber-1][i*4+m]));
             }
@@ -313,9 +315,9 @@ public final class MainActivity extends Activity {
     private String getGateDesc(int id) {
 				String SN=Lang.tarnliterate(Decode.getStationName(id));
 				if ( SN.length() != 0 ) {
-            return "№" + id +" " +getString(R.string.station) + " " + Lang.tarnliterate(Decode.getStationName(id));
+                    return "№" + id +"\n  " +getString(R.string.station) + " " + Lang.tarnliterate(Decode.getStationName(id));
 				} else {
-						return "№" + id ;
+                    return "№" + id ;
 				}
     }
 

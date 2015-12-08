@@ -28,5 +28,6 @@ The MIT License (MIT)
 		android:layout_width="fill_parent"
 		android:fillViewport="true"
 		android:textSize="14dip"
+        android:typeface = "monospace"
 		android:id="@+id/body" />
 
