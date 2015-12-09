@@ -116,8 +116,22 @@ public final class MainActivity extends Activity {
                         try {
                             nfca.connect();
 
-                            ArrayList<byte[]> readBlocks = new ArrayList<byte[]>();
+                            byte[] hw_ver = new byte[8];
+                            try {
+                                byte[] cmd_ver = { 0x60 };
+                                hw_ver = nfca.transceive(cmd_ver);
+                            } catch (IOException ignored1) {
+                                hw_ver[0] = (byte)0x99;
+                            }
+                            nfca.close();
 
+                            nfca.connect();
+                            byte[] atqa = nfca.getAtqa();
+                            byte sak = (byte) nfca.getSak();
+                            nfca.close();
+
+                            ArrayList<byte[]> readBlocks = new ArrayList<byte[]>();
+                            nfca.connect();
                             for (int i = 0; i < 32; i++) {
                                 byte[] cmd = {0x30, (byte) (i * 4)};
                                 try {
@@ -137,6 +151,7 @@ public final class MainActivity extends Activity {
                                     break; // this 4 pages block totally out of band
                                 }
                             }
+                            nfca.close();
 
                             /*
                             If try to read Mifare 1K on devices without support this tag type 0 blocks returned
@@ -155,12 +170,6 @@ public final class MainActivity extends Activity {
                                 readBlocks.remove(readBlocks.size() - 1);
                             }
 
-
-                            byte[] atqa = nfca.getAtqa();
-                            byte sak = (byte) nfca.getSak();
-
-                            nfca.close();
-
                             /*
                             Attempt to exclude wrapped around information
                             from last page.
@@ -169,8 +178,8 @@ public final class MainActivity extends Activity {
                             to write id on last page to brake it
                              */
                             int lastBlockValidPages = 0; //last block page valid number
+// TODO: Sometime it fails with ArrayIndexOutOfBoundsException: length=1; index=4
                             for (int i = 0; i < 4; i++) {
-
                                 if (readBlocks.get(readBlocks.size() - 1)[i * 4] == readBlocks.get(0)[0]
                                         && readBlocks.get(readBlocks.size() - 1)[i * 4 + 1] == readBlocks.get(0)[1]
                                         && readBlocks.get(readBlocks.size() - 1)[i * 4 + 2] == readBlocks.get(0)[2]
@@ -179,8 +188,7 @@ public final class MainActivity extends Activity {
                                 }
                                 lastBlockValidPages++;
                             }
-
-                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, techList);
+                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, hw_ver, techList);
                         } catch (IOException ie) {
                             return getString(R.string.ticket_read_error);
                         }
@@ -201,8 +209,13 @@ public final class MainActivity extends Activity {
         }
     }
 
-    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, String[] techList) {
+    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, byte[] hw_ver, String[] techList) {
         String prefix = "android.nfc.tech.";
+
+        if (readBlocks.size() < 4){
+            Log.d(TAG,"Tag read partial");
+            return "Tag read partial. Try again.";
+        }
         int[] pages0 = toIntPages(readBlocks.get(0));
         int[] pages4 = toIntPages(readBlocks.get(1));
         int[] pages8 = toIntPages(readBlocks.get(2));
@@ -262,12 +275,41 @@ public final class MainActivity extends Activity {
 
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
-        sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocks.size()-1) * 4 + lastBlockValidPages, ((readBlocks.size()-1) * 4 + lastBlockValidPages)*4));
-        sb.append("UID: ").append(String.format("%08x %08x\n", p[0],p[1]));
-        sb.append(String.format("BCC0: %02x, BCC1: %02x\n", (p[0] & 0xffL),(p[2] & 0xff000000L) >> 24));
+        sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocks.size() - 1) * 4 + lastBlockValidPages, ((readBlocks.size() - 1) * 4 + lastBlockValidPages) * 4));
+        sb.append("UID: ").append(String.format("%08x %08x\n", p[0], p[1]));
+        sb.append(String.format("BCC0: %02x, BCC1: %02x", (p[0] & 0xffL), (p[2] & 0xff000000L) >> 24));
+
+        byte UID_BCC0_CRC = (byte)0x88; // CT byte, allwayse 0x88 in my case
+        UID_BCC0_CRC ^= readBlocks.get(0)[0];
+        UID_BCC0_CRC ^= readBlocks.get(0)[1];
+        UID_BCC0_CRC ^= readBlocks.get(0)[2];
+        UID_BCC0_CRC ^= readBlocks.get(0)[3]; //The BCC0 itself, if ok result is 0
+
+        byte UID_BCC1_CRC = (byte)0x00;
+        UID_BCC1_CRC ^= readBlocks.get(0)[4];
+        UID_BCC1_CRC ^= readBlocks.get(0)[5];
+        UID_BCC1_CRC ^= readBlocks.get(0)[6];
+        UID_BCC1_CRC ^= readBlocks.get(0)[7];
+        UID_BCC1_CRC ^= readBlocks.get(0)[8]; //The BCC1 itself, if ok result is 0
+
+        if (UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0){
+            sb.append(" (CRC OK)\n");
+        } else {
+            sb.append(" (CRC not OK)\n");
+        }
+
+        sb.append(String.format("Check BCC0: %02x, BCC1: %02x\n", UID_BCC0_CRC, UID_BCC1_CRC));
         sb.append("Manufacturer internal byte: ").append(String.format("%02x\n", int_byte));
         sb.append(String.format("ATQA: %02x %02x\n", atqa[1], atqa[0]));
         sb.append(String.format("SAK: %02x\n", sak));
+
+        if ( hw_ver[0] == 0x00 ){
+            sb.append("GET_VERSION: ");
+            for (int i=0; i<hw_ver.length;i++){
+                sb.append(String.format("%02x ",hw_ver[i]));
+            }
+            sb.append("\n");
+        }
 
         sb.append("Andriod technologies: \n   ");
         for (int i = 0; i < techList.length; i++){
@@ -291,7 +333,7 @@ public final class MainActivity extends Activity {
                         sb.append("MIK64PTAS(MIK640D) (80 bytes)");
                         break;
                     case 0xe0:
-                        sb.append("?MIK1312ED?(K5016XC1M1H4) (164 bytes)");
+                        sb.append("MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)");
                         break;
                     default:
                         sb.append("Unknown");

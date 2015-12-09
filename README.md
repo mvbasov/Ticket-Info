@@ -37,7 +37,8 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- 
+- Check UID CRC
+- Get and display answer to GET_VERSION command
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
