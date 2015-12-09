@@ -37,10 +37,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- Make screen scrollable
-- Read all information from card
-- Display dump
-- Display memory capacity information
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 

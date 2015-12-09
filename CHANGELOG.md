@@ -1,5 +1,13 @@
 ### Change log.
 
+#### Version 2.04b
+##### Date:   Wed Dec 9 16:43:29 2015 +0300, commit 3ee9a208b59621360024a5d8b0e289f811484972
+
+- Make screen scrollable
+- Read all information from card
+- Display dump
+- Display memory capacity information
+
 #### Version 2.03b
 ##### Date:   Thu Dec 3 14:55:58 2015 +0300, commit 52e6340c893d816fa944b76eb80c28096dd8a19d
 
