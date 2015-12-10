@@ -52,6 +52,7 @@ public class Decode
             case 10396:
             case 13347:
             case 10632:
+            case 13372:
                 return "Коньково";
             case 11501:
                 return "Киевская";

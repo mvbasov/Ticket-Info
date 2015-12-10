@@ -114,71 +114,88 @@ public final class MainActivity extends Activity {
                     @Override
                     protected String doInBackground(NfcA... paramss) {
                         try {
-                            nfca.connect();
 
-                            byte[] hw_ver = new byte[8];
-                            try {
-                                byte[] cmd_ver = { 0x60 };
-                                hw_ver = nfca.transceive(cmd_ver);
-                            } catch (IOException ignored1) {
-                                hw_ver[0] = (byte)0x99;
-                            }
-                            nfca.close();
-
-                            nfca.connect();
-                            byte[] atqa = nfca.getAtqa();
-                            byte sak = (byte) nfca.getSak();
-                            nfca.close();
 
                             ArrayList<byte[]> readBlocks = new ArrayList<byte[]>();
+
                             nfca.connect();
+
+                            byte[] atqa = nfca.getAtqa();
+                            byte sak = (byte) nfca.getSak();
+
                             for (int i = 0; i < 32; i++) {
                                 byte[] cmd = {0x30, (byte) (i * 4)};
                                 try {
-                                    //read 4 pages (4 bytes each) block
-                                    //catch IOException if index of page out of band
-                                    //wrap around p0 if try to read more then exists pages
+/*
+                                    Read 4 pages (4 bytes each) block.
+                                    Throw IOException if index of 1-st page out of band.
+                                    Wrap around p0 if try to read more then exists pages.
+                                    According to manufacturer data sheets read 4 pages of 4 bytes,
+                                    i.e. exactly 16 bytes in any case.
+                                    But, on some devices (Sony Xperia Z1 with Android 5.1.1, for example)
+                                    last block with only one byte generated.
+                                    Other devices (Samsung Galaxy S IV with Andpoid 5.0.1, for example)
+                                    lead manufacturer description.
+*/
                                     readBlocks.add(nfca.transceive(cmd));
+                                    if ( readBlocks.get(readBlocks.size()-1).length != 16 ) {
+                                        //Remove wrong block and finish
+                                        readBlocks.remove(readBlocks.size()-1);
+                                        break;
+                                    }
 
-//                                    StringBuilder sbx = new StringBuilder();
-//                                    for (byte b : readBlocks.get(readBlocks.size() - 1)) {
-//                                        sbx.append(String.format("%02x, ", b & 0xff));
-//                                    }
-//                                    sbx.setLength(sbx.length() - 2);
-//                                    Log.d(TAG, String.format("%02x: %s\n", i, sbx));
+/*
+// TODO: delete this debug code from here:
+                                    for (byte b : readBlocks.get(readBlocks.size() - 1)) {
+                                        sbx.append(String.format("%02x, ", b & 0xff));
+                                    StringBuilder sbx = new StringBuilder();
+                                    }
+                                    sbx.setLength(sbx.length() - 2); // remove last comma
+                                    Log.d(TAG, String.format("%02x: %s\n", i, sbx));
+// TODO: to here.
+*/
 
                                 } catch (IOException ignored0) {
                                     break; // this 4 pages block totally out of band
                                 }
                             }
-                            nfca.close();
 
-                            /*
+/*
                             If try to read Mifare 1K on devices without support this tag type 0 blocks returned
                             If try to read using NfcA library Mifare 1K on devices with support only one block with one byte returned
-                             */
-                            if (readBlocks.isEmpty() || readBlocks.get(0).length == 1) return getString(R.string.unsupported_tag_type);
+*/
+                            if (readBlocks.isEmpty()) return getString(R.string.unsupported_tag_type);
 
-                            /*
-                            On some devices (Sony Xperia Z1 with Android 5.1.1, for example)
-                            last block with only one byte generated.
-                            On other devices (Smsung Galaxy S IV with Andpoid 5.0.1, for example)
-                            it is not true.
-                            The following code remove it unnessesary block
-                             */
-                            if (readBlocks.get(readBlocks.size() - 1).length == 1) {
-                                readBlocks.remove(readBlocks.size() - 1);
+/*
+                            Read answer to GET_VERSION command
+                            This code  may be wrapped around by connect/close
+                            because in case of wrong execution
+                            it block continue reading without reconnect
+                            It found experimentally.
+*/
+                            byte[] hw_ver = new byte[8];
+                            hw_ver[0] = (byte) 0x77;
+                            // Because 1-st byte of normal frame must be 0x00
+                            // I use 0x77(initial value) and 0x99(unsuccessful) as flags
+                            if ( (readBlocks.get(0)[0] == (byte)0x04 && readBlocks.size() == 5) ||          // MF0ULx1 (80 bytes)
+                                    (readBlocks.get(0)[0] == (byte)0x34 && readBlocks.size() == 11)  ) {    // MIK1312ED (164 bytes)
+                                try {
+                                    byte[] cmd_ver = {0x60};
+                                    hw_ver = nfca.transceive(cmd_ver);
+                                } catch (IOException ignored1) {
+                                    hw_ver[0] = (byte) 0x99; // set unsuccessful flag
+                                }
                             }
 
-                            /*
-                            Attempt to exclude wrapped around information
-                            from last page.
+                            nfca.close();
+
+/*
+                            Attempt to exclude wrapped around information from last page.
                             WARNING:
                             Not strong algorithm. It is possible
                             to write id on last page to brake it
-                             */
+*/
                             int lastBlockValidPages = 0; //last block page valid number
-// TODO: Sometime it fails with ArrayIndexOutOfBoundsException: length=1; index=4
                             for (int i = 0; i < 4; i++) {
                                 if (readBlocks.get(readBlocks.size() - 1)[i * 4] == readBlocks.get(0)[0]
                                         && readBlocks.get(readBlocks.size() - 1)[i * 4 + 1] == readBlocks.get(0)[1]
@@ -246,7 +263,7 @@ public final class MainActivity extends Activity {
         sb.append("- - - -\n");
         sb.append(getString(R.string.passes_left)).append(": ").append((p[9] >>> 16) & 0xff).append('\n');
 
-        int cardLayout = ((p[5] >> 8) & 0xf);
+        int cardLayout = ((p[5] >>> 8) & 0xf);
         switch (cardLayout) {
             case 8:
                 if((p[9] & 0xffff) != 0){
@@ -270,8 +287,8 @@ public final class MainActivity extends Activity {
                 break;
         }
 
-        byte mf_code = (byte)((p[0] & 0xff000000L) >> 24);
-        int int_byte = (int)((p[2] & 0x00ff0000L) >> 16);
+        byte mf_code = (byte)((p[0] & 0xff000000L) >>> 24);
+        int int_byte = (int)((p[2] & 0x00ff0000L) >>> 16);
 
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
@@ -279,7 +296,7 @@ public final class MainActivity extends Activity {
         sb.append("UID: ").append(String.format("%08x %08x\n", p[0], p[1]));
         sb.append(String.format("BCC0: %02x, BCC1: %02x", (p[0] & 0xffL), (p[2] & 0xff000000L) >> 24));
 
-        byte UID_BCC0_CRC = (byte)0x88; // CT byte, allwayse 0x88 in my case
+        byte UID_BCC0_CRC = (byte)0x88; // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
         UID_BCC0_CRC ^= readBlocks.get(0)[0];
         UID_BCC0_CRC ^= readBlocks.get(0)[1];
         UID_BCC0_CRC ^= readBlocks.get(0)[2];
@@ -323,19 +340,41 @@ public final class MainActivity extends Activity {
         switch (mf_code){
             case 0x04:
                 sb.append("NXP Semiconductors (Philips) Germany\n");
+                sb.append("Chip: ");
+                if (readBlocks.size() == 4) {
+                    sb.append("(probably)MF0ICU1 (64 bytes)");
+                } else if (hw_ver[0] == (byte)0x00 &&
+                        hw_ver[1] == (byte)0x04 &&
+                        hw_ver[2] == (byte)0x03 &&
+                        hw_ver[4] == (byte)0x01){
+                    sb.append("MF0ULx1 (80 bytes)");
+/*
+                     according to data sheet byte 3 need to be:
+                     - 0x01 (17pF version MF0L(1|2)1)
+                     - 0x02 (50pF version MF0LH(1|2)1)
+                     but all tickets I've seen had 0x03 value in this byte
+                     I don't know what does it mead and don't use this
+                     byte for identification.
+*/
+                } else {
+                    sb.append("Unknown\n");
+                }
+                sb.append('\n');
                 break;
             case 0x34:
                 sb.append("JSC Micron Russia\n");
-                sb.append("Chip (probably): ");
-                switch (int_byte) {
-                    case 0x0b:
-                        sb.append("MIK64PTAS(MIK640D) (80 bytes)");
-                        break;
-                    case 0xe0:
-                        sb.append("MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)");
-                        break;
-                    default:
-                        sb.append("Unknown");
+                sb.append("Chip: ");
+                if (readBlocks.size() == 5) {
+                    sb.append("(probably) MIK64PTAS(MIK640D) (80 bytes)");
+                } else if (hw_ver[0] == (byte)0x00 &&
+                        hw_ver[1] == (byte)0x34 &&
+                        hw_ver[2] == (byte)0x21 &&
+                        hw_ver[3] == (byte)0x01 &&
+                        hw_ver[4] == (byte)0x01 &&
+                        hw_ver[5] == (byte)0x00){
+                    sb.append("MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)");
+                } else {
+                    sb.append("Unknown");
                 }
                 sb.append('\n');
                 break;
@@ -379,12 +418,12 @@ public final class MainActivity extends Activity {
     }
 
     private String getGateDesc(int id) {
-				String SN=Lang.tarnliterate(Decode.getStationName(id));
-				if ( SN.length() != 0 ) {
-                    return "№" + id +"\n  " +getString(R.string.station) + " " + Lang.tarnliterate(Decode.getStationName(id));
-				} else {
-                    return "№" + id ;
-				}
+        String SN=Lang.tarnliterate(Decode.getStationName(id));
+        if ( SN.length() != 0 ) {
+            return "№" + id +"\n  " +getString(R.string.station) + " " + Lang.tarnliterate(Decode.getStationName(id));
+        } else {
+            return "№" + id ;
+        }
     }
 
     private static int[] toIntPages(byte[] pagesBytes) {
