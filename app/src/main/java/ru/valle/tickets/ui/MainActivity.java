@@ -166,13 +166,14 @@ public final class MainActivity extends Activity {
 */
                             if (readBlocks.isEmpty()) return getString(R.string.unsupported_tag_type);
 
+                            nfca.close();
 /*
-                            Read answer to GET_VERSION command
-                            This code  may be wrapped around by connect/close
-                            because in case of wrong execution
-                            it block continue reading without reconnect
+                            Read answer to GET_VERSION command.
+                            This code mast be wrapped around by connect/close.
+                            In other case it lead strange side effects.
                             It found experimentally.
 */
+                            nfca.connect();
                             byte[] hw_ver = new byte[8];
                             hw_ver[0] = (byte) 0x77;
                             // Because 1-st byte of normal frame must be 0x00
