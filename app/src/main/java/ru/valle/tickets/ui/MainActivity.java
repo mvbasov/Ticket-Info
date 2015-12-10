@@ -297,8 +297,7 @@ public final class MainActivity extends Activity {
         } else {
             sb.append(" (CRC not OK)\n");
         }
-
-        sb.append(String.format("Check BCC0: %02x, BCC1: %02x\n", UID_BCC0_CRC, UID_BCC1_CRC));
+        
         sb.append("Manufacturer internal byte: ").append(String.format("%02x\n", int_byte));
         sb.append(String.format("ATQA: %02x %02x\n", atqa[1], atqa[0]));
         sb.append(String.format("SAK: %02x\n", sak));
