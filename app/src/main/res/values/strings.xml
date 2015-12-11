@@ -11,7 +11,7 @@
   <string name="best_in_days">Valid in days</string>
   <string name="station_last_enter">gate entered</string>
   <string name="ticket_hash">Hash</string>
-  <string name="ticket_blank_best_before">Ticket blank is valid before</string>
+  <string name="start_use_before">Start use before</string>
   <string name="unknown_layout">Unknown ticket layout</string>
   <string name="otp">OTP</string>
   <string name="baggage_and_pass">baggage + pass</string>
