@@ -29,4 +29,5 @@
   <string name="at">at</string>
   <string name="station">on station</string>
   <string name="unsupported_tag_type">0 pages read. Possible unsupported tag type.</string>
+  <string name="sell_by_driver">(sell by ground transport driver)</string>
 </resources>

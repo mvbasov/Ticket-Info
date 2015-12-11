@@ -104,6 +104,8 @@ public class Decode
                 return "20 " + Lang.getNounCase(20, R.array.trip_cases, c);
             case 129:
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
+            case 410:
+                return c.getString(R.string.universal)+c.getString(R.string.sell_by_driver)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 411:
                 return c.getString(R.string.universal) + ", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 412:
