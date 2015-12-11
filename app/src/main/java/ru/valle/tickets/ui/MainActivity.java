@@ -513,6 +513,7 @@ public final class MainActivity extends Activity {
         sb.append(":f: - factory locked\n");
         sb.append(":r: - read only\n");
         sb.append(":p: - partially writable\n");
+        sb.append(":o: - One Time Programming (OTP)\n");
         sb.append(":w: - writable\n");
         sb.append(":a: - authentication require for write\n");
         sb.append(":s: - special\n");
