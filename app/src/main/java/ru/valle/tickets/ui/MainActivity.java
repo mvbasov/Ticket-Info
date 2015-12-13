@@ -50,24 +50,26 @@ import ru.valle.tickets.R;
 public final class MainActivity extends Activity {
 
     // Constants definition
-    final int MAX_PAGES = 64;
+    static final int MAX_PAGES = 64;
 
-    final byte AC_UNKNOWN = 0;
-    final byte FACTORY_LOCKED = AC_UNKNOWN + 1;
-    final byte READ_ONLY = AC_UNKNOWN + 2;
-    final byte PARTIAL_WRITE = AC_UNKNOWN + 3;
-    final byte WRITE = AC_UNKNOWN + 4;
-    final byte OTP = AC_UNKNOWN + 5;
-    final byte AUTH_REQUIRE = AC_UNKNOWN + 6;
-    final byte SPECIAL = AC_UNKNOWN + 7;
+    static final byte AC_UNKNOWN = 0;
+    static final byte AC_FACTORY_LOCKED = AC_UNKNOWN + 1;
+    static final byte AC_READ_ONLY = AC_UNKNOWN + 2;
+    static final byte AC_PARTIAL_WRITE = AC_UNKNOWN + 3;
+    static final byte AC_WRITE = AC_UNKNOWN + 4;
+    static final byte AC_OTP = AC_UNKNOWN + 5;
+    static final byte AC_AUTH_REQUIRE = AC_UNKNOWN + 6;
+    static final byte AC_INTERAL_USE = AC_UNKNOWN + 7;
+    static final byte AC_SPECIAL = AC_UNKNOWN + 8;
 
-    final byte IC_UNKNOWN = 0;
-    final byte IC_MF0ICU1 = IC_UNKNOWN + 1;
-    final byte IC_MF0ULx1 = IC_UNKNOWN + 2;
-    final byte IC_MIK640D = IC_UNKNOWN + 3;
-    final byte IC_MIK1312ED = IC_UNKNOWN + 4;
+    static final byte IC_UNKNOWN = 0;
+    static final byte IC_MF0ICU1 = IC_UNKNOWN + 1;
+    static final byte IC_MF0ULx1 = IC_UNKNOWN + 2;
+    static final byte IC_MIK640D = IC_UNKNOWN + 3;
+    static final byte IC_MIK1312ED = IC_UNKNOWN + 4;
 
     static final String TAG = "tickets";
+    
     private TextView text;
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
@@ -91,6 +93,7 @@ public final class MainActivity extends Activity {
 
         df = new SimpleDateFormat("dd.MM.yyyy");
         onNewIntent(getIntent());
+// TODO: Check NFC is switched on  
         adapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -136,6 +139,7 @@ public final class MainActivity extends Activity {
 
 
                             ArrayList<byte[]> readBlocks = new ArrayList<byte[]>();
+                            ArrayList<byte[]> readCounters = new ArrayList<byte[]>();
 
                             nfca.connect();
 
@@ -163,16 +167,14 @@ public final class MainActivity extends Activity {
                                         break;
                                     }
 
-/*
-// TODO: delete this debug code from here:
+/* TODO: delete this debug code from here:
                                     for (byte b : readBlocks.get(readBlocks.size() - 1)) {
                                         sbx.append(String.format("%02x, ", b & 0xff));
                                     StringBuilder sbx = new StringBuilder();
                                     }
                                     sbx.setLength(sbx.length() - 2); // remove last comma
                                     Log.d(TAG, String.format("%02x: %s\n", i, sbx));
-// TODO: to here.
-*/
+TODO: to here. */
 
                                 } catch (IOException ignored0) {
                                     break; // this 4 pages block totally out of band
@@ -197,14 +199,39 @@ public final class MainActivity extends Activity {
                             hw_ver[0] = (byte) 0x77;
                             // Because 1-st byte of normal frame must be 0x00
                             // I use 0x77(initial value) and 0x99(unsuccessful) as flags
-                            if ( (readBlocks.get(0)[0] == (byte)0x04 && readBlocks.size() == 5) ||          // MF0ULx1 (80 bytes)
-                                    (readBlocks.get(0)[0] == (byte)0x34 && readBlocks.size() == 11)  ) {    // MIK1312ED (164 bytes)
+                            if ( (readBlocks.get(0)[0] == (byte)0x04 && readBlocks.size() == 5) ||     // MF0ULx1 (80 bytes)
+                                 (readBlocks.get(0)[0] == (byte)0x34 && readBlocks.size() == 11)  ) {  // MIK1312ED (164 bytes)
                                 try {
                                     byte[] cmd_ver = {0x60};
                                     hw_ver = nfca.transceive(cmd_ver);
                                 } catch (IOException ignored1) {
                                     hw_ver[0] = (byte) 0x99; // set unsuccessful flag
                                 }
+                                try {
+                                    byte[] cmd_read_cnt = {(byte) 0x39, (byte) 0x00 };
+                                    for ( int i = 0; i < 3; i++ ) {
+                                        cmd_read_cnt[1] = (byte)i;
+                                        readCounters.add(nfca.transceive(cmd_read_cnt));
+                                    }
+                                } catch (IOException ignored2) {
+                                    
+                                }
+/* TODO: delete this debug code from here:       
+                                // The following code need only for test counter increment functionality.
+                                // Doesn't need to dump functionality.
+                                // WARNING! Counters are one way!
+                                try {
+                                        byte[] cmd_incr_cnt = {
+                                            (byte)0xa5, 
+                                            (byte)0x00,  // increment counter 0
+                                            // LSB 1-st, 4-th byte need but ignored.
+                                            // 0 increment is valid but has no effect.
+                                            (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00};
+                                            
+                                    readCounters.add(nfca.transceive(cmd_incr_cnt));
+                                    
+                                } catch (IOException ignored3) {}
+TODO: to here. */                          
                             }
 
                             nfca.close();
@@ -225,7 +252,7 @@ public final class MainActivity extends Activity {
                                 }
                                 lastBlockValidPages++;
                             }
-                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, hw_ver, techList);
+                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, hw_ver, readCounters, techList);
                         } catch (IOException ie) {
                             return getString(R.string.ticket_read_error);
                         }
@@ -233,6 +260,7 @@ public final class MainActivity extends Activity {
 
                     @Override
                     protected void onPostExecute(String result) {
+// TODO: Write continious (optional) log
                         text.setText(result);
                     }
                 }.execute(nfca);
@@ -246,7 +274,7 @@ public final class MainActivity extends Activity {
         }
     }
 
-    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, byte[] hw_ver, String[] techList) {
+    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, byte[] hw_ver, ArrayList<byte[]> readCounters, String[] techList) {
         String prefix = "android.nfc.tech.";
 
         if (readBlocks.size() < 4){
@@ -310,14 +338,14 @@ public final class MainActivity extends Activity {
         byte mf_code = (byte)((p[0] & 0xff000000L) >>> 24);
         int int_byte = (int)((p[2] & 0x00ff0000L) >>> 16);
 
-        sb.append(String.format("App ID: %d\n", p[4] >>> 22));
-        sb.append(String.format("Type: %d\n",(p[4] >>> 12) & 0x3ff));
+        sb.append(String.format("App ID: %d (0x%03x)\n", p[4] >>> 22, p[4] >>> 22));
+        sb.append(String.format("Type: %d (0x%03x)\n",(p[4] >>> 12) & 0x3ff, (p[4] >>> 12) & 0x3ff));
 
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
-        sb.append(String.format("4 byte pages read: %d (total %d bytes)\n", (readBlocks.size() - 1) * 4 + lastBlockValidPages, ((readBlocks.size() - 1) * 4 + lastBlockValidPages) * 4));
+        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n", (readBlocks.size() - 1) * 4 + lastBlockValidPages, ((readBlocks.size() - 1) * 4 + lastBlockValidPages) * 4));
         sb.append("UID: ").append(String.format("%08x %08x\n", p[0], p[1]));
-        sb.append(String.format("BCC0: %02x, BCC1: %02x", (p[0] & 0xffL), (p[2] & 0xff000000L) >> 24));
+        sb.append(String.format("  BCC0: %02x, BCC1: %02x", (p[0] & 0xffL), (p[2] & 0xff000000L) >> 24));
 
         byte UID_BCC0_CRC = (byte)0x88; // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
         UID_BCC0_CRC ^= readBlocks.get(0)[0];
@@ -348,6 +376,18 @@ public final class MainActivity extends Activity {
                 sb.append(String.format("%02x ",hw_ver[i]));
             }
             sb.append("\n");
+        }
+        
+        if ( ! readCounters.isEmpty() ) {
+            sb.append("Counters(hex):\n");
+            for (int i = 0; i < readCounters.size(); i++ ) {
+                sb.append(String.format("  %01x: ", i ));
+                // LSB is 1-st
+                for (int j = (readCounters.get(i).length - 1); j >= 0; j--){
+                    sb.append(String.format("%02x", readCounters.get(i)[j]));
+                }
+                sb.append("\n");
+            }
         }
 
         sb.append("Andriod technologies: \n   ");
@@ -413,71 +453,71 @@ public final class MainActivity extends Activity {
         byte[] lPageAccess = new byte[MAX_PAGES];
         for (int i = 0; i < MAX_PAGES-1; i++){
             lPageAccess[1] = AC_UNKNOWN;
-        };
-        lPageAccess[0] = FACTORY_LOCKED;
-        lPageAccess[1] = FACTORY_LOCKED;
-        lPageAccess[2] = (p[2] & 0x90) != 0 ? READ_ONLY : PARTIAL_WRITE;
-        lPageAccess[3] = OTP;
-        lPageAccess[4] = ((p[2] & 0x1000) | (p[2] & 0x0200)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[5] = ((p[2] & 0x2000) | (p[2] & 0x0200)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[6] = ((p[2] & 0x4000) | (p[2] & 0x0200)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[7] = ((p[2] & 0x8000) | (p[2] & 0x0200)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[8] = ((p[2] & 0x0001) | (p[2] & 0x0200)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[9] = ((p[2] & 0x0002) | (p[2] & 0x0200)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[10] = ((p[2] & 0x0004) | (p[2] & 0x0400)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[11] = ((p[2] & 0x0008) | (p[2] & 0x0400)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[12] = ((p[2] & 0x0010) | (p[2] & 0x0400)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[13] = ((p[2] & 0x0020) | (p[2] & 0x0400)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[14] = ((p[2] & 0x0040) | (p[2] & 0x0400)) != 0 ? READ_ONLY : WRITE;
-        lPageAccess[15] = ((p[2] & 0x0080) | (p[2] & 0x0400)) != 0 ? READ_ONLY : WRITE;
+        }
+        lPageAccess[0] = AC_FACTORY_LOCKED;
+        lPageAccess[1] = AC_FACTORY_LOCKED;
+        lPageAccess[2] = (p[2] & 0x90) != 0 ? AC_READ_ONLY : AC_PARTIAL_WRITE;
+        lPageAccess[3] = AC_OTP;
+        lPageAccess[4] = ((p[2] & 0x1000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[5] = ((p[2] & 0x2000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[6] = ((p[2] & 0x4000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[7] = ((p[2] & 0x8000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[8] = ((p[2] & 0x0001) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[9] = ((p[2] & 0x0002) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[10] = ((p[2] & 0x0004) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[11] = ((p[2] & 0x0008) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[12] = ((p[2] & 0x0010) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[13] = ((p[2] & 0x0020) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[14] = ((p[2] & 0x0040) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        lPageAccess[15] = ((p[2] & 0x0080) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
 
         switch (ICType) {
             case IC_MF0ULx1:
-                lPageAccess[16] = SPECIAL;
-                lPageAccess[17] = SPECIAL;
-                lPageAccess[18] = SPECIAL;
-                lPageAccess[19] = SPECIAL;
-                if (readBlocks.get((int)16/(int)4)[3] != (byte)0xff) {
-                    for (int i = (int)(readBlocks.get((int)16/(int)4)[3] & 0x0ffL); i < MAX_PAGES - 1; i++){
-                        lPageAccess[i] = AUTH_REQUIRE;
+                lPageAccess[16] = AC_SPECIAL;
+                lPageAccess[17] = AC_SPECIAL;
+                lPageAccess[18] = AC_SPECIAL;
+                lPageAccess[19] = AC_SPECIAL;
+                if (readBlocks.get(16/4)[3] != (byte)0xff) {
+                    for (int i = (int)(readBlocks.get(16/4)[3] & 0x0ffL); i < MAX_PAGES - 1; i++){
+                        lPageAccess[i] = AC_AUTH_REQUIRE;
                     }
                 }
                 break;
             case IC_MIK640D:
-                lPageAccess[16] = OTP;
-                lPageAccess[17] = OTP;
-                lPageAccess[18] = OTP;
-                lPageAccess[19] = OTP;
+                lPageAccess[16] = AC_OTP;
+                lPageAccess[17] = AC_OTP;
+                lPageAccess[18] = AC_OTP;
+                lPageAccess[19] = AC_INTERAL_USE;
                 break;
             case IC_MIK1312ED:
-                lPageAccess[16] = ((readBlocks.get((int)36/(int)4)[0] & 0x01) | (readBlocks.get((int)36/(int)4)[2] & 0x01)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[17] = ((readBlocks.get((int)36/(int)4)[0] & 0x01) | (readBlocks.get((int)36/(int)4)[2] & 0x01)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[18] = ((readBlocks.get((int)36/(int)4)[0] & 0x02) | (readBlocks.get((int)36/(int)4)[2] & 0x01)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[19] = ((readBlocks.get((int)36/(int)4)[0] & 0x02) | (readBlocks.get((int)36/(int)4)[2] & 0x01)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[20] = ((readBlocks.get((int)36/(int)4)[0] & 0x04) | (readBlocks.get((int)36/(int)4)[2] & 0x02)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[21] = ((readBlocks.get((int)36/(int)4)[0] & 0x04) | (readBlocks.get((int)36/(int)4)[2] & 0x02)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[22] = ((readBlocks.get((int)36/(int)4)[0] & 0x08) | (readBlocks.get((int)36/(int)4)[2] & 0x02)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[23] = ((readBlocks.get((int)36/(int)4)[0] & 0x08) | (readBlocks.get((int)36/(int)4)[2] & 0x02)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[24] = ((readBlocks.get((int)36/(int)4)[0] & 0x10) | (readBlocks.get((int)36/(int)4)[2] & 0x04)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[25] = ((readBlocks.get((int)36/(int)4)[0] & 0x10) | (readBlocks.get((int)36/(int)4)[2] & 0x04)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[26] = ((readBlocks.get((int)36/(int)4)[0] & 0x20) | (readBlocks.get((int)36/(int)4)[2] & 0x04)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[27] = ((readBlocks.get((int)36/(int)4)[0] & 0x20) | (readBlocks.get((int)36/(int)4)[2] & 0x04)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[28] = ((readBlocks.get((int)36/(int)4)[0] & 0x40) | (readBlocks.get((int)36/(int)4)[2] & 0x08)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[29] = ((readBlocks.get((int)36/(int)4)[0] & 0x40) | (readBlocks.get((int)36/(int)4)[2] & 0x08)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[30] = ((readBlocks.get((int)36/(int)4)[0] & 0x80) | (readBlocks.get((int)36/(int)4)[2] & 0x08)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[31] = ((readBlocks.get((int)36/(int)4)[0] & 0x80) | (readBlocks.get((int)36/(int)4)[2] & 0x08)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[32] = ((readBlocks.get((int)36/(int)4)[1] & 0x01) | (readBlocks.get((int)36/(int)4)[2] & 0x10)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[33] = ((readBlocks.get((int)36/(int)4)[1] & 0x01) | (readBlocks.get((int)36/(int)4)[2] & 0x10)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[34] = ((readBlocks.get((int)36/(int)4)[1] & 0x02) | (readBlocks.get((int)36/(int)4)[2] & 0x10)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[35] = ((readBlocks.get((int)36/(int)4)[1] & 0x02) | (readBlocks.get((int)36/(int)4)[2] & 0x10)) != 0 ? READ_ONLY : WRITE;
-                lPageAccess[36] = SPECIAL;
-                lPageAccess[37] = SPECIAL;
-                lPageAccess[38] = SPECIAL;
-                lPageAccess[39] = SPECIAL;
-                lPageAccess[40] = SPECIAL;
-                if (readBlocks.get((int)37/(int)4)[3] != (byte)0xff) {
-                    for (int i = (int)(readBlocks.get((int)37/(int)4)[3] & 0x0ffL); i < MAX_PAGES - 1; i++){
-                        lPageAccess[(byte)i] = AUTH_REQUIRE;
+                lPageAccess[16] = ((readBlocks.get(36/4)[0] & 0x01) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[17] = ((readBlocks.get(36/4)[0] & 0x01) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[18] = ((readBlocks.get(36/4)[0] & 0x02) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[19] = ((readBlocks.get(36/4)[0] & 0x02) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[20] = ((readBlocks.get(36/4)[0] & 0x04) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[21] = ((readBlocks.get(36/4)[0] & 0x04) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[22] = ((readBlocks.get(36/4)[0] & 0x08) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[23] = ((readBlocks.get(36/4)[0] & 0x08) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[24] = ((readBlocks.get(36/4)[0] & 0x10) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[25] = ((readBlocks.get(36/4)[0] & 0x10) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[26] = ((readBlocks.get(36/4)[0] & 0x20) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[27] = ((readBlocks.get(36/4)[0] & 0x20) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[28] = ((readBlocks.get(36/4)[0] & 0x40) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[29] = ((readBlocks.get(36/4)[0] & 0x40) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[30] = ((readBlocks.get(36/4)[0] & 0x80) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[31] = ((readBlocks.get(36/4)[0] & 0x80) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[32] = ((readBlocks.get(36/4)[1] & 0x01) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[33] = ((readBlocks.get(36/4)[1] & 0x01) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[34] = ((readBlocks.get(36/4)[1] & 0x02) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[35] = ((readBlocks.get(36/4)[1] & 0x02) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                lPageAccess[36] = AC_SPECIAL;
+                lPageAccess[37] = AC_SPECIAL;
+                lPageAccess[38] = AC_SPECIAL;
+                lPageAccess[39] = AC_SPECIAL;
+                lPageAccess[40] = AC_SPECIAL;
+                if (readBlocks.get(37/4)[3] != (byte)0xff) {
+                    for (int i = (int)(readBlocks.get(37/4)[3] & 0x0ffL); i < MAX_PAGES - 1; i++){
+                        lPageAccess[(byte)i] = AC_AUTH_REQUIRE;
                     }
                 }
                 break;
@@ -517,6 +557,7 @@ public final class MainActivity extends Activity {
         sb.append(":w: - writable\n");
         sb.append(":a: - authentication require for write\n");
         sb.append(":s: - special\n");
+        sb.append(":i: - reserved for internal use\n");
 
         return sb.toString();
     }
@@ -542,19 +583,21 @@ public final class MainActivity extends Activity {
         switch (ac){
             case AC_UNKNOWN:
                 return "u";
-            case FACTORY_LOCKED:
+            case AC_FACTORY_LOCKED:
                 return "f";
-            case READ_ONLY:
+            case AC_READ_ONLY:
                 return "r";
-            case PARTIAL_WRITE:
+            case AC_PARTIAL_WRITE:
                 return "p";
-            case WRITE:
+            case AC_WRITE:
                 return "w";
-            case OTP:
+            case AC_OTP:
                 return "o";
-            case SPECIAL:
+            case AC_SPECIAL:
                 return "s";
-            case AUTH_REQUIRE:
+            case AC_INTERAL_USE:
+                return "i";
+            case AC_AUTH_REQUIRE:
                 return "a";
             default:
                 return "n";

@@ -89,7 +89,8 @@ public class Decode
         switch (ct) {
             case 120:
                 return "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
-            case 121:
+            case 121:  // metro?
+            case 602:  // ground
                 return "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case 122:  // metro
             case 608:  // ground
