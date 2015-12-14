@@ -53,6 +53,7 @@ public class Decode
             case 13347:
             case 10632:
             case 13372:
+            case 11109:
                 return "Коньково";
             case 11501:
                 return "Киевская";
@@ -92,8 +93,9 @@ public class Decode
             case 121:  // metro?
             case 602:  // ground
                 return "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
+            case 608:  // ground, sell by driver
+                return "3 " + Lang.getNounCase(3, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
             case 122:  // metro
-            case 608:  // ground
                 return "3 " + Lang.getNounCase(3, R.array.trip_cases, c);
             case 123:
                 return "4 " + Lang.getNounCase(4, R.array.trip_cases, c);
@@ -106,7 +108,7 @@ public class Decode
             case 129:
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 410:
-                return c.getString(R.string.universal)+c.getString(R.string.sell_by_driver)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
+                return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
             case 411:
                 return c.getString(R.string.universal) + ", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 412:

@@ -140,6 +140,7 @@ public final class MainActivity extends Activity {
 
                             ArrayList<byte[]> readBlocks = new ArrayList<byte[]>();
                             ArrayList<byte[]> readCounters = new ArrayList<byte[]>();
+                            byte[] readSign = new byte[1];
 
                             nfca.connect();
 
@@ -231,7 +232,19 @@ TODO: to here. */
                                     readCounters.add(nfca.transceive(cmd_incr_cnt));
                                     
                                 } catch (IOException ignored3) {}
-TODO: to here. */                          
+TODO: to here. */    
+                                try {
+                                    readSign[0] = (byte)0x99;
+                                    byte[] cmd_read_sign = {
+                                        (byte)0x3c,
+                                        (byte)0x00};                                                                           
+                                    readSign = nfca.transceive(cmd_read_sign);
+
+                                } catch (IOException ignored4) {
+                                    readSign = new byte[1];
+                                    readSign[0] = 0;
+                                }
+                                                   
                             }
 
                             nfca.close();
@@ -252,7 +265,7 @@ TODO: to here. */
                                 }
                                 lastBlockValidPages++;
                             }
-                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, hw_ver, readCounters, techList);
+                            return decodeUltralight(readBlocks, lastBlockValidPages, atqa, sak, hw_ver, readCounters, readSign, techList);
                         } catch (IOException ie) {
                             return getString(R.string.ticket_read_error);
                         }
@@ -274,7 +287,7 @@ TODO: to here. */
         }
     }
 
-    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, byte[] hw_ver, ArrayList<byte[]> readCounters, String[] techList) {
+    public String decodeUltralight(ArrayList<byte []> readBlocks, int lastBlockValidPages, byte[] atqa, byte sak, byte[] hw_ver, ArrayList<byte[]> readCounters, byte[] readSign, String[] techList) {
         String prefix = "android.nfc.tech.";
 
         if (readBlocks.size() < 4){
@@ -388,6 +401,15 @@ TODO: to here. */
                 }
                 sb.append("\n");
             }
+        }
+        
+        if (readSign.length > 1){
+            sb.append("READ_SIG:\n  ");
+            for (int i=0; i<readSign.length;i++){
+                sb.append(String.format("%02x",readSign[i]));
+                if ((i + 1) % 16 == 0 && (i + 1) != 32) sb.append("\n  ");
+            }
+            sb.append("\n");
         }
 
         sb.append("Andriod technologies: \n   ");
