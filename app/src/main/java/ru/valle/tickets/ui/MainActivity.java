@@ -412,7 +412,7 @@ TODO: to here. */
             sb.append("\n");
         }
 
-        sb.append("Andriod technologies: \n   ");
+        sb.append("Android technologies: \n   ");
         for (int i = 0; i < techList.length; i++){
             if (i != 0){
                 sb.append(", ");
@@ -472,74 +472,74 @@ TODO: to here. */
                 break;
         }
 
-        byte[] lPageAccess = new byte[MAX_PAGES];
+        byte[] pageAccess = new byte[MAX_PAGES];
         for (int i = 0; i < MAX_PAGES-1; i++){
-            lPageAccess[1] = AC_UNKNOWN;
+            pageAccess[1] = AC_UNKNOWN;
         }
-        lPageAccess[0] = AC_FACTORY_LOCKED;
-        lPageAccess[1] = AC_FACTORY_LOCKED;
-        lPageAccess[2] = (p[2] & 0x90) != 0 ? AC_READ_ONLY : AC_PARTIAL_WRITE;
-        lPageAccess[3] = AC_OTP;
-        lPageAccess[4] = ((p[2] & 0x1000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[5] = ((p[2] & 0x2000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[6] = ((p[2] & 0x4000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[7] = ((p[2] & 0x8000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[8] = ((p[2] & 0x0001) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[9] = ((p[2] & 0x0002) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[10] = ((p[2] & 0x0004) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[11] = ((p[2] & 0x0008) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[12] = ((p[2] & 0x0010) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[13] = ((p[2] & 0x0020) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[14] = ((p[2] & 0x0040) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
-        lPageAccess[15] = ((p[2] & 0x0080) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[0] = AC_FACTORY_LOCKED;
+        pageAccess[1] = AC_FACTORY_LOCKED;
+        pageAccess[2] = (p[2] & 0x90) != 0 ? AC_READ_ONLY : AC_PARTIAL_WRITE;
+        pageAccess[3] = AC_OTP;
+        pageAccess[4] = ((p[2] & 0x1000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[5] = ((p[2] & 0x2000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[6] = ((p[2] & 0x4000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[7] = ((p[2] & 0x8000) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[8] = ((p[2] & 0x0001) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[9] = ((p[2] & 0x0002) | (p[2] & 0x0200)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[10] = ((p[2] & 0x0004) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[11] = ((p[2] & 0x0008) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[12] = ((p[2] & 0x0010) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[13] = ((p[2] & 0x0020) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[14] = ((p[2] & 0x0040) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        pageAccess[15] = ((p[2] & 0x0080) | (p[2] & 0x0400)) != 0 ? AC_READ_ONLY : AC_WRITE;
 
         switch (ICType) {
             case IC_MF0ULx1:
-                lPageAccess[16] = AC_SPECIAL;
-                lPageAccess[17] = AC_SPECIAL;
-                lPageAccess[18] = AC_SPECIAL;
-                lPageAccess[19] = AC_SPECIAL;
+                pageAccess[16] = AC_SPECIAL;
+                pageAccess[17] = AC_SPECIAL;
+                pageAccess[18] = AC_SPECIAL;
+                pageAccess[19] = AC_SPECIAL;
                 if (readBlocks.get(16/4)[3] != (byte)0xff) {
                     for (int i = (int)(readBlocks.get(16/4)[3] & 0x0ffL); i < MAX_PAGES - 1; i++){
-                        lPageAccess[i] = AC_AUTH_REQUIRE;
+                        pageAccess[i] = AC_AUTH_REQUIRE;
                     }
                 }
                 break;
             case IC_MIK640D:
-                lPageAccess[16] = AC_OTP;
-                lPageAccess[17] = AC_OTP;
-                lPageAccess[18] = AC_OTP;
-                lPageAccess[19] = AC_INTERAL_USE;
+                pageAccess[16] = AC_OTP;
+                pageAccess[17] = AC_OTP;
+                pageAccess[18] = AC_OTP;
+                pageAccess[19] = AC_INTERAL_USE;
                 break;
             case IC_MIK1312ED:
-                lPageAccess[16] = ((readBlocks.get(36/4)[0] & 0x01) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[17] = ((readBlocks.get(36/4)[0] & 0x01) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[18] = ((readBlocks.get(36/4)[0] & 0x02) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[19] = ((readBlocks.get(36/4)[0] & 0x02) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[20] = ((readBlocks.get(36/4)[0] & 0x04) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[21] = ((readBlocks.get(36/4)[0] & 0x04) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[22] = ((readBlocks.get(36/4)[0] & 0x08) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[23] = ((readBlocks.get(36/4)[0] & 0x08) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[24] = ((readBlocks.get(36/4)[0] & 0x10) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[25] = ((readBlocks.get(36/4)[0] & 0x10) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[26] = ((readBlocks.get(36/4)[0] & 0x20) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[27] = ((readBlocks.get(36/4)[0] & 0x20) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[28] = ((readBlocks.get(36/4)[0] & 0x40) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[29] = ((readBlocks.get(36/4)[0] & 0x40) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[30] = ((readBlocks.get(36/4)[0] & 0x80) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[31] = ((readBlocks.get(36/4)[0] & 0x80) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[32] = ((readBlocks.get(36/4)[1] & 0x01) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[33] = ((readBlocks.get(36/4)[1] & 0x01) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[34] = ((readBlocks.get(36/4)[1] & 0x02) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[35] = ((readBlocks.get(36/4)[1] & 0x02) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                lPageAccess[36] = AC_SPECIAL;
-                lPageAccess[37] = AC_SPECIAL;
-                lPageAccess[38] = AC_SPECIAL;
-                lPageAccess[39] = AC_SPECIAL;
-                lPageAccess[40] = AC_SPECIAL;
+                pageAccess[16] = ((readBlocks.get(36/4)[0] & 0x01) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[17] = ((readBlocks.get(36/4)[0] & 0x01) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[18] = ((readBlocks.get(36/4)[0] & 0x02) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[19] = ((readBlocks.get(36/4)[0] & 0x02) | (readBlocks.get(36/4)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[20] = ((readBlocks.get(36/4)[0] & 0x04) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[21] = ((readBlocks.get(36/4)[0] & 0x04) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[22] = ((readBlocks.get(36/4)[0] & 0x08) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[23] = ((readBlocks.get(36/4)[0] & 0x08) | (readBlocks.get(36/4)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[24] = ((readBlocks.get(36/4)[0] & 0x10) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[25] = ((readBlocks.get(36/4)[0] & 0x10) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[26] = ((readBlocks.get(36/4)[0] & 0x20) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[27] = ((readBlocks.get(36/4)[0] & 0x20) | (readBlocks.get(36/4)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[28] = ((readBlocks.get(36/4)[0] & 0x40) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[29] = ((readBlocks.get(36/4)[0] & 0x40) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[30] = ((readBlocks.get(36/4)[0] & 0x80) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[31] = ((readBlocks.get(36/4)[0] & 0x80) | (readBlocks.get(36/4)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[32] = ((readBlocks.get(36/4)[1] & 0x01) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[33] = ((readBlocks.get(36/4)[1] & 0x01) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[34] = ((readBlocks.get(36/4)[1] & 0x02) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[35] = ((readBlocks.get(36/4)[1] & 0x02) | (readBlocks.get(36/4)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[36] = AC_SPECIAL;
+                pageAccess[37] = AC_SPECIAL;
+                pageAccess[38] = AC_SPECIAL;
+                pageAccess[39] = AC_SPECIAL;
+                pageAccess[40] = AC_SPECIAL;
                 if (readBlocks.get(37/4)[3] != (byte)0xff) {
                     for (int i = (int)(readBlocks.get(37/4)[3] & 0x0ffL); i < MAX_PAGES - 1; i++){
-                        lPageAccess[(byte)i] = AC_AUTH_REQUIRE;
+                        pageAccess[(byte)i] = AC_AUTH_REQUIRE;
                     }
                 }
                 break;
@@ -552,7 +552,7 @@ TODO: to here. */
         // print all read blocks except last
         for (int l=0;l<readBlocks.size()-1;l++){
             for (int k=0;k<4;k++){
-                sb.append(String.format("%02x:%s: ",l*4+k, getAccessAsString(lPageAccess[l*4+k])));
+                sb.append(String.format("%02x:%s: ",l*4+k, getAccessAsString(pageAccess[l*4+k])));
                 for (int m=0;m<4;m++){
                     sb.append(String.format("%02x ",readBlocks.get(l)[k*4+m]));
                 }
@@ -561,7 +561,7 @@ TODO: to here. */
         }
         // print only valid pages of last block
         for (int i=0; i<lastBlockValidPages; i++ ) {
-            sb.append(String.format("%02x:%s: ", (readBlocks.size()-1) * 4 + i, getAccessAsString(lPageAccess[(readBlocks.size()-1) * 4 + i])));
+            sb.append(String.format("%02x:%s: ", (readBlocks.size()-1) * 4 + i, getAccessAsString(pageAccess[(readBlocks.size()-1) * 4 + i])));
             for (int m = 0; m < 4; m++) {
                 sb.append(String.format("%02x ", readBlocks.get(readBlocks.size() - 1)[i*4+m]));
             }
