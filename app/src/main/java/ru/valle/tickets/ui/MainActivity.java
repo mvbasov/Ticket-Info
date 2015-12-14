@@ -294,16 +294,16 @@ TODO: to here. */
             Log.d(TAG,"Tag read partial");
             return "Tag read partial. Try again.";
         }
-        int[] pages0 = toIntPages(readBlocks.get(0));
-        int[] pages4 = toIntPages(readBlocks.get(1));
-        int[] pages8 = toIntPages(readBlocks.get(2));
-        int[] pages12 = toIntPages(readBlocks.get(3));
+        int[] blkPages0 = toIntPages(readBlocks.get(0));
+        int[] blkPages4 = toIntPages(readBlocks.get(1));
+        int[] blkPages8 = toIntPages(readBlocks.get(2));
+        int[] blkPages12 = toIntPages(readBlocks.get(3));
 
         int[] p = {
-          pages0[0], pages0[1], pages0[2], pages0[3],
-          pages4[0], pages4[1], pages4[2], pages4[3],
-          pages8[0], pages8[1], pages8[2], pages8[3],
-          pages12[0], pages12[1], pages12[2], pages12[3]
+          blkPages0[0], blkPages0[1], blkPages0[2], blkPages0[3],
+          blkPages4[0], blkPages4[1], blkPages4[2], blkPages4[3],
+          blkPages8[0], blkPages8[1], blkPages8[2], blkPages8[3],
+          blkPages12[0], blkPages12[1], blkPages12[2], blkPages12[3]
         };
 
         StringBuilder sb = new StringBuilder();
