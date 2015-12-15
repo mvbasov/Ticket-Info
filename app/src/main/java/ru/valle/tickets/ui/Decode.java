@@ -35,6 +35,7 @@ public class Decode
                 return "Царицыно";
             case 13482:
             case 13354:
+            case 13488:
                 return "Тропарёво";
             case 13001:
             case 13442:
@@ -117,6 +118,8 @@ public class Decode
                 return c.getString(R.string.universal) + ", 5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case 415:
                 return c.getString(R.string.universal) + ", 11 " + Lang.getNounCase(11, R.array.trip_cases, c);
+            case 417:
+                return c.getString(R.string.universal) + ", 40 " + Lang.getNounCase(40, R.array.trip_cases, c);
             case 418:
                 return c.getString(R.string.universal) + ", 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 421:
