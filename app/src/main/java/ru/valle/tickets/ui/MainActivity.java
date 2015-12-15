@@ -43,7 +43,6 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import ru.valle.tickets.R;
@@ -138,15 +137,12 @@ public final class MainActivity extends Activity {
                     protected String doInBackground(NfcA... paramss) {
                         try {
 
-                            ArrayList<byte[]> readPages = new ArrayList<byte[]>();
-                            ArrayList<byte[]> readCounters = new ArrayList<byte[]>();
-                            byte[] hwVer = new byte[1];
-                            byte[] readSign = new byte[1];
+                            Dump dump = new Dump();
 
                             nfca.connect();
 
-                            byte[] atqa = nfca.getAtqa();
-                            byte sak = (byte) nfca.getSak();
+                            dump.setATQA(nfca.getAtqa());
+                            dump.setSAK((byte) nfca.getSak());
 
                             for (int i = 0; i < (MAX_PAGES/4) + 1; i++) {
                                 byte[] cmd = {0x30, (byte) (i * 4)};
@@ -166,23 +162,7 @@ public final class MainActivity extends Activity {
                                     if (answer.length != 16) {
                                         break;
                                     }
-                                    for (int ii = 0; ii < 4; ii++) {
-                                        readPages.add(
-                                                new byte[]{
-                                                        answer[ii * 4],
-                                                        answer[ii * 4 + 1],
-                                                        answer[ii * 4 + 2],
-                                                        answer[ii * 4 + 3]});
-                                    }
-/* TODO: delete this debug code from here: -BEGIN- [Dump of read pages]
-                                    for (byte b : readBlocks.get(readBlocks.size() - 1)) {
-                                        sbx.append(String.format("%02x, ", b & 0xff));
-                                    StringBuilder sbx = new StringBuilder();
-                                    }
-                                    sbx.setLength(sbx.length() - 2); // remove last comma
-                                    Log.d(TAG, String.format("%02x: %s\n", i, sbx));
-TODO: to here. -END- [Dump of read pages]*/
-
+                                    dump.addPagesBlock( answer );
                                 } catch (IOException ignored0) {
                                     break; // this 4 pages block totally out of band
                                 }
@@ -192,7 +172,7 @@ TODO: to here. -END- [Dump of read pages]*/
                             If try to read Mifare 1K on devices without support this tag type 0 blocks returned
                             If try to read using NfcA library Mifare 1K on devices with support only one block with one byte returned
 */
-                            if (readPages.isEmpty())
+                            if (dump.isEmpty())
                                 return getString(R.string.unsupported_tag_type);
 
                             nfca.close();
@@ -203,23 +183,21 @@ TODO: to here. -END- [Dump of read pages]*/
                             It found experimentally.
 */
                             nfca.connect();
-                            hwVer[0] = (byte)0x77;
-                            // Because 1-st byte of normal frame must be 0x00
-                            // I use 0x77(initial value) and 0x99(unsuccessful) as flags
-                            if ((readPages.get(0)[0] == (byte)0x04 && readPages.size() == 20) ||     // MF0ULx1 (80 bytes)
-                                    (readPages.get(0)[0] == (byte)0x34 && readPages.size() == 44)) {  // MIK1312ED (164 bytes)
+                            dump.setVERSIONisEmpty();
+                            if ((dump.getPage(0)[0] == (byte)0x04 && dump.size() == 20) ||     // MF0ULx1 (80 bytes)
+                                    (dump.getPage(0)[0] == (byte)0x34 && dump.size() == 44)) {  // MIK1312ED (164 bytes)
                                 try {
                                     byte[] cmd_ver = {0x60};
-                                    hwVer = nfca.transceive(cmd_ver);
+                                    dump.setVersionInfo(nfca.transceive(cmd_ver));
+                                    dump.setVERSIONisEmpty(false);
                                 } catch (IOException ignored1) {
-                                    hwVer = new byte[1];
-                                    hwVer[0] = (byte)0x99; // set unsuccessful flag
+                                    dump.setVERSIONisEmpty();
                                 }
                                 try {
                                     byte[] cmd_read_cnt = {(byte)0x39, (byte)0x00 };
                                     for (int i = 0; i < 3; i++) {
                                         cmd_read_cnt[1] = (byte)i;
-                                        readCounters.add(nfca.transceive(cmd_read_cnt));
+                                        dump.addCounter(nfca.transceive(cmd_read_cnt));
                                     }
                                 } catch (IOException ignored2) { }
 /* TODO: delete this debug code from here: -BEGIN- [Increment counter]
@@ -234,20 +212,19 @@ TODO: to here. -END- [Dump of read pages]*/
                                             // 0 increment is valid but has no effect.
                                             (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00};
                                             
-                                    readCounters.add(nfca.transceive(cmd_incr_cnt));
-                                    
+                                    nfca.transceive(cmd_incr_cnt);
                                 } catch (IOException ignored3) {}
 TODO: to here. -END- [Increment counter]*/
+                                dump.setSIGNisEmpty();
                                 try {
-                                    readSign[0] = (byte)0x99;
                                     byte[] cmd_read_sign = {
                                         (byte)0x3c,
                                         (byte)0x00};
-                                    readSign = nfca.transceive(cmd_read_sign);
+                                    dump.setSIGN(nfca.transceive(cmd_read_sign));
+                                    dump.setSIGNisEmpty(false);
 
                                 } catch (IOException ignored4) {
-                                    readSign = new byte[1];
-                                    readSign[0] = 0;
+                                    dump.setSIGNisEmpty();
                                 }
 
                             }
@@ -260,17 +237,13 @@ TODO: to here. -END- [Increment counter]*/
                             Not strong algorithm. It is possible
                             to write id on last page to brake it
 */
-                            int lastBlockValidPages = 0; //last block page valid number
-                            for (int i = 0; i < 4; i++) {
-                                if (readPages.get( readPages.size() - 4 + i )[0] == readPages.get(0)[0]
-                                        && readPages.get( readPages.size() - 4 + i )[1] == readPages.get(0)[1]
-                                        && readPages.get( readPages.size() - 4 + i )[2] == readPages.get(0)[2]
-                                        && readPages.get( readPages.size() - 4 + i )[3] == readPages.get(0)[3]) {
-                                    break;
-                                }
-                                lastBlockValidPages++;
+                            dump.validateLastBlockPages();
+                            for (int i = 0; i < techList.length; i++) {
+                                dump.addAndTechList(techList[i]);
                             }
-                            return decodeUltralight(readPages, lastBlockValidPages, atqa, sak, hwVer, readCounters, readSign, techList);
+
+
+                            return decodeUltralight(dump);
                         } catch (IOException ie) {
                             return getString(R.string.ticket_read_error);
                         }
@@ -292,17 +265,17 @@ TODO: to here. -END- [Increment counter]*/
         }
     }
 
-    public String decodeUltralight(ArrayList<byte[]> readPages, int lastBlockValidPages, byte[] atqa, byte sak, byte[] hwVer, ArrayList<byte[]> readCounters, byte[] readSign, String[] techList) {
+    public String decodeUltralight(Dump dump) {
         String prefix = "android.nfc.tech.";
 
-        if (readPages.size() < 16) {
+        if (dump.size() < 16) {
             Log.d(TAG, "Tag read partial");
             return "Tag read partial. Try again.";
         }
 
         int[] p = new int[16];
         for (int i = 0; i < 16; i++) {
-            p[i] = toIntPages(readPages.get(i))[0];
+            p[i] = toIntPages(dump.getPage(i))[0];
         }
 
         StringBuilder sb = new StringBuilder();
@@ -355,22 +328,22 @@ TODO: to here. -END- [Increment counter]*/
 
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
         sb.append(getString(R.string.otp)).append(": ").append(Integer.toBinaryString(p[3])).append('\n');
-        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n", readPages.size() - 4 + lastBlockValidPages, (readPages.size() - 4 + lastBlockValidPages) * 4));
+        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n", dump.size() - 4 + dump.getLastBlockValidPages(), (dump.size() - 4 + dump.getLastBlockValidPages()) * 4));
         sb.append("UID: ").append(String.format("%08x %08x\n", p[0], p[1]));
         sb.append(String.format("  BCC0: %02x, BCC1: %02x", (p[0] & 0xffL), (p[2] & 0xff000000L) >> 24));
 
         byte UID_BCC0_CRC = (byte)0x88; // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
-        UID_BCC0_CRC ^= readPages.get(0)[0];
-        UID_BCC0_CRC ^= readPages.get(0)[1];
-        UID_BCC0_CRC ^= readPages.get(0)[2];
-        UID_BCC0_CRC ^= readPages.get(0)[3]; //The BCC0 itself, if ok result is 0
+        UID_BCC0_CRC ^= dump.getPage(0)[0];
+        UID_BCC0_CRC ^= dump.getPage(0)[1];
+        UID_BCC0_CRC ^= dump.getPage(0)[2];
+        UID_BCC0_CRC ^= dump.getPage(0)[3]; //The BCC0 itself, if ok result is 0
 
         byte UID_BCC1_CRC = (byte)0x00;
-        UID_BCC1_CRC ^= readPages.get(1)[0];
-        UID_BCC1_CRC ^= readPages.get(1)[1];
-        UID_BCC1_CRC ^= readPages.get(1)[2];
-        UID_BCC1_CRC ^= readPages.get(1)[3];
-        UID_BCC1_CRC ^= readPages.get(2)[0]; //The BCC1 itself, if ok result is 0
+        UID_BCC1_CRC ^= dump.getPage(1)[0];
+        UID_BCC1_CRC ^= dump.getPage(1)[1];
+        UID_BCC1_CRC ^= dump.getPage(1)[2];
+        UID_BCC1_CRC ^= dump.getPage(1)[3];
+        UID_BCC1_CRC ^= dump.getPage(2)[0]; //The BCC1 itself, if ok result is 0
 
         if (UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0) {
             sb.append(" (CRC OK)\n");
@@ -379,44 +352,44 @@ TODO: to here. -END- [Increment counter]*/
         }
 
         sb.append("Manufacturer internal byte: ").append(String.format("%02x\n", int_byte));
-        sb.append(String.format("ATQA: %02x %02x\n", atqa[1], atqa[0]));
-        sb.append(String.format("SAK: %02x\n", sak));
+        sb.append(String.format("ATQA: %02x %02x\n", dump.getATQA()[1], dump.getATQA()[0]));
+        sb.append(String.format("SAK: %02x\n", dump.getSAK()));
 
-        if (hwVer[0] == 0x00) {
+        if (dump.getVersionInfo()[0] == 0x00) {
             sb.append("GET_VERSION: ");
-            for (int i = 0; i < hwVer.length; i++) {
-                sb.append(String.format("%02x ", hwVer[i]));
+            for (int i = 0; i < dump.getVersionInfo().length; i++) {
+                sb.append(String.format("%02x ", dump.getVersionInfo()[i]));
             }
             sb.append("\n");
         }
 
-        if (!readCounters.isEmpty()) {
+        if (dump.getCountersNumber() != 0) {
             sb.append("Counters(hex):\n");
-            for (int i = 0; i < readCounters.size(); i++) {
+            for (int i = 0; i < dump.getCountersNumber(); i++) {
                 sb.append(String.format("  %01x: ", i));
                 // LSB is 1-st
-                for (int j = (readCounters.get(i).length - 1); j >= 0; j--) {
-                    sb.append(String.format("%02x", readCounters.get(i)[j]));
+                for (int j = (dump.getCountersNumber() - 1); j >= 0; j--) {
+                    sb.append(String.format("%02x", dump.getCounter(i)[j]));
                 }
                 sb.append("\n");
             }
         }
 
-        if (readSign.length > 1) {
+        if (dump.getSIGN().length > 1) {
             sb.append("READ_SIG:\n  ");
-            for (int i = 0; i < readSign.length; i++) {
-                sb.append(String.format("%02x", readSign[i]));
+            for (int i = 0; i < dump.getSIGN().length; i++) {
+                sb.append(String.format("%02x", dump.getSIGN()[i]));
                 if ((i + 1) % 16 == 0 && (i + 1) != 32) sb.append("\n  ");
             }
             sb.append("\n");
         }
 
         sb.append("Android technologies: \n   ");
-        for (int i = 0; i < techList.length; i++) {
+        for (int i = 0; i < dump.getAndTechList().size(); i++) {
             if (i != 0) {
                 sb.append(", ");
             }
-            sb.append(techList[i].substring(prefix.length()));
+            sb.append(dump.getAndTechList().get(i).substring(prefix.length()));
         }
         sb.append('\n');
 
@@ -425,13 +398,13 @@ TODO: to here. -END- [Increment counter]*/
             case 0x04:
                 sb.append("NXP Semiconductors (Philips) Germany\n");
                 sb.append("Chip: ");
-                if (readPages.size() == 16) {
+                if (dump.size() == 16) {
                     ICType = IC_MF0ICU1;
                     sb.append("(probably)MF0ICU1 (64 bytes)");
-                } else if (hwVer[0] == (byte) 0x00 &&
-                        hwVer[1] == (byte) 0x04 &&
-                        hwVer[2] == (byte) 0x03 &&
-                        hwVer[4] == (byte) 0x01) {
+                } else if (dump.getVersionInfo()[0] == (byte) 0x00 &&
+                        dump.getVersionInfo()[1] == (byte) 0x04 &&
+                        dump.getVersionInfo()[2] == (byte) 0x03 &&
+                        dump.getVersionInfo()[4] == (byte) 0x01) {
                     ICType = IC_MF0ULx1;
                     sb.append("MF0ULx1 (80 bytes)");
 /*
@@ -451,15 +424,15 @@ TODO: to here. -END- [Increment counter]*/
             case 0x34:
                 sb.append("JSC Micron Russia\n");
                 sb.append("Chip: ");
-                if (readPages.size() == 20) {
+                if (dump.size() == 20) {
                     ICType = IC_MIK640D;
                     sb.append("(probably) MIK64PTAS(MIK640D) (80 bytes)");
-                } else if (hwVer[0] == (byte)0x00 &&
-                        hwVer[1] == (byte)0x34 &&
-                        hwVer[2] == (byte)0x21 &&
-                        hwVer[3] == (byte)0x01 &&
-                        hwVer[4] == (byte)0x01 &&
-                        hwVer[5] == (byte)0x00) {
+                } else if (dump.getVersionInfo()[0] == (byte)0x00 &&
+                        dump.getVersionInfo()[1] == (byte)0x34 &&
+                        dump.getVersionInfo()[2] == (byte)0x21 &&
+                        dump.getVersionInfo()[3] == (byte)0x01 &&
+                        dump.getVersionInfo()[4] == (byte)0x01 &&
+                        dump.getVersionInfo()[5] == (byte)0x00) {
                     ICType = IC_MIK1312ED;
                     sb.append("MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)");
                 } else {
@@ -500,8 +473,8 @@ TODO: to here. -END- [Increment counter]*/
                 pageAccess[17] = AC_SPECIAL;
                 pageAccess[18] = AC_SPECIAL;
                 pageAccess[19] = AC_SPECIAL;
-                if (readPages.get(16)[3] != (byte)0xff) {
-                    for (int i = (int)(readPages.get(16)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
+                if (dump.getPage(16)[3] != (byte)0xff) {
+                    for (int i = (int)(dump.getPage(16)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
                         pageAccess[i] = AC_AUTH_REQUIRE;
                     }
                 }
@@ -513,33 +486,33 @@ TODO: to here. -END- [Increment counter]*/
                 pageAccess[19] = AC_INTERAL_USE;
                 break;
             case IC_MIK1312ED:
-                pageAccess[16] = ((readPages.get(36)[0] & 0x01) | (readPages.get(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[17] = ((readPages.get(36)[0] & 0x01) | (readPages.get(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[18] = ((readPages.get(36)[0] & 0x02) | (readPages.get(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[19] = ((readPages.get(36)[0] & 0x02) | (readPages.get(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[20] = ((readPages.get(36)[0] & 0x04) | (readPages.get(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[21] = ((readPages.get(36)[0] & 0x04) | (readPages.get(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[22] = ((readPages.get(36)[0] & 0x08) | (readPages.get(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[23] = ((readPages.get(36)[0] & 0x08) | (readPages.get(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[24] = ((readPages.get(36)[0] & 0x10) | (readPages.get(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[25] = ((readPages.get(36)[0] & 0x10) | (readPages.get(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[26] = ((readPages.get(36)[0] & 0x20) | (readPages.get(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[27] = ((readPages.get(36)[0] & 0x20) | (readPages.get(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[28] = ((readPages.get(36)[0] & 0x40) | (readPages.get(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[29] = ((readPages.get(36)[0] & 0x40) | (readPages.get(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[30] = ((readPages.get(36)[0] & 0x80) | (readPages.get(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[31] = ((readPages.get(36)[0] & 0x80) | (readPages.get(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[32] = ((readPages.get(36)[1] & 0x01) | (readPages.get(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[33] = ((readPages.get(36)[1] & 0x01) | (readPages.get(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[34] = ((readPages.get(36)[1] & 0x02) | (readPages.get(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
-                pageAccess[35] = ((readPages.get(36)[1] & 0x02) | (readPages.get(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[16] = ((dump.getPage(36)[0] & 0x01) | (dump.getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[17] = ((dump.getPage(36)[0] & 0x01) | (dump.getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[18] = ((dump.getPage(36)[0] & 0x02) | (dump.getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[19] = ((dump.getPage(36)[0] & 0x02) | (dump.getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[20] = ((dump.getPage(36)[0] & 0x04) | (dump.getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[21] = ((dump.getPage(36)[0] & 0x04) | (dump.getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[22] = ((dump.getPage(36)[0] & 0x08) | (dump.getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[23] = ((dump.getPage(36)[0] & 0x08) | (dump.getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[24] = ((dump.getPage(36)[0] & 0x10) | (dump.getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[25] = ((dump.getPage(36)[0] & 0x10) | (dump.getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[26] = ((dump.getPage(36)[0] & 0x20) | (dump.getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[27] = ((dump.getPage(36)[0] & 0x20) | (dump.getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[28] = ((dump.getPage(36)[0] & 0x40) | (dump.getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[29] = ((dump.getPage(36)[0] & 0x40) | (dump.getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[30] = ((dump.getPage(36)[0] & 0x80) | (dump.getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[31] = ((dump.getPage(36)[0] & 0x80) | (dump.getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[32] = ((dump.getPage(36)[1] & 0x01) | (dump.getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[33] = ((dump.getPage(36)[1] & 0x01) | (dump.getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[34] = ((dump.getPage(36)[1] & 0x02) | (dump.getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                pageAccess[35] = ((dump.getPage(36)[1] & 0x02) | (dump.getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 pageAccess[36] = AC_SPECIAL;
                 pageAccess[37] = AC_SPECIAL;
                 pageAccess[38] = AC_SPECIAL;
                 pageAccess[39] = AC_SPECIAL;
                 pageAccess[40] = AC_SPECIAL;
-                if (readPages.get(37)[3] != (byte)0xff) {
-                    for (int i = (int)(readPages.get(37)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
+                if (dump.getPage(37)[3] != (byte)0xff) {
+                    for (int i = (int)(dump.getPage(37)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
                         pageAccess[(byte)i] = AC_AUTH_REQUIRE;
                     }
                 }
@@ -549,16 +522,16 @@ TODO: to here. -END- [Increment counter]*/
         }
 
         sb.append("- - - Dump: - - -\n");
-        for (int i=0; i < readPages.size() - ( 4 - lastBlockValidPages ); i++){
+        for (int i=0; i < dump.size() - ( 4 - dump.getLastBlockValidPages() ); i++){
             sb.append(String.format("%02x:%s: ", i, getAccessAsString(pageAccess[i])));
             for (int j=0; j < 4; j++){
-                sb.append(String.format("%02x ", readPages.get(i)[j]));
+                sb.append(String.format("%02x ", dump.getPage(i)[j]));
             }
             sb.append("\n");
         }
         // warning, because fuzzy algorithm used
-        if (lastBlockValidPages != 4)
-            sb.append(String.format("---\n[!]Last block valid pages: %d\n", lastBlockValidPages));
+        if (dump.getLastBlockValidPages() != 4)
+            sb.append(String.format("---\n[!]Last block valid pages: %d\n", dump.getLastBlockValidPages()));
         sb.append("- - - Dump legend: - - -\n");
         sb.append(":u: - unknown\n");
         sb.append(":f: - factory locked\n");
