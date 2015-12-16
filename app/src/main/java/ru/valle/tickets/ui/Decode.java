@@ -47,6 +47,8 @@ public class Decode
             case 13405:
             case 12854:
                 return "Крестьянская застава";
+            case 12988:
+                return "Марксистская";
             case 12519:
                 return "Алтуфьево";
             case 10394:
@@ -107,6 +109,7 @@ public class Decode
             case 128:
                 return "20 " + Lang.getNounCase(20, R.array.trip_cases, c);
             case 129:
+            case 607: // ground (0001374174)
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 410:
                 return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
@@ -123,7 +126,9 @@ public class Decode
             case 418:
                 return c.getString(R.string.universal) + ", 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 421:
-                return "90 minutes, 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
+                return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
+            case 422: // (1016237832)
+                return "90 minutes, " + "2 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 130:
                 return c.getString(R.string.baggage_and_pass);
             case 131:

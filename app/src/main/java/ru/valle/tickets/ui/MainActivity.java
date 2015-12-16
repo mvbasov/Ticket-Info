@@ -160,7 +160,7 @@ public final class MainActivity extends Activity {
 */
                                     byte[] answer = nfca.transceive(cmd);
                                     if (answer.length != 16) {
-                                        break;
+                                        break;  //   Only 16 bytes blocks are valid
                                     }
                                     dump.addPagesBlock( answer );
                                 } catch (IOException ignored0) {
@@ -226,18 +226,10 @@ TODO: to here. -END- [Increment counter]*/
                                 } catch (IOException ignored4) {
                                     dump.setSIGNisEmpty();
                                 }
-
                             }
 
                             nfca.close();
 
-/*
-                            Attempt to exclude wrapped around information from last page.
-                            WARNING:
-                            Not strong algorithm. It is possible
-                            to write id on last page to brake it
-*/
-                            dump.validateLastBlockPages();
                             for (int i = 0; i < techList.length; i++) {
                                 dump.addAndTechList(techList[i]);
                             }
@@ -323,7 +315,7 @@ TODO: to here. -END- [Increment counter]*/
         byte mf_code = (byte)((p[0] & 0xff000000L) >>> 24);
         int int_byte = (int)((p[2] & 0x00ff0000L) >>> 16);
 
-        sb.append(String.format("App ID: %d (0x%03x)\n", p[4] >>> 22, p[4] >>> 22));
+        sb.append(String.format("App ID: %d (0x%03x), ", p[4] >>> 22, p[4] >>> 22));
         sb.append(String.format("Type: %d (0x%03x)\n", (p[4] >>> 12) & 0x3ff, (p[4] >>> 12) & 0x3ff));
 
         sb.append(getString(R.string.ticket_hash)).append(": ").append(Integer.toHexString(p[10])).append('\n');
@@ -355,7 +347,7 @@ TODO: to here. -END- [Increment counter]*/
         sb.append(String.format("ATQA: %02x %02x\n", dump.getATQA()[1], dump.getATQA()[0]));
         sb.append(String.format("SAK: %02x\n", dump.getSAK()));
 
-        if (dump.getVersionInfo()[0] == 0x00) {
+        if (!dump.isVERSIONEmpty()) {
             sb.append("GET_VERSION: ");
             for (int i = 0; i < dump.getVersionInfo().length; i++) {
                 sb.append(String.format("%02x ", dump.getVersionInfo()[i]));
@@ -363,7 +355,7 @@ TODO: to here. -END- [Increment counter]*/
             sb.append("\n");
         }
 
-        if (dump.getCountersNumber() != 0) {
+        if (dump.getCountersNumber() > 0) {
             sb.append("Counters(hex):\n");
             for (int i = 0; i < dump.getCountersNumber(); i++) {
                 sb.append(String.format("  %01x: ", i));
@@ -375,7 +367,7 @@ TODO: to here. -END- [Increment counter]*/
             }
         }
 
-        if (dump.getSIGN().length > 1) {
+        if (!dump.isSIGNEmpty()) {
             sb.append("READ_SIG:\n  ");
             for (int i = 0; i < dump.getSIGN().length; i++) {
                 sb.append(String.format("%02x", dump.getSIGN()[i]));

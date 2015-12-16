@@ -31,14 +31,15 @@ public class Dump {
 
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
+    private boolean LastBlockVerifyed;
     private byte[] ATQA;
     private byte SAK;
     private byte[] VersionInfo;
     private byte[] SIGN;
     private ArrayList<byte[]> Counters;
     private ArrayList<String> AndTechList;
-    boolean SIGNisEmpty;
-    boolean VERSIONisEmpty;
+    private boolean SIGNisEmpty;
+    private boolean VERSIONisEmpty;
 
     public Dump() {
         Pages = new ArrayList<byte[]>();
@@ -47,6 +48,9 @@ public class Dump {
         LastBlockValidPages = 4;
         SIGNisEmpty = true;
         VERSIONisEmpty = true;
+        LastBlockVerifyed = false;
+        //VersionInfo = new byte[8];
+        //SIGN = new byte[32];
     }
 
     public int size() {
@@ -114,6 +118,7 @@ public class Dump {
 
 
     public int getLastBlockValidPages() {
+        if (!LastBlockVerifyed) validateLastBlockPages();
         return this.LastBlockValidPages;
     }
 
@@ -134,6 +139,7 @@ public class Dump {
             }
             LastBlockValidPages++;
         }
+        LastBlockVerifyed = true;
     }
 
     public byte[] getATQA() {
