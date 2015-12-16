@@ -29,6 +29,26 @@ import java.util.ArrayList;
 
 public class Dump {
 
+    // Constants definition
+    public static final int MAX_PAGES = 64;
+
+    public static final byte AC_UNKNOWN = 0;
+    public static final byte AC_FACTORY_LOCKED = AC_UNKNOWN + 1;
+    public static final byte AC_READ_ONLY = AC_UNKNOWN + 2;
+    public static final byte AC_PARTIAL_WRITE = AC_UNKNOWN + 3;
+    public static final byte AC_WRITE = AC_UNKNOWN + 4;
+    public static final byte AC_OTP = AC_UNKNOWN + 5;
+    public static final byte AC_AUTH_REQUIRE = AC_UNKNOWN + 6;
+    public static final byte AC_INTERAL_USE = AC_UNKNOWN + 7;
+    public static final byte AC_SPECIAL = AC_UNKNOWN + 8;
+
+    public static final byte IC_UNKNOWN = 0;
+    public static final byte IC_MF0ICU1 = IC_UNKNOWN + 1;
+    public static final byte IC_MF0ULx1 = IC_UNKNOWN + 2;
+    public static final byte IC_MIK640D = IC_UNKNOWN + 3;
+    public static final byte IC_MIK1312ED = IC_UNKNOWN + 4;
+
+    // Data fields definition
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
     private boolean LastBlockVerifyed;
@@ -40,6 +60,8 @@ public class Dump {
     private ArrayList<String> AndTechList;
     private boolean SIGNisEmpty;
     private boolean VERSIONisEmpty;
+    private byte IC_Type;
+    private byte[] PagesAccess;
 
     public Dump() {
         Pages = new ArrayList<byte[]>();
@@ -51,49 +73,15 @@ public class Dump {
         LastBlockVerifyed = false;
         //VersionInfo = new byte[8];
         //SIGN = new byte[32];
-    }
-
-    public int size() {
-        return this.Pages.size();
-    }
-
-    public byte[] getPage(int n) {
-        return this.Pages.get(n);
+        IC_Type = IC_UNKNOWN;
+        PagesAccess = new byte[MAX_PAGES];
+        for (int i = 0; i < MAX_PAGES - 1; i++) {
+            PagesAccess[i] = AC_UNKNOWN;
+        }
     }
 
     public void addPage(byte[] page) {
         this.Pages.add(page);
-    }
-
-    public void setSIGNisEmpty(boolean SIGNisEmpty) {
-        this.SIGNisEmpty = SIGNisEmpty;
-    }
-
-    public void setSIGNisEmpty() {
-        this.SIGNisEmpty = true;
-    }
-
-    public void setVERSIONisEmpty(boolean VERSIONisEmpty) {
-        this.VERSIONisEmpty = VERSIONisEmpty;
-    }
-
-    public void setVERSIONisEmpty() {
-        this.VERSIONisEmpty = true;
-    }
-
-    public boolean isSIGNEmpty() {
-        return SIGNisEmpty;
-    }
-
-    public boolean isVERSIONEmpty() {
-        return VERSIONisEmpty;
-    }
-
-    public boolean isEmpty(){
-        if (this.Pages.size() == 0) {
-            return true;
-        }
-        return false;
     }
 
     public void addPagesBlock(byte[] block) {
@@ -116,13 +104,31 @@ public class Dump {
         }
     }
 
-
-    public int getLastBlockValidPages() {
-        if (!LastBlockVerifyed) validateLastBlockPages();
-        return this.LastBlockValidPages;
+    public int getPagesNumber() {
+        return this.Pages.size();
     }
 
-    public void validateLastBlockPages() {
+    public boolean isPagesEmpty(){
+        if (this.Pages.size() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public byte[] getPage(int n) {
+        return this.Pages.get(n);
+    }
+
+    public int getPageAsInt(int n) {
+        int page = 0;
+        for (int i = 0; i < 4; i++) {
+            page <<= 8;
+            page |= getPage(n)[i] & 0xff;
+        }
+        return page;
+    }
+
+    private void validateLastBlockPages() {
     /*
     Attempt to exclude wrapped around information from last page.
     WARNING:
@@ -130,67 +136,407 @@ public class Dump {
     to write id on last page to brake it
     */
         this.LastBlockValidPages = 0; //last block page valid number
-        for (int i = 0; i < 4; i++) {
-            if (Pages.get( Pages.size() - 4 + i )[0] == Pages.get(0)[0]
-                    && Pages.get( Pages.size() - 4 + i )[1] == Pages.get(0)[1]
-                    && Pages.get( Pages.size() - 4 + i )[2] == Pages.get(0)[2]
-                    && Pages.get( Pages.size() - 4 + i )[3] == Pages.get(0)[3]) {
-                break;
+        if (Pages.size() > 4) {
+            for (int i = 0; i < 4; i++) {
+                if (Pages.get(Pages.size() - 4 + i)[0] == Pages.get(0)[0]
+                        && Pages.get(Pages.size() - 4 + i)[1] == Pages.get(0)[1]
+                        && Pages.get(Pages.size() - 4 + i)[2] == Pages.get(0)[2]
+                        && Pages.get(Pages.size() - 4 + i)[3] == Pages.get(0)[3]) {
+                    break;
+                }
+                LastBlockValidPages++;
             }
-            LastBlockValidPages++;
+        } else {
+            LastBlockValidPages =4;
         }
         LastBlockVerifyed = true;
     }
 
-    public byte[] getATQA() {
-        return this.ATQA;
+    public int getLastBlockValidPages() {
+        if (!LastBlockVerifyed) validateLastBlockPages();
+        return this.LastBlockValidPages;
     }
 
-    public void setATQA(byte[] ATQA) {
-        this.ATQA = ATQA;
+    private void detectIC_Type() {
+        switch (getPage(0)[0]) {
+            case 0x04:
+                if (getPagesNumber() == 16) {
+                    IC_Type = IC_MF0ICU1;
+                } else if (getPagesNumber() == 20 &&
+                        !isVERSIONEmpty()) {
+                    if (getVersionInfo()[0] == (byte) 0x00 &&
+                            getVersionInfo()[1] == (byte) 0x04 &&
+                            getVersionInfo()[2] == (byte) 0x03 &&
+                            getVersionInfo()[4] == (byte) 0x01) {
+/*
+                     according to data sheet byte 3 need to be:
+                     - 0x01 (17pF version MF0L(1|2)1)
+                     - 0x02 (50pF version MF0LH(1|2)1)
+                     but all tickets I've seen had 0x03 value in this byte
+                     I don't know what does it mead and don't use this
+                     byte for identification.
+*/
+                        IC_Type = IC_MF0ULx1;
+                    }
+                } else {
+                    IC_Type = IC_UNKNOWN;
+                }
+                break;
+            case 0x34:
+                if (getPagesNumber() == 20) {
+                    IC_Type = IC_MIK640D;
+                } else if (getPagesNumber() == 44 &&
+                        !isVERSIONEmpty()) {
+                    if (getVersionInfo()[0] == (byte)0x00 &&
+                            getVersionInfo()[1] == (byte)0x34 &&
+                            getVersionInfo()[2] == (byte)0x21 &&
+                            getVersionInfo()[3] == (byte)0x01 &&
+                            getVersionInfo()[4] == (byte)0x01 &&
+                            getVersionInfo()[5] == (byte)0x00) {
+                        IC_Type = IC_MIK1312ED;
+                    }
+                } else {
+                    IC_Type = IC_UNKNOWN;
+                }
+                break;
+            default:
+                IC_Type = IC_UNKNOWN;
+                break;
+        }
+
     }
 
-    public byte getSAK() {
-        return this.SAK;
+    public byte getIC_Type(){
+        if (IC_Type == IC_UNKNOWN) detectIC_Type();
+        return IC_Type;
     }
 
-    public void setSAK(byte SAK) {
-        this.SAK = SAK;
+    public String getIC_TypeAsString() {
+        switch (getIC_Type()) {
+            case IC_MF0ICU1:
+                return "(probably)MF0ICU1 (64 bytes)";
+            case IC_MF0ULx1:
+                return "MF0ULx1 (80 bytes)";
+            case IC_MIK640D:
+                return "(probably) MIK64PTAS(MIK640D) (80 bytes)";
+            case IC_MIK1312ED:
+                return "MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)";
+            default:
+                return "Unknown";
+        }
     }
 
-    public byte[] getVersionInfo() {
-        return this.VersionInfo;
+    public boolean UID_CRC_Check() {
+
+        // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
+        byte UID_BCC0_CRC = (byte)0x88;
+        UID_BCC0_CRC ^= getPage(0)[0];
+        UID_BCC0_CRC ^= getPage(0)[1];
+        UID_BCC0_CRC ^= getPage(0)[2];
+        UID_BCC0_CRC ^= getPage(0)[3]; //The BCC0 itself, if ok result is 0
+
+        byte UID_BCC1_CRC = (byte)0x00;
+        UID_BCC1_CRC ^= getPage(1)[0];
+        UID_BCC1_CRC ^= getPage(1)[1];
+        UID_BCC1_CRC ^= getPage(1)[2];
+        UID_BCC1_CRC ^= getPage(1)[3];
+        UID_BCC1_CRC ^= getPage(2)[0]; //The BCC1 itself, if ok result is 0
+
+        if (UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0) {
+            return true;
+        }
+        return false;
     }
 
-    public void setVersionInfo(byte[] versionInfo) {
-        this.VersionInfo = versionInfo;
+    public String getManufName() {
+        switch (Pages.get(0)[0]){
+            case 0x04:
+                return "NXP Semiconductors (Philips) Germany";
+            case 0x34:
+                return "JSC Micron Russia";
+            default:
+                return "Unknown";
+        }
     }
 
-    public byte[] getSIGN() {
-        return this.SIGN;
+    private void detectPagesAccess() {
+
+        PagesAccess[0] = AC_FACTORY_LOCKED;
+        PagesAccess[1] = AC_FACTORY_LOCKED;
+        PagesAccess[2] = (getPage(2)[1] & 0x90) != 0 ? AC_READ_ONLY : AC_PARTIAL_WRITE;
+        PagesAccess[3] = AC_OTP;
+        PagesAccess[4] = ((getPage(2)[2] & 0x10) | (getPage(2)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[5] = ((getPage(2)[2] & 0x20) | (getPage(2)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[6] = ((getPage(2)[2] & 0x40) | (getPage(2)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[7] = ((getPage(2)[2] & 0x80) | (getPage(2)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[8] = ((getPage(2)[3] & 0x01) | (getPage(2)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[9] = ((getPage(2)[3] & 0x02) | (getPage(2)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[10] = ((getPage(2)[3] & 0x04) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[11] = ((getPage(2)[3] & 0x08) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[12] = ((getPage(2)[3] & 0x10) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[13] = ((getPage(2)[3] & 0x20) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[14] = ((getPage(2)[3] & 0x40) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+        PagesAccess[15] = ((getPage(2)[3] & 0x80) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+
+        switch (IC_Type) {
+            case IC_MF0ULx1:
+                PagesAccess[16] = AC_SPECIAL;
+                PagesAccess[17] = AC_SPECIAL;
+                PagesAccess[18] = AC_SPECIAL;
+                PagesAccess[19] = AC_SPECIAL;
+                if (getPage(16)[3] != (byte)0xff) {
+                    for (int i = (int)(getPage(16)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
+                        PagesAccess[i] = AC_AUTH_REQUIRE;
+                    }
+                }
+                break;
+            case IC_MIK640D:
+                PagesAccess[16] = AC_OTP;
+                PagesAccess[17] = AC_OTP;
+                PagesAccess[18] = AC_OTP;
+                PagesAccess[19] = AC_INTERAL_USE;
+                break;
+            case IC_MIK1312ED:
+                PagesAccess[16] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[17] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[18] = ((getPage(36)[0] & 0x02) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[19] = ((getPage(36)[0] & 0x02) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[20] = ((getPage(36)[0] & 0x04) | (getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[21] = ((getPage(36)[0] & 0x04) | (getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[22] = ((getPage(36)[0] & 0x08) | (getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[23] = ((getPage(36)[0] & 0x08) | (getPage(36)[2] & 0x02)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[24] = ((getPage(36)[0] & 0x10) | (getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[25] = ((getPage(36)[0] & 0x10) | (getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[26] = ((getPage(36)[0] & 0x20) | (getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[27] = ((getPage(36)[0] & 0x20) | (getPage(36)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[28] = ((getPage(36)[0] & 0x40) | (getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[29] = ((getPage(36)[0] & 0x40) | (getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[30] = ((getPage(36)[0] & 0x80) | (getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[31] = ((getPage(36)[0] & 0x80) | (getPage(36)[2] & 0x08)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[32] = ((getPage(36)[1] & 0x01) | (getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[33] = ((getPage(36)[1] & 0x01) | (getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[34] = ((getPage(36)[1] & 0x02) | (getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[35] = ((getPage(36)[1] & 0x02) | (getPage(36)[2] & 0x10)) != 0 ? AC_READ_ONLY : AC_WRITE;
+                PagesAccess[36] = AC_SPECIAL;
+                PagesAccess[37] = AC_SPECIAL;
+                PagesAccess[38] = AC_SPECIAL;
+                PagesAccess[39] = AC_SPECIAL;
+                PagesAccess[40] = AC_SPECIAL;
+                if (getPage(37)[3] != (byte)0xff) {
+                    for (int i = (int)(getPage(37)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
+                        PagesAccess[(byte)i] = AC_AUTH_REQUIRE;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    public byte getPageAssess(int page) {
+        if (PagesAccess[0] == AC_UNKNOWN) detectPagesAccess();
+        return PagesAccess[page];
+    }
+
+    private String getAccessAsString(byte ac) {
+        switch (ac) {
+            case AC_UNKNOWN:
+                return "u";
+            case AC_FACTORY_LOCKED:
+                return "f";
+            case AC_READ_ONLY:
+                return "r";
+            case AC_PARTIAL_WRITE:
+                return "p";
+            case AC_WRITE:
+                return "w";
+            case AC_OTP:
+                return "o";
+            case AC_SPECIAL:
+                return "s";
+            case AC_INTERAL_USE:
+                return "i";
+            case AC_AUTH_REQUIRE:
+                return "a";
+            default:
+                return "n";
+        }
+    }
+
+    public String getDumpAsString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("- - - Dump: - - -\n");
+        for (int i=0; i < getPagesNumber() - ( 4 - getLastBlockValidPages() ); i++){
+            sb.append(String.format("%02x:%s: ", i, getAccessAsString(getPageAssess(i))));
+            for (int j=0; j < 4; j++){
+                sb.append(String.format("%02x ", getPage(i)[j]));
+            }
+            sb.append("\n");
+        }
+        // warning, because fuzzy algorithm used
+        if (getLastBlockValidPages() != 4)
+            sb.append(String.format("---\n[!]Last block valid pages: %d\n",
+                    getLastBlockValidPages()));
+        sb.append("- - - Dump legend: - - -\n");
+        sb.append(":u: - unknown\n");
+        sb.append(":f: - factory locked\n");
+        sb.append(":r: - read only\n");
+        sb.append(":p: - partially writable\n");
+        sb.append(":o: - One Time Programming (OTP)\n");
+        sb.append(":w: - writable\n");
+        sb.append(":a: - authentication require for write\n");
+        sb.append(":s: - special\n");
+        sb.append(":i: - reserved for internal use\n");
+
+        return sb.toString();
+
+    }
+
+    public void setSIGNisEmpty(boolean SIGNisEmpty) {
+        this.SIGNisEmpty = SIGNisEmpty;
+    }
+
+    public void setSIGNisEmpty() {
+        this.SIGNisEmpty = true;
+    }
+
+    public boolean isSIGNEmpty() {
+        return SIGNisEmpty;
     }
 
     public void setSIGN(byte[] SIGN) {
         this.SIGN = SIGN;
     }
 
-    public byte[] getCounter(int i) {
-        return this.Counters.get(i);
+    public byte[] getSIGN() {
+        return this.SIGN;
+    }
+
+    public void setVERSIONisEmpty(boolean VERSIONisEmpty) {
+        this.VERSIONisEmpty = VERSIONisEmpty;
+    }
+
+    public void setVERSIONisEmpty() {
+        this.VERSIONisEmpty = true;
+    }
+
+    public boolean isVERSIONEmpty() {
+        return VERSIONisEmpty;
+    }
+
+    public void setVersionInfo(byte[] versionInfo) {
+        this.VersionInfo = versionInfo;
+    }
+
+    public byte[] getVersionInfo() {
+        return this.VersionInfo;
+    }
+
+    public void setATQA(byte[] ATQA) {
+        this.ATQA = ATQA;
+    }
+
+    public byte[] getATQA() {
+        return this.ATQA;
+    }
+
+    public void setSAK(byte SAK) {
+        this.SAK = SAK;
+    }
+
+    public byte getSAK() {
+        return this.SAK;
+    }
+
+    public void addCounter(byte[] counter) {
+        this.Counters.add(counter);
     }
 
     public int getCountersNumber() {
         return this.Counters.size();
     }
 
-    public void addCounter(byte[] counter) {
-        Counters.add(counter);
-    }
-
-    public ArrayList<String> getAndTechList() {
-        return AndTechList;
+    public byte[] getCounter(int i) {
+        return this.Counters.get(i);
     }
 
     public void addAndTechList(String andTech) {
-        AndTechList.add(andTech);
+        this.AndTechList.add(andTech);
+    }
+
+    public ArrayList<String> getAndTechList() {
+        return this.AndTechList;
+    }
+
+    public String getIC_InfoAsString() {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n",
+                getPagesNumber() - 4 + getLastBlockValidPages(),
+                (getPagesNumber() - 4 + getLastBlockValidPages()) * 4));
+        sb.append("UID: ").append(String.format("%08x %08x\n", getPageAsInt(0), getPageAsInt(1)));
+        sb.append(String.format("  BCC0: %02x, BCC1: %02x", getPage(0)[3], getPage(2)[0]));
+
+        if (UID_CRC_Check()) {
+            sb.append(" (CRC OK)");
+        } else {
+            sb.append(" (CRC not OK)");
+        }
+        sb.append("\n");
+
+        int int_byte = (int)(getPage(2)[1] & 0xffL);
+        sb.append("Manufacturer internal byte: ");
+        sb.append(String.format("%02x\n", int_byte));
+        sb.append(String.format("ATQA: %02x %02x\n",
+                getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
+                getATQA()[0]));
+        sb.append(String.format("SAK: %02x\n", getSAK()));
+
+        if (!isVERSIONEmpty()) {
+            sb.append("GET_VERSION: ");
+            for (int i = 0; i < getVersionInfo().length; i++) {
+                sb.append(String.format("%02x ", getVersionInfo()[i]));
+            }
+            sb.append("\n");
+        }
+
+        if (getCountersNumber() > 0) {
+            sb.append("Counters(hex):\n");
+            for (int i = 0; i < getCountersNumber(); i++) {
+                sb.append(String.format("  %01x: ", i));
+                // LSB is 1-st
+                for (int j = (getCountersNumber() - 1); j >= 0; j--) {
+                    sb.append(String.format("%02x", getCounter(i)[j]));
+                }
+                sb.append("\n");
+            }
+        }
+
+        if (!isSIGNEmpty()) {
+            sb.append("READ_SIG:\n  ");
+            for (int i = 0; i < getSIGN().length; i++) {
+                sb.append(String.format("%02x", getSIGN()[i]));
+                if ((i + 1) % 16 == 0 && (i + 1) != 32) sb.append("\n  ");
+            }
+            sb.append("\n");
+        }
+
+        String prefix = "android.nfc.tech.";
+        sb.append("Android technologies: \n   ");
+        for (int i = 0; i < getAndTechList().size(); i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            sb.append(getAndTechList().get(i).substring(prefix.length()));
+        }
+        sb.append('\n');
+
+        sb.append("Chip manufacturer: ");
+        sb.append(getManufName()).append("\n");
+        sb.append("Chip: ");
+        sb.append(getIC_TypeAsString()).append("\n");
+
+        return sb.toString();
     }
 }
