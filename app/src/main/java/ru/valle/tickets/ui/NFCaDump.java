@@ -27,7 +27,7 @@ package ru.valle.tickets.ui;
 
 import java.util.ArrayList;
 
-public class Dump {
+public class NFCaDump {
 
     // Constants definition
     public static final int MAX_PAGES = 64;
@@ -49,6 +49,11 @@ public class Dump {
     public static final byte IC_MIK640D = IC_UNKNOWN + 4;
     public static final byte IC_MIK1312ED = IC_UNKNOWN + 5;
 
+    public static final byte CMD_GET_VERSION = (byte)0x60;
+    public static final byte CMD_READ_SIGN = (byte)0x3C;
+    public static final byte CMD_READ_CNT = (byte)0x39;
+    public static final byte CMD_INCR_CNT = (byte)0xA5;
+
     // Data fields definition
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
@@ -64,7 +69,7 @@ public class Dump {
     private byte IC_Type;
     private byte[] PagesAccess;
 
-    public Dump() {
+    public NFCaDump() {
         Pages = new ArrayList<byte[]>();
         Counters = new ArrayList<byte[]>();
         AndTechList = new ArrayList<String>();
@@ -159,6 +164,13 @@ public class Dump {
     }
 
     private void detectIC_Type() {
+        /*
+        This algorithm operate only with full accesable cards
+        If authentication required to read some pages it doesn't operate
+        beacuse based on number of sucessfuly read pages.
+        I don't want to read VERSION and SIGN on every card because it slow
+        card reading.
+         */
         switch (getPage(0)[0]) {
             case 0x04:
                 if (getPagesNumber() == 20 &&
