@@ -44,9 +44,10 @@ public class Dump {
 
     public static final byte IC_UNKNOWN = 0;
     public static final byte IC_MF0ICU1 = IC_UNKNOWN + 1;
-    public static final byte IC_MF0ULx1 = IC_UNKNOWN + 2;
-    public static final byte IC_MIK640D = IC_UNKNOWN + 3;
-    public static final byte IC_MIK1312ED = IC_UNKNOWN + 4;
+    public static final byte IC_MF0UL11 = IC_UNKNOWN + 2;
+    public static final byte IC_MF0UL21 = IC_UNKNOWN + 3;
+    public static final byte IC_MIK640D = IC_UNKNOWN + 4;
+    public static final byte IC_MIK1312ED = IC_UNKNOWN + 5;
 
     // Data fields definition
     private ArrayList<byte[]> Pages;
@@ -147,7 +148,7 @@ public class Dump {
                 LastBlockValidPages++;
             }
         } else {
-            LastBlockValidPages =4;
+            LastBlockValidPages = 4;
         }
         LastBlockVerifyed = true;
     }
@@ -160,41 +161,53 @@ public class Dump {
     private void detectIC_Type() {
         switch (getPage(0)[0]) {
             case 0x04:
-                if (getPagesNumber() == 16) {
-                    IC_Type = IC_MF0ICU1;
-                } else if (getPagesNumber() == 20 &&
+                if (getPagesNumber() == 20 &&
                         !isVERSIONEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
-                            getVersionInfo()[4] == (byte) 0x01) {
+                            getVersionInfo()[4] == (byte) 0x01 &&
+                            getVersionInfo()[5] == (byte) 0x00 &&
+                            getVersionInfo()[6] == (byte) 0x0b) {
 /*
-                     according to data sheet byte 3 need to be:
-                     - 0x01 (17pF version MF0L(1|2)1)
-                     - 0x02 (50pF version MF0LH(1|2)1)
-                     but all tickets I've seen had 0x03 value in this byte
-                     I don't know what does it mead and don't use this
-                     byte for identification.
+                        according to data sheet byte 3 need to be:
+                        - 0x01 (17pF version MF0L(1|2)1)
+                        - 0x02 (50pF version MF0LH(1|2)1)
+                        but all tickets I've seen had 0x03 value in this byte
+                        I don't know what does it mead and don't use this
+                        byte for identification.
 */
-                        IC_Type = IC_MF0ULx1;
+                        IC_Type = IC_MF0UL11;
                     }
+                } else if (getPagesNumber() == 44 &&
+                        !isVERSIONEmpty()) {
+                    if (getVersionInfo()[0] == (byte) 0x00 &&
+                            getVersionInfo()[1] == (byte) 0x04 &&
+                            getVersionInfo()[2] == (byte) 0x03 &&
+                            getVersionInfo()[4] == (byte) 0x01 &&
+                            getVersionInfo()[5] == (byte) 0x00 &&
+                            getVersionInfo()[6] == (byte) 0x0e) {
+                        IC_Type = IC_MF0UL21;
+                    }
+                } else if (getPagesNumber() == 16) {
+                    IC_Type = IC_MF0ICU1;
                 } else {
                     IC_Type = IC_UNKNOWN;
                 }
                 break;
             case 0x34:
-                if (getPagesNumber() == 20) {
-                    IC_Type = IC_MIK640D;
-                } else if (getPagesNumber() == 44 &&
+                if (getPagesNumber() == 44 &&
                         !isVERSIONEmpty()) {
-                    if (getVersionInfo()[0] == (byte)0x00 &&
-                            getVersionInfo()[1] == (byte)0x34 &&
-                            getVersionInfo()[2] == (byte)0x21 &&
-                            getVersionInfo()[3] == (byte)0x01 &&
-                            getVersionInfo()[4] == (byte)0x01 &&
-                            getVersionInfo()[5] == (byte)0x00) {
+                    if (getVersionInfo()[0] == (byte) 0x00 &&
+                            getVersionInfo()[1] == (byte) 0x34 &&
+                            getVersionInfo()[2] == (byte) 0x21 &&
+                            getVersionInfo()[3] == (byte) 0x01 &&
+                            getVersionInfo()[4] == (byte) 0x01 &&
+                            getVersionInfo()[5] == (byte) 0x00) {
                         IC_Type = IC_MIK1312ED;
                     }
+                } else if (getPagesNumber() == 20) {
+                        IC_Type = IC_MIK640D;
                 } else {
                     IC_Type = IC_UNKNOWN;
                 }
@@ -214,9 +227,11 @@ public class Dump {
     public String getIC_TypeAsString() {
         switch (getIC_Type()) {
             case IC_MF0ICU1:
-                return "(probably)MF0ICU1 (64 bytes)";
-            case IC_MF0ULx1:
-                return "MF0ULx1 (80 bytes)";
+                return "(probably)MF0ICU1 (64 bytes) [Mifare Ultralight]";
+            case IC_MF0UL11:
+                return "MF0UL(H)11 (80 bytes) [Mifare Ultralight EV1]";
+            case IC_MF0UL21:
+                return "MF0UL(H)21 (164 bytes) [Mifare Ultralight EV1]";
             case IC_MIK640D:
                 return "(probably) MIK64PTAS(MIK640D) (80 bytes)";
             case IC_MIK1312ED:
@@ -279,7 +294,7 @@ public class Dump {
         PagesAccess[15] = ((getPage(2)[3] & 0x80) | (getPage(2)[2] & 0x04)) != 0 ? AC_READ_ONLY : AC_WRITE;
 
         switch (IC_Type) {
-            case IC_MF0ULx1:
+            case IC_MF0UL11:
                 PagesAccess[16] = AC_SPECIAL;
                 PagesAccess[17] = AC_SPECIAL;
                 PagesAccess[18] = AC_SPECIAL;
@@ -297,6 +312,7 @@ public class Dump {
                 PagesAccess[19] = AC_INTERAL_USE;
                 break;
             case IC_MIK1312ED:
+            case IC_MF0UL21:
                 PagesAccess[16] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 PagesAccess[17] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 PagesAccess[18] = ((getPage(36)[0] & 0x02) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
