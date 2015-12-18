@@ -4,7 +4,6 @@ package ru.valle.tickets.ui;
  * The MIT License (MIT)
 
  Copyright (c) 2015 Mikhail Basov
- Copyright (c) 2013 Valentin Konovalov
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +24,28 @@ package ru.valle.tickets.ui;
  THE SOFTWARE.
  */
 
+import android.nfc.tech.NfcA;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class NFCaDump {
+    /*
+    Operate with NFC A technology cards.
+
+    !!! Attention !!!
+    The following functions (doesn't support by all cards):
+        readVERSION(NfcA);
+        readSIGN(NfcA);
+        readCounters(NfcA);
+     need to be wrapped around by separate nfca.connect()/nfca.close()
+     and placed after (supported by all cards):
+        readATQA(NfcA);
+        readSAK(NfcA);
+        readPages(NfcA); (need to be last, because finished by exception)
+     because read this information from card which doesn't support it block normal
+     operation without reconnect.
+     */
 
     // Constants definition
     public static final int MAX_PAGES = 64;
@@ -83,6 +101,67 @@ public class NFCaDump {
         PagesAccess = new byte[MAX_PAGES];
         for (int i = 0; i < MAX_PAGES - 1; i++) {
             PagesAccess[i] = AC_UNKNOWN;
+        }
+    }
+
+/* Operate with ATQA and SAK */
+
+    public void readATQA(NfcA nfca) {
+        try {
+            if (!nfca.isConnected()) nfca.connect();
+            setATQA(nfca.getAtqa());
+        } catch (IOException ignored) {}
+    }
+
+    public void setATQA(byte[] ATQA) {
+        this.ATQA = ATQA;
+    }
+
+    public byte[] getATQA() {
+        return this.ATQA;
+    }
+
+    public void readSAK(NfcA nfca) {
+        try {
+            if (!nfca.isConnected()) nfca.connect();
+            setSAK((byte) nfca.getSak());
+        } catch (IOException ignored) {}
+    }
+
+    public void setSAK(byte SAK) {
+        this.SAK = SAK;
+    }
+
+    public byte getSAK() {
+        return this.SAK;
+    }
+
+/* Dump pages operation functions */
+
+    public void readPages(NfcA nfca) {
+        for (int i = 0; i < (NFCaDump.MAX_PAGES/4) + 1; i++) {
+            byte[] cmd = {0x30, (byte) (i * 4)};
+            try {
+                if (!nfca.isConnected()) nfca.connect();
+/*
+                Read 4 pages (4 bytes each) block.
+                Throw IOException if index of 1-st page out of band.
+                Wrap around p0 if try to read more then exists pages.
+                According to manufacturer data sheets read 4 pages of 4 bytes,
+                i.e. exactly 16 bytes in any case.
+                But, on some devices (Sony Xperia Z1 with Android 5.1.1, for example)
+                last block with only one byte generated.
+                Other devices (Samsung Galaxy S IV with Andpoid 5.0.1, for example)
+                lead manufacturer description.
+*/
+                byte[] answer = nfca.transceive(cmd);
+                if (answer.length != 16) {
+                    break;  //   Only 16 bytes blocks are valid
+                }
+                addPagesBlock( answer );
+            } catch (IOException ignored) {
+                break; // this 4 pages block totally out of band
+            }
         }
     }
 
@@ -163,128 +242,7 @@ public class NFCaDump {
         return this.LastBlockValidPages;
     }
 
-    private void detectIC_Type() {
-        /*
-        This algorithm operate only with full accesable cards
-        If authentication required to read some pages it doesn't operate
-        beacuse based on number of sucessfuly read pages.
-        I don't want to read VERSION and SIGN on every card because it slow
-        card reading.
-         */
-        switch (getPage(0)[0]) {
-            case 0x04:
-                if (getPagesNumber() == 20 &&
-                        !isVERSIONEmpty()) {
-                    if (getVersionInfo()[0] == (byte) 0x00 &&
-                            getVersionInfo()[1] == (byte) 0x04 &&
-                            getVersionInfo()[2] == (byte) 0x03 &&
-                            getVersionInfo()[4] == (byte) 0x01 &&
-                            getVersionInfo()[5] == (byte) 0x00 &&
-                            getVersionInfo()[6] == (byte) 0x0b) {
-/*
-                        according to data sheet byte 3 need to be:
-                        - 0x01 (17pF version MF0L(1|2)1)
-                        - 0x02 (50pF version MF0LH(1|2)1)
-                        but all tickets I've seen had 0x03 value in this byte
-                        I don't know what does it mead and don't use this
-                        byte for identification.
-*/
-                        IC_Type = IC_MF0UL11;
-                    }
-                } else if (getPagesNumber() == 44 &&
-                        !isVERSIONEmpty()) {
-                    if (getVersionInfo()[0] == (byte) 0x00 &&
-                            getVersionInfo()[1] == (byte) 0x04 &&
-                            getVersionInfo()[2] == (byte) 0x03 &&
-                            getVersionInfo()[4] == (byte) 0x01 &&
-                            getVersionInfo()[5] == (byte) 0x00 &&
-                            getVersionInfo()[6] == (byte) 0x0e) {
-                        IC_Type = IC_MF0UL21;
-                    }
-                } else if (getPagesNumber() == 16) {
-                    IC_Type = IC_MF0ICU1;
-                } else {
-                    IC_Type = IC_UNKNOWN;
-                }
-                break;
-            case 0x34:
-                if (getPagesNumber() == 44 &&
-                        !isVERSIONEmpty()) {
-                    if (getVersionInfo()[0] == (byte) 0x00 &&
-                            getVersionInfo()[1] == (byte) 0x34 &&
-                            getVersionInfo()[2] == (byte) 0x21 &&
-                            getVersionInfo()[3] == (byte) 0x01 &&
-                            getVersionInfo()[4] == (byte) 0x01 &&
-                            getVersionInfo()[5] == (byte) 0x00) {
-                        IC_Type = IC_MIK1312ED;
-                    }
-                } else if (getPagesNumber() == 20) {
-                        IC_Type = IC_MIK640D;
-                } else {
-                    IC_Type = IC_UNKNOWN;
-                }
-                break;
-            default:
-                IC_Type = IC_UNKNOWN;
-                break;
-        }
-
-    }
-
-    public byte getIC_Type(){
-        if (IC_Type == IC_UNKNOWN) detectIC_Type();
-        return IC_Type;
-    }
-
-    public String getIC_TypeAsString() {
-        switch (getIC_Type()) {
-            case IC_MF0ICU1:
-                return "(probably)MF0ICU1 (64 bytes) [Mifare Ultralight]";
-            case IC_MF0UL11:
-                return "MF0UL(H)11 (80 bytes) [Mifare Ultralight EV1]";
-            case IC_MF0UL21:
-                return "MF0UL(H)21 (164 bytes) [Mifare Ultralight EV1]";
-            case IC_MIK640D:
-                return "(probably) MIK64PTAS(MIK640D) (80 bytes)";
-            case IC_MIK1312ED:
-                return "MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)";
-            default:
-                return "Unknown";
-        }
-    }
-
-    public boolean UID_CRC_Check() {
-
-        // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
-        byte UID_BCC0_CRC = (byte)0x88;
-        UID_BCC0_CRC ^= getPage(0)[0];
-        UID_BCC0_CRC ^= getPage(0)[1];
-        UID_BCC0_CRC ^= getPage(0)[2];
-        UID_BCC0_CRC ^= getPage(0)[3]; //The BCC0 itself, if ok result is 0
-
-        byte UID_BCC1_CRC = (byte)0x00;
-        UID_BCC1_CRC ^= getPage(1)[0];
-        UID_BCC1_CRC ^= getPage(1)[1];
-        UID_BCC1_CRC ^= getPage(1)[2];
-        UID_BCC1_CRC ^= getPage(1)[3];
-        UID_BCC1_CRC ^= getPage(2)[0]; //The BCC1 itself, if ok result is 0
-
-        if (UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0) {
-            return true;
-        }
-        return false;
-    }
-
-    public String getManufName() {
-        switch (Pages.get(0)[0]){
-            case 0x04:
-                return "NXP Semiconductors (Philips) Germany";
-            case 0x34:
-                return "JSC Micron Russia";
-            default:
-                return "Unknown";
-        }
-    }
+/* Pages access condition detection and show functions */
 
     private void detectPagesAccess() {
 
@@ -391,32 +349,150 @@ public class NFCaDump {
         }
     }
 
-    public String getDumpAsString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("- - - Dump: - - -\n");
-        for (int i=0; i < getPagesNumber() - ( 4 - getLastBlockValidPages() ); i++){
-            sb.append(String.format("%02x:%s: ", i, getAccessAsString(getPageAssess(i))));
-            for (int j=0; j < 4; j++){
-                sb.append(String.format("%02x ", getPage(i)[j]));
-            }
-            sb.append("\n");
-        }
-        // warning, because fuzzy algorithm used
-        if (getLastBlockValidPages() != 4)
-            sb.append(String.format("---\n[!]Last block valid pages: %d\n",
-                    getLastBlockValidPages()));
-        sb.append("- - - Dump legend: - - -\n");
-        sb.append(":u: - unknown\n");
-        sb.append(":f: - factory locked\n");
-        sb.append(":r: - read only\n");
-        sb.append(":p: - partially writable\n");
-        sb.append(":o: - One Time Programming (OTP)\n");
-        sb.append(":w: - writable\n");
-        sb.append(":a: - authentication require for write\n");
-        sb.append(":s: - special\n");
-        sb.append(":i: - reserved for internal use\n");
+/* IC detection functions */
 
-        return sb.toString();
+    private void detectIC_Type() {
+        /*
+        This algorithm operate only with full accesable cards
+        If authentication required to read some pages it doesn't operate
+        beacuse based on number of sucessfuly read pages.
+        I don't want to read VERSION and SIGN on every card because it slow
+        card reading.
+         */
+        switch (getPage(0)[0]) {
+            case 0x04:
+                if (getPagesNumber() == 20 &&
+                        !isVERSIONEmpty()) {
+                    if (getVersionInfo()[0] == (byte) 0x00 &&
+                            getVersionInfo()[1] == (byte) 0x04 &&
+                            getVersionInfo()[2] == (byte) 0x03 &&
+                            getVersionInfo()[4] == (byte) 0x01 &&
+                            getVersionInfo()[5] == (byte) 0x00 &&
+                            getVersionInfo()[6] == (byte) 0x0b) {
+/*
+                        according to data sheet byte 3 need to be:
+                        - 0x01 (17pF version MF0L(1|2)1)
+                        - 0x02 (50pF version MF0LH(1|2)1)
+                        but all tickets I've seen had 0x03 value in this byte
+                        I don't know what does it mead and don't use this
+                        byte for identification.
+*/
+                        IC_Type = IC_MF0UL11;
+                    }
+                } else if (getPagesNumber() == 44 &&
+                        !isVERSIONEmpty()) {
+                    if (getVersionInfo()[0] == (byte) 0x00 &&
+                            getVersionInfo()[1] == (byte) 0x04 &&
+                            getVersionInfo()[2] == (byte) 0x03 &&
+                            getVersionInfo()[4] == (byte) 0x01 &&
+                            getVersionInfo()[5] == (byte) 0x00 &&
+                            getVersionInfo()[6] == (byte) 0x0e) {
+                        IC_Type = IC_MF0UL21;
+                    }
+                } else if (getPagesNumber() == 16) {
+                    IC_Type = IC_MF0ICU1;
+                } else {
+                    IC_Type = IC_UNKNOWN;
+                }
+                break;
+            case 0x34:
+                if (getPagesNumber() == 44 &&
+                        !isVERSIONEmpty()) {
+                    if (getVersionInfo()[0] == (byte) 0x00 &&
+                            getVersionInfo()[1] == (byte) 0x34 &&
+                            getVersionInfo()[2] == (byte) 0x21 &&
+                            getVersionInfo()[3] == (byte) 0x01 &&
+                            getVersionInfo()[4] == (byte) 0x01 &&
+                            getVersionInfo()[5] == (byte) 0x00) {
+                        IC_Type = IC_MIK1312ED;
+                    }
+                } else if (getPagesNumber() == 20) {
+                        IC_Type = IC_MIK640D;
+                } else {
+                    IC_Type = IC_UNKNOWN;
+                }
+                break;
+            default:
+                IC_Type = IC_UNKNOWN;
+                break;
+        }
+
+    }
+
+    public byte getIC_Type(){
+        if (IC_Type == IC_UNKNOWN) detectIC_Type();
+        return IC_Type;
+    }
+
+    public String getIC_TypeAsString() {
+        switch (getIC_Type()) {
+            case IC_MF0ICU1:
+                return "(probably)MF0ICU1 (64 bytes) [Mifare Ultralight]";
+            case IC_MF0UL11:
+                return "MF0UL(H)11 (80 bytes) [Mifare Ultralight EV1]";
+            case IC_MF0UL21:
+                return "MF0UL(H)21 (164 bytes) [Mifare Ultralight EV1]";
+            case IC_MIK640D:
+                return "(probably) MIK64PTAS(MIK640D) (80 bytes)";
+            case IC_MIK1312ED:
+                return "MIK1312ED(К5016ВГ4Н4 aka K5016XC1M1H4) (164 bytes)";
+            default:
+                return "Unknown";
+        }
+    }
+
+/* UID CRC check */
+
+    public boolean UID_CRC_Check() {
+
+        // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
+        byte UID_BCC0_CRC = (byte)0x88;
+        UID_BCC0_CRC ^= getPage(0)[0];
+        UID_BCC0_CRC ^= getPage(0)[1];
+        UID_BCC0_CRC ^= getPage(0)[2];
+        UID_BCC0_CRC ^= getPage(0)[3]; //The BCC0 itself, if ok result is 0
+
+        byte UID_BCC1_CRC = (byte)0x00;
+        UID_BCC1_CRC ^= getPage(1)[0];
+        UID_BCC1_CRC ^= getPage(1)[1];
+        UID_BCC1_CRC ^= getPage(1)[2];
+        UID_BCC1_CRC ^= getPage(1)[3];
+        UID_BCC1_CRC ^= getPage(2)[0]; //The BCC1 itself, if ok result is 0
+
+        if (UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0) {
+            return true;
+        }
+        return false;
+    }
+
+/* Display manufacturer name */
+
+    public String getManufName() {
+        switch (Pages.get(0)[0]){
+            case 0x04:
+                return "NXP Semiconductors (Philips) Germany";
+            case 0x34:
+                return "JSC Micron Russia";
+            default:
+                return "Unknown";
+        }
+    }
+
+/* IC manufacturer signature operation functions */
+
+    public void readSIGN(NfcA nfca) {
+        setSIGNisEmpty();
+        try {
+            byte[] cmd_read_sign = {
+                    NFCaDump.CMD_READ_SIGN,
+                    (byte)0x00}; // according to data sheet
+            if (!nfca.isConnected()) nfca.connect();
+            setSIGN(nfca.transceive(cmd_read_sign));
+            setSIGNisEmpty(false);
+
+        } catch (IOException ignored) {
+            setSIGNisEmpty();
+        }
 
     }
 
@@ -440,6 +516,21 @@ public class NFCaDump {
         return this.SIGN;
     }
 
+/* IC hardware version get and display functions */
+
+    public void readVERSION(NfcA nfca) {
+        setVERSIONisEmpty();
+        try {
+            byte[] cmd_ver = {NFCaDump.CMD_GET_VERSION};
+            if (!nfca.isConnected()) nfca.connect();
+            setVersionInfo(nfca.transceive(cmd_ver));
+            setVERSIONisEmpty(false);
+        } catch (IOException ignored) {
+            setVERSIONisEmpty();
+        }
+
+    }
+
     public void setVERSIONisEmpty(boolean VERSIONisEmpty) {
         this.VERSIONisEmpty = VERSIONisEmpty;
     }
@@ -460,20 +551,20 @@ public class NFCaDump {
         return this.VersionInfo;
     }
 
-    public void setATQA(byte[] ATQA) {
-        this.ATQA = ATQA;
-    }
+/* Internal one way counters read and display functions */
 
-    public byte[] getATQA() {
-        return this.ATQA;
-    }
+    public void readCounters(NfcA nfca) {
+        try {
+            byte[] cmd_read_cnt = {
+                    NFCaDump.CMD_READ_CNT,
+                    (byte)0x00 };
+            if (!nfca.isConnected()) nfca.connect();
+            for (int i = 0; i < 3; i++) {
+                cmd_read_cnt[1] = (byte) i;
+                addCounter(nfca.transceive(cmd_read_cnt));
+            }
+        } catch (IOException ignored) { }
 
-    public void setSAK(byte SAK) {
-        this.SAK = SAK;
-    }
-
-    public byte getSAK() {
-        return this.SAK;
     }
 
     public void addCounter(byte[] counter) {
@@ -488,6 +579,48 @@ public class NFCaDump {
         return this.Counters.get(i);
     }
 
+    public void incCounter(NfcA nfca, int cnt, byte[] inc) {
+/*
+    nfca - NFC A connection
+    cnt - increment counter number
+    incr - LSB 1-st, 4-th byte ignored but need
+
+    Doesn't need to dump functionality.
+
+    Increment to 0 (safe):
+        byte[] inc = {
+                (byte)0x00, // LSB
+                (byte)0x00,
+                (byte)0x00, // MSB
+                (byte)0x00 // ignored
+                };
+        d.incCounter(nfca, 0, inc);
+
+    Increment to 321(hex):
+        byte[] inc = {
+                (byte)0x01, // LSB
+                (byte)0x02,
+                (byte)0x03, // MSB
+                (byte)0x00 // ignored
+                };
+        d.incCounter(nfca, 0, inc);
+
+    WARNING! Counters are one way!
+*/
+        try {
+            byte[] cmd_incr_cnt = {
+                    CMD_INCR_CNT,
+                    (byte)cnt,  // increment counter 0
+                    // LSB 1-st, 4-th byte need but ignored.
+                    // 0 increment is valid but has no effect.
+                    inc[0], inc[1], inc[2], inc[3]};
+            if (!nfca.isConnected()) nfca.connect();
+            nfca.transceive(cmd_incr_cnt);
+        } catch (IOException ignored) {}
+    }
+
+/* Operate with Android detected technologies list */
+
     public void addAndTechList(String andTech) {
         this.AndTechList.add(andTech);
     }
@@ -495,6 +628,8 @@ public class NFCaDump {
     public ArrayList<String> getAndTechList() {
         return this.AndTechList;
     }
+
+/* Display dump an IC tech . information */
 
     public String getIC_InfoAsString() {
 
@@ -567,4 +702,34 @@ public class NFCaDump {
 
         return sb.toString();
     }
+
+    public String getDumpAsString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("- - - Dump: - - -\n");
+        for (int i=0; i < getPagesNumber() - ( 4 - getLastBlockValidPages() ); i++){
+            sb.append(String.format("%02x:%s: ", i, getAccessAsString(getPageAssess(i))));
+            for (int j=0; j < 4; j++){
+                sb.append(String.format("%02x ", getPage(i)[j]));
+            }
+            sb.append("\n");
+        }
+        // warning, because fuzzy algorithm used
+        if (getLastBlockValidPages() != 4)
+            sb.append(String.format("---\n[!]Last block valid pages: %d\n",
+                    getLastBlockValidPages()));
+        sb.append("- - - Dump legend: - - -\n");
+        sb.append(":u: - unknown\n");
+        sb.append(":f: - factory locked\n");
+        sb.append(":r: - read only\n");
+        sb.append(":p: - partially writable\n");
+        sb.append(":o: - One Time Programming (OTP)\n");
+        sb.append(":w: - writable\n");
+        sb.append(":a: - authentication require for write\n");
+        sb.append(":s: - special\n");
+        sb.append(":i: - reserved for internal use\n");
+
+        return sb.toString();
+
+    }
+
 }

@@ -125,33 +125,11 @@ public final class MainActivity extends Activity {
 
                             nfca.connect();
 
-                            d.setATQA(nfca.getAtqa());
-                            d.setSAK((byte) nfca.getSak());
+                            d.readATQA(nfca);
+                            d.readSAK(nfca);
+                            d.readPages(nfca);
 
-                            for (int i = 0; i < (NFCaDump.MAX_PAGES/4) + 1; i++) {
-                                byte[] cmd = {0x30, (byte) (i * 4)};
-                                try {
-/*
-                                    Read 4 pages (4 bytes each) block.
-                                    Throw IOException if index of 1-st page out of band.
-                                    Wrap around p0 if try to read more then exists pages.
-                                    According to manufacturer data sheets read 4 pages of 4 bytes,
-                                    i.e. exactly 16 bytes in any case.
-                                    But, on some devices (Sony Xperia Z1 with Android 5.1.1, for example)
-                                    last block with only one byte generated.
-                                    Other devices (Samsung Galaxy S IV with Andpoid 5.0.1, for example)
-                                    lead manufacturer description.
-*/
-                                    byte[] answer = nfca.transceive(cmd);
-                                    if (answer.length != 16) {
-                                        break;  //   Only 16 bytes blocks are valid
-                                    }
-                                    d.addPagesBlock( answer );
-                                } catch (IOException ignored0) {
-                                    break; // this 4 pages block totally out of band
-                                }
-                            }
-
+                            nfca.close();
 /*
                             If try to read Mifare 1K on devices without support this tag type 0 blocks returned
                             If try to read using NfcA library Mifare 1K on devices with support only one block with one byte returned
@@ -159,72 +137,23 @@ public final class MainActivity extends Activity {
                             if (d.isPagesEmpty())
                                 return null;
 
-                            nfca.close();
-/*
-                            Read answer to GET_VERSION command.
-                            This code mast be wrapped around by connect/close.
-                            In other case it lead strange side effects.
-                            It found experimentally.
-                            If you wish to get more precesion card detection
-                            you need to remove memory size check around
-                            GET_VERSION(0x60), READ_SIGN(0x3C) and READ_CNT(0x39)
-                            commands and little bite rewrite detectIC_Type().
-*/
-                            nfca.connect();
-                            d.setVERSIONisEmpty();
                             if ((d.getPage(0)[0] == (byte)0x04 && d.getPagesNumber() == 20) ||     // MF0ULx1 (80 bytes)
                                     (d.getPage(0)[0] == (byte)0x34 && d.getPagesNumber() == 44)) {  // MIK1312ED (164 bytes)
-                                try {
-                                    byte[] cmd_ver = {NFCaDump.CMD_GET_VERSION};
-                                    d.setVersionInfo(nfca.transceive(cmd_ver));
-                                    d.setVERSIONisEmpty(false);
-                                } catch (IOException ignored1) {
-                                    d.setVERSIONisEmpty();
-                                }
-                                try {
-                                    byte[] cmd_read_cnt = {
-                                            NFCaDump.CMD_READ_CNT,
-                                            (byte)0x00 };
-                                    for (int i = 0; i < 3; i++) {
-                                        cmd_read_cnt[1] = (byte)i;
-                                        d.addCounter(nfca.transceive(cmd_read_cnt));
-                                    }
-                                } catch (IOException ignored2) { }
-/* TODO: delete this debug code from here: -BEGIN- [Increment counter]
-                                // The following code need only for test counter increment functionality.
-                                // Doesn't need to dump functionality.
-                                // WARNING! Counters are one way!
-                                try {
-                                        byte[] cmd_incr_cnt = {
-                                            NFCaDump.CMD_INCR_CNT,
-                                            (byte)0x00,  // increment counter 0
-                                            // LSB 1-st, 4-th byte need but ignored.
-                                            // 0 increment is valid but has no effect.
-                                            (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00};
-                                            
-                                    nfca.transceive(cmd_incr_cnt);
-                                } catch (IOException ignored3) {}
-TODO: to here. -END- [Increment counter]*/
-                                d.setSIGNisEmpty();
-                                try {
-                                    byte[] cmd_read_sign = {
-                                        NFCaDump.CMD_READ_SIGN,
-                                        (byte)0x00}; // according to data sheet
-                                    d.setSIGN(nfca.transceive(cmd_read_sign));
-                                    d.setSIGNisEmpty(false);
 
-                                } catch (IOException ignored4) {
-                                    d.setSIGNisEmpty();
-                                }
+                                nfca.connect();
+                                // Separate connect()/close() block of calls
+                                // which supported not by all cards
+
+                                d.readVERSION(nfca);
+                                d.readCounters(nfca);
+                                d.readSIGN(nfca);
+
+                                nfca.close();
                             }
-
-                            nfca.close();
 
                             for (int i = 0; i < techList.length; i++) {
                                 d.addAndTechList(techList[i]);
                             }
-
-
                             return d;
                         } catch (IOException ie) {
                             return null;
