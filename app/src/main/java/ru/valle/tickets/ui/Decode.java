@@ -40,13 +40,13 @@ public class Decode
             case 13488:
                 return "Тропарёво";
             case 13001:
-            case 13442:
-            case 13083:
-            case 10781:
+            case 13442: // [?] (2462677851-05-04)
+            case 13083: // [15] (right) (2462677851-05-01)
+            case 10781: // [10] (2-nd from left)(2458927306-11-05)
                 return "Пролетарская";
-            case 13321:
-            case 12877:
-            case 13405:
+            case 13321: // [2] (2-nd from left)(2462677851-05-03)(2462677851-05-02)
+            case 12877: // [1] (left) (2458927306-11-10)
+            case 13405: // [3] (3-rd from left) (2458927306-11-07)
             case 12854:
                 return "Крестьянская застава";
             case 12988:
@@ -64,28 +64,30 @@ public class Decode
                 return "Киевская";
             case 13033:
                 return "Проспект Вернадского";
-            case 12493:
-            case 11556:
+            case 12493: // [1] (left, baggage)(2462677851-05-00)
+            case 11556: // [2] (2-nd from left) (2458927306-11-09)
                 return "Деловой центер";
             case 12254:
             case 12036:
                 return "Фрунзенская";
-            case 12473:
+            case 12473: // [?] (2-nd from left) (2458927306-11-08)
                 return "Савёловская";
-            case 1230:
-            case 2290:
-                return "Парк культуры (радиальная)";
             case 11715:
             case 11482:
                 return "Текстильщики";
-            case 12958:
-            case 1228:
-            case 2211:
+
+            case 1230: // from original code
+            case 2290: // from original code
+                return "Парк культуры (радиальная)";
+            case 12958: // [1] (left) (2458927306-11-06)
+            case 1228: // from original code
+            case 2211: // from original code
                 return "Авиамоторная";
-            case 2194:
+            case 2194: // from original code
                 return "Юго-Западная";
-            case 2233:
+            case 2233: // from original code
                 return "Спортивная";
+
             default:
                 return "";
         }
@@ -127,7 +129,7 @@ public class Decode
             case 608: // 3 passes, ground, sell by driver (0010197214)
                 return "3 " + Lang.getNounCase(3, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
             case 603: // 5 passes ground (0000060635)
-                return "5 " + Lang.getNounCase(5, R.array.trip_cases, c);
+                return "(cg)" + "5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case 607: // 60 passes, ground (0001374174)
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case 410: // 1 pass, universal, sell by ground driver (0020905097)
