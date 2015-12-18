@@ -105,6 +105,7 @@ public class Decode
             case 123:
                 return "4 " + Lang.getNounCase(4, R.array.trip_cases, c);
             case 126:
+            case 603:  //  ground (0000060635)
                 return "5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case 127:
                 return "10 " + Lang.getNounCase(10, R.array.trip_cases, c);
