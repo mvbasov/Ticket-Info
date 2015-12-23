@@ -124,14 +124,22 @@ public class Ticket {
             sb.append(c.getString(R.string.start_use_before)).append(": ");
             sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
         }
+        
 // TODO: Translate messages
         if (PassesLeft == 0) {
             sb.append("\n\tE M P T Y\n");
-        } else if (isDateInPast(IssuedInt+ValidDays)){
-            sb.append("\n\tE X P I R E D\n");
         }
-       
+        if (IssuedInt == 0 ) { 
+            if (isDateInPast(StartUseBeforeInt)) {
+                sb.append("\n\tE X P I R E D\n");
+            }
+        } else {
+            if (isDateInPast(IssuedInt+ValidDays)) {
+                sb.append("\n\tE X P I R E D\n");
+            }
+        }
         sb.append("\n- - - -\n");
+        
         sb.append(c.getString(R.string.passes_left)).append(": ");
         sb.append(PassesLeft).append('\n');
 
@@ -152,18 +160,19 @@ public class Ticket {
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
                     sb.append(getGateDesc(c, GateEntered));
 // TODO: Translate messages
+                    sb.append("  \n");
                     switch (TransportType) {
                         case TT_METRO:
-                            sb.append(" (Metro)");
+                            sb.append("  (Metro)");
                             break;
                         case TT_GROUND:
-                            sb.append(" (Ground)");
+                            sb.append("  (Ground)");
                             break;
                         case TT_UNKNOWN:
-                            sb.append(" (Unknown)");
+                            sb.append("  (Unknown)");
                             break;
                         default:
-                            sb.append(" (!!! Internal error !!!)");
+                            sb.append("  (!!! Internal error !!!)");
                             break;
                     }
                     sb.append('\n');
