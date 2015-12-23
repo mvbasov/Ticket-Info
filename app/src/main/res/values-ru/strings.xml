@@ -6,7 +6,7 @@
   <string name="ticket_disclaimer">Поднесите билет к телефону</string>
   <string name="ticket_num">Номер билета</string>
   <string name="passes_left">Осталось поездок</string>
-  <string name="issued">Выдан</string>
+  <string name="valid">Действителен</string>
   <string name="universal">Единый</string>
   <string name="best_in_days">Годен, дней</string>
   <string name="station_last_enter">для входа через турникет</string>

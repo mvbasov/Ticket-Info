@@ -35,6 +35,10 @@ import java.util.Calendar;
 import ru.valle.tickets.R;
 
 public class Ticket {
+    // Constants definition
+    public static final int TT_UNKNOWN = 0;
+    public static final int TT_METRO = 1;
+    public static final int TT_GROUND = 2;
 
     // Data fields definition
     ArrayList<Integer> Dump;
@@ -50,6 +54,7 @@ public class Ticket {
     int LastUsedDateInt = 0;
     int LastUsedTimeInt = 0;
     int GateEntered = 0;
+    int TransportType = TT_UNKNOWN;
     int OTP = 0;
     int Hash = 0;
 
@@ -85,6 +90,8 @@ public class Ticket {
         LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
 
         GateEntered = Dump.get(9) & 0xffff;
+        
+        TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
 
         OTP = Dump.get(3);
         Hash = Dump.get(10);
@@ -98,17 +105,33 @@ public class Ticket {
 
         sb.append(Decode.getAppIdDesc(c, App)).append('\n');
         sb.append(Decode.descCardType(c, Type)).append('\n');
-        sb.append("- - - -\n");
+        sb.append("\n- - - -\n");
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
-        sb.append(String.format("%010d\n", Number));
-        sb.append(c.getString(R.string.issued)).append(": ");
-        sb.append(getReadableDate(IssuedInt)).append('\n');
-        sb.append(c.getString(R.string.start_use_before)).append(": ");
-        sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
-        sb.append(c.getString(R.string.best_in_days)).append(": ");
-        sb.append(ValidDays).append('\n');
-        sb.append("- - - -\n");
+        sb.append(String.format("%010d", Number));
+        sb.append(" (");
+        sb.append(getReadableDate(StartUseBeforeInt)).append(")\n");
+        if (ValidDays != 0) {
+            sb.append(c.getString(R.string.best_in_days)).append(": ");
+            sb.append(ValidDays).append('\n');
+        }
+        if (IssuedInt != 0){
+            //sb.append(c.getString(R.string.valid)).append(": ");
+            sb.append("  ");
+            sb.append(getReadableDate(IssuedInt)).append(" - ");
+            sb.append(getReadableDate(IssuedInt+ValidDays)).append("\n");
+        } else {
+            sb.append(c.getString(R.string.start_use_before)).append(": ");
+            sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
+        }
+// TODO: Translate messages
+        if (PassesLeft == 0) {
+            sb.append("\n\tE M P T Y\n");
+        } else if (isDateInPast(IssuedInt+ValidDays)){
+            sb.append("\n\tE X P I R E D\n");
+        }
+       
+        sb.append("\n- - - -\n");
         sb.append(c.getString(R.string.passes_left)).append(": ");
         sb.append(PassesLeft).append('\n');
 
@@ -118,7 +141,7 @@ public class Ticket {
                     sb.append(c.getString(R.string.station_last_enter)).append(": ");
                     sb.append(getGateDesc(c, GateEntered)).append('\n');
                 }
-                sb.append("- - - -\n");
+                sb.append("\n- - - -\n");
                 sb.append("Layuot 8 (0x8).").append('\n');
                 break;
             case 13:
@@ -127,9 +150,25 @@ public class Ticket {
                     sb.append(getReadableDate(LastUsedDateInt)).append(" ");
                     sb.append(c.getString(R.string.at)).append(getReadableLastUsedTime());
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
-                    sb.append(getGateDesc(c, GateEntered)).append('\n');
+                    sb.append(getGateDesc(c, GateEntered));
+// TODO: Translate messages
+                    switch (TransportType) {
+                        case TT_METRO:
+                            sb.append(" (Metro)");
+                            break;
+                        case TT_GROUND:
+                            sb.append(" (Ground)");
+                            break;
+                        case TT_UNKNOWN:
+                            sb.append(" (Unknown)");
+                            break;
+                        default:
+                            sb.append(" (!!! Internal error !!!)");
+                            break;
+                    }
+                    sb.append('\n');
                 }
-                sb.append("- - - -\n");
+                sb.append("\n- - - -\n");
                 sb.append("Layuot 13 (0xd).").append('\n');
                 break;
 
@@ -162,6 +201,17 @@ public class Ticket {
 
     public String getHashAsHexString() {
         return Integer.toHexString(Hash);
+    }
+    
+    private boolean isDateInPast(int dateInt) {
+        Calendar date = Calendar.getInstance();
+        date.clear();
+        date.set(1992, 0, 0);
+        date.add(Calendar.DATE, dateInt);
+        if (date.compareTo(Calendar.getInstance()) <=0){
+            return true;
+        }
+        return false;
     }
 
     private String getReadableDate(int days) {

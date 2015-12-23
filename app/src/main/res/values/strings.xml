@@ -6,7 +6,7 @@
   <string name="ticket_disclaimer">Bring a ticket</string>
   <string name="ticket_num">Ticket number</string>
   <string name="passes_left">Trips left</string>
-  <string name="issued">Issued</string>
+  <string name="valid">Valid</string>
   <string name="universal">Univrsal</string>
   <string name="best_in_days">Valid in days</string>
   <string name="station_last_enter">gate entered</string>
