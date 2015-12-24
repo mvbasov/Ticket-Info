@@ -65,6 +65,9 @@ public class Ticket {
     int LastUsedTimeInt = 0;
     int GateEntered = 0;
     int TransportType = TT_UNKNOWN;
+    int T90MCount = 0;
+    int T90GCount = 0;
+    int T90ChangeTimeInt = 0;
     int OTP = 0;
     int Hash = 0;
 
@@ -103,6 +106,15 @@ public class Ticket {
         
         TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
 
+        T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
+
+        T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
+
+        T90ChangeTimeInt = 0;
+        if ((Dump.get(8) & 0xff) != 0) {
+// TODO: Need to add date change (around midnight) processing
+            T90ChangeTimeInt = (Dump.get(8) & 0xff) * 5 + LastUsedTimeInt;
+        }
         OTP = Dump.get(3);
         Hash = Dump.get(10);
 
@@ -165,7 +177,8 @@ public class Ticket {
                 if (GateEntered != 0) {
                     sb.append(c.getString(R.string.last_enter_date)).append(": \n  ");
                     sb.append(getReadableDate(LastUsedDateInt)).append(" ");
-                    sb.append(c.getString(R.string.at)).append(getReadableLastUsedTime());
+                    sb.append(c.getString(R.string.at)).append(getReadableTime(LastUsedTimeInt));
+                    sb.append(",\n  ");
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
                     sb.append(getGateDesc(c, GateEntered));
 // TODO: Translate messages
@@ -185,6 +198,15 @@ public class Ticket {
                             break;
                     }
                     sb.append('\n');
+                    if (T90MCount != 0 || T90GCount != 0) {
+                        sb.append("90 minutes trip: \n");
+                        sb.append("  M count: ");
+                        sb.append(T90MCount).append('\n');
+                        sb.append("  G count: ");
+                        sb.append(T90GCount).append('\n');
+                        sb.append("  Change time: ");
+                        sb.append(getReadableTime(T90ChangeTimeInt)).append('\n');
+                    }
                 }
                 sb.append("\n- - - -\n");
                 sb.append("Layuot 13 (0xd).").append('\n');
@@ -207,10 +229,10 @@ public class Ticket {
         return sb.toString();
     }
 
-    public String getReadableLastUsedTime(){
-        return String.format(" %02d:%02d,\n  ",
-                LastUsedTimeInt / 60,
-                LastUsedTimeInt % 60);
+    public String getReadableTime(int time){
+        return String.format("%02d:%02d",
+                time / 60,
+                time % 60);
     }
 
     public String getOTPasBinaryString() {
