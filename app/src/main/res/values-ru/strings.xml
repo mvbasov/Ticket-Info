@@ -25,7 +25,7 @@
   <string name="ticket_main_type_mosmetrolight">Билет легкого метро</string>
   <string name="ticket_main_type_mossocial">Единый социальный билет Москвы и МО</string>
   <string name="ticket_main_type_unknown">Билет неизвестного типа</string>
-  <string name="last_enter_date">Использовался</string>
+  <string name="last_trip">Поездка</string>
   <string name="at">в</string>
   <string name="station">станции</string>
   <string name="unsupported_tag_type">Не прочитанно ни одной страницы. Возможно, не поддерживаемый тип карты</string>

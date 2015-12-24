@@ -68,6 +68,7 @@ public class Ticket {
     int T90MCount = 0;
     int T90GCount = 0;
     int T90ChangeTimeInt = 0;
+    int T90TripTimeLeftInt = 0;
     int OTP = 0;
     int Hash = 0;
 
@@ -115,7 +116,18 @@ public class Ticket {
 // TODO: Need to add date change (around midnight) processing
             T90ChangeTimeInt = (Dump.get(8) & 0xff) * 5 + LastUsedTimeInt;
         }
+
+        T90TripTimeLeftInt = 0;
+        if (T90MCount != 0 || T90GCount != 0) {
+// TODO: Need to check date change
+            if (getCurrentTimeInt() >= LastUsedTimeInt) {
+                T90TripTimeLeftInt = 90 - getCurrentTimeInt() - LastUsedTimeInt;
+            }
+            if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
+        }
+
         OTP = Dump.get(3);
+
         Hash = Dump.get(10);
 
         df = new SimpleDateFormat("dd.MM.yyyy");
@@ -175,14 +187,16 @@ public class Ticket {
                 break;
             case 13:
                 if (GateEntered != 0) {
-                    sb.append(c.getString(R.string.last_enter_date)).append(": \n  ");
+
+                    sb.append(c.getString(R.string.last_trip)).append(":\n  ");
                     sb.append(getReadableDate(LastUsedDateInt)).append(" ");
-                    sb.append(c.getString(R.string.at)).append(getReadableTime(LastUsedTimeInt));
+                    sb.append(c.getString(R.string.at)).append(" ");
+                    sb.append(getReadableTime(LastUsedTimeInt));
                     sb.append(",\n  ");
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
                     sb.append(getGateDesc(c, GateEntered));
-// TODO: Translate messages
                     sb.append("\n");
+// TODO: Translate messages
                     switch (TransportType) {
                         case TT_METRO:
                             sb.append("  (Metro)");
@@ -198,15 +212,28 @@ public class Ticket {
                             break;
                     }
                     sb.append('\n');
+
+// TODO: Translate messages
                     if (T90MCount != 0 || T90GCount != 0) {
-                        sb.append("90 minutes trip: \n");
-                        sb.append("  M count: ");
-                        sb.append(T90MCount).append('\n');
-                        sb.append("  G count: ");
+                       sb.append("90 minutes trip details:\n");
+                       if (T90TripTimeLeftInt > 0) {
+                            sb.append("  Time left: ");
+                            sb.append(getReadableTime(T90TripTimeLeftInt)).append('\n');
+                        } else {
+                            sb.append("  Trip time ended\n");
+                        }
+                        sb.append("  Metro  count: ");
+                        sb.append(T90MCount);
+                        if (T90MCount > 0) {
+                            sb.append(" (no more allowed)");
+                        }
+                        sb.append('\n');
+                        sb.append("  Ground count: ");
                         sb.append(T90GCount).append('\n');
-                        sb.append("  Change time: ");
+                        sb.append("  Change  time: ");
                         sb.append(getReadableTime(T90ChangeTimeInt)).append('\n');
                     }
+
                 }
                 sb.append("\n- - - -\n");
                 sb.append("Layuot 13 (0xd).").append('\n');
@@ -229,6 +256,14 @@ public class Ticket {
         return sb.toString();
     }
 
+    private int getCurrentTimeInt() {
+        /*
+        Return minutes since current day midnight
+         */
+        Calendar now = Calendar.getInstance();
+        return now.get(Calendar.HOUR) * 60 + now.get(Calendar.MINUTE);
+    }
+
     public String getReadableTime(int time){
         return String.format("%02d:%02d",
                 time / 60,
@@ -246,9 +281,9 @@ public class Ticket {
     private boolean isDateInPast(int dateInt) {
         Calendar date = Calendar.getInstance();
         date.clear();
-        date.set(1992, 0, 0);
+        date.set(1991, Calendar.DECEMBER, 31);
         date.add(Calendar.DATE, dateInt);
-        if (date.compareTo(Calendar.getInstance()) <=0){
+        if (date.compareTo(Calendar.getInstance()) <= 0){
             return true;
         }
         return false;
@@ -257,7 +292,7 @@ public class Ticket {
     private String getReadableDate(int days) {
         Calendar c = Calendar.getInstance();
         c.clear();
-        c.set(1992, 0, 0);
+        c.set(1991, Calendar.DECEMBER, 31);
         c.add(Calendar.DATE, days);
         return df.format(c.getTime());
     }

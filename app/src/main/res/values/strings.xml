@@ -25,7 +25,7 @@
   <string name="ticket_main_type_mosmetrolight">Light metro ticket</string>
   <string name="ticket_main_type_mossocial">Social ticket of Moscow and Moscow state</string>
   <string name="ticket_main_type_unknown">An unknown ticket</string>
-  <string name="last_enter_date">Last used</string>
+  <string name="last_trip">Last trip</string>
   <string name="at">at</string>
   <string name="station">on station</string>
   <string name="unsupported_tag_type">0 pages read. Possible unsupported tag type.</string>
