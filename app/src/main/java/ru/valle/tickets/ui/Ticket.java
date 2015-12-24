@@ -36,16 +36,26 @@ import ru.valle.tickets.R;
 
 public class Ticket {
     // Constants definition
+    /* Used transport types */
     public static final int TT_UNKNOWN = 0;
-    public static final int TT_METRO = 1;
-    public static final int TT_GROUND = 2;
-
+    public static final int TT_METRO = TT_UNKNOWN + 1;
+    public static final int TT_GROUND = TT_UNKNOWN + 2;
+    /* Application */
+    public static final int A_UNKNOWN = 0;
+    public static final int A_METRO = 262;
+    public static final int A_GROUND = 264;
+    public static final int A_SOCIAL = 266;
+    public static final int A_METRO_LIGHT = 270;
+    public static final int A_UNIVERSAL = 279;
+    /* Type */
+    public static final int T_UNKNOWN = 0;
+    
     // Data fields definition
     ArrayList<Integer> Dump;
     long Number = 0L;
     int Layout = 0;
-    int App = 0;
-    int Type = 0;
+    int App = A_UNKNOWN;
+    int Type = T_UNKNOWN;
     int IssuedInt = 0;
     int StartUseBeforeInt = 0;
     int ValidDays = 0;
@@ -128,8 +138,7 @@ public class Ticket {
 // TODO: Translate messages
         if (PassesLeft == 0) {
             sb.append("\n\tE M P T Y\n");
-        }
-        if (IssuedInt == 0 ) { 
+        } else if (IssuedInt == 0 ) { 
             if (isDateInPast(StartUseBeforeInt)) {
                 sb.append("\n\tE X P I R E D\n");
             }
@@ -160,7 +169,7 @@ public class Ticket {
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
                     sb.append(getGateDesc(c, GateEntered));
 // TODO: Translate messages
-                    sb.append("  \n");
+                    sb.append("\n");
                     switch (TransportType) {
                         case TT_METRO:
                             sb.append("  (Metro)");
