@@ -52,6 +52,7 @@ public class Ticket {
     
     // Data fields definition
     ArrayList<Integer> Dump;
+    boolean DumpValid = false;
     long Number = 0L;
     int Layout = 0;
     int App = A_UNKNOWN;
@@ -78,8 +79,12 @@ public class Ticket {
 
         Dump = new ArrayList<Integer>();
 // TODO: Think about which is allowed minimum of pages to decode.
-        int max = dump.getPagesNumber() > 16 ? 16:dump.getPagesNumber();
-        for (int i = 0; i < max; i++){
+        int max = dump.getPagesNumber() > 16 ? 16 : dump.getPagesNumber();
+        if (dump.getPagesNumber() < 12) {
+            DumpValid = false;
+            return;
+        }
+        for (int i = 0; i < 12; i++){
             Dump.add(dump.getPageAsInt(i));
         }
 
@@ -132,10 +137,18 @@ public class Ticket {
 
         df = new SimpleDateFormat("dd.MM.yyyy");
 
+        DumpValid = true;
+
     }
 
     public String getTicketAsString(Context c) {
         StringBuilder sb = new StringBuilder();
+
+        if (!DumpValid) {
+// TODO: Translate message
+            sb.append("Dump not valid\n");
+            return sb.toString();
+        }
 
         sb.append(Decode.getAppIdDesc(c, App)).append('\n');
         sb.append(Decode.descCardType(c, Type)).append('\n');
@@ -143,7 +156,7 @@ public class Ticket {
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
         sb.append(String.format("%010d", Number));
-        sb.append(" (");
+        sb.append(" (till ");
         sb.append(getReadableDate(StartUseBeforeInt)).append(")\n");
         if (ValidDays != 0) {
             sb.append(c.getString(R.string.best_in_days)).append(": ");
@@ -151,9 +164,9 @@ public class Ticket {
         }
         if (IssuedInt != 0){
             //sb.append(c.getString(R.string.valid)).append(": ");
-            sb.append("  ");
-            sb.append(getReadableDate(IssuedInt)).append(" - ");
-            sb.append(getReadableDate(IssuedInt+ValidDays)).append("\n");
+            sb.append("  from ");
+            sb.append(getReadableDate(IssuedInt)).append(" to ");
+            sb.append(getReadableDate(IssuedInt+ValidDays - 1)).append("\n");
         } else {
             sb.append(c.getString(R.string.start_use_before)).append(": ");
             sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
