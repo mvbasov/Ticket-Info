@@ -125,7 +125,6 @@ public class Ticket {
 
         Dump = new ArrayList<Integer>();
 // TODO: Think about which is allowed minimum of pages to decode.
-        int max = dump.getPagesNumber() > 16 ? 16 : dump.getPagesNumber();
         if (dump.getPagesNumber() < 12) {
             DumpValid = false;
             return;

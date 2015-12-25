@@ -42,9 +42,6 @@ import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import ru.valle.tickets.R;
 
