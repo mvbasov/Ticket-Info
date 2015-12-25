@@ -49,7 +49,51 @@ public class Ticket {
     public static final int A_UNIVERSAL = 279;
     /* Type */
     public static final int T_UNKNOWN = 0;
-    
+    /* Type old (layout 0x08) */
+    public static final int TO_M1 = 120;
+    public static final int TO_M2 = 121;
+    public static final int TO_M3 = 122;
+    public static final int TO_M4 = 123;
+    public static final int TO_M5 = 126;
+    public static final int TO_M10 = 127;
+    public static final int TO_M20 = 128;
+    public static final int TO_M60 = 129;
+    public static final int TO_BAGGAGE_AND_PASS = 130;
+    public static final int TO_BAGGAGE = 131;
+    public static final int TO_UL70 = 149;
+    public static final int TO_VESB = 150; // Temporary universal social ticket
+    /* Type new (layout 0x0d) */
+    public static final int TN_G1 = 601;
+    public static final int TN_G2 = 602;
+    public static final int TN_G3_DRV = 608;
+    public static final int TN_G5 = 603;
+    public static final int TN_G11 = 604;
+    public static final int TN_G20 = 605;
+    public static final int TN_G40 = 606;
+    public static final int TN_G60 = 607;
+    public static final int TN_U1_DRV = 410;
+    public static final int TN_U1 = 411;
+    public static final int TN_U2 = 412;
+    public static final int TN_U5 = 413;
+    public static final int TN_U11 = 415;
+    public static final int TN_U20 = 416;
+    public static final int TN_U40 = 417;
+    public static final int TN_U60 = 418;
+    public static final int TN_90U1 = 421;
+    public static final int TN_90U2 = 422;
+    public static final int TN_90U5 = 423;
+    public static final int TN_90U11 = 424;
+    public static final int TN_90U20 = 425;
+    public static final int TN_90U40 = 426;
+    public static final int TN_90U60 = 427;
+    /* Ticket class */
+    public static final int C_UNKNOWN = 0;
+    public static final int C_OLD_METRO = C_UNKNOWN + 1;
+    public static final int C_OLD_SPECIAL = C_UNKNOWN + 2;
+    public static final int C_GROUND = C_UNKNOWN + 3;
+    public static final int C_UNIVERSAL = C_UNKNOWN + 4;
+    public static final int C_90UNIVERSAL = C_UNKNOWN + 5;
+
     // Data fields definition
     ArrayList<Integer> Dump;
     boolean DumpValid = false;
@@ -57,6 +101,8 @@ public class Ticket {
     int Layout = 0;
     int App = A_UNKNOWN;
     int Type = T_UNKNOWN;
+    int Class = C_UNKNOWN;
+    boolean SellByDriver = false;
     int IssuedInt = 0;
     int StartUseBeforeInt = 0;
     int ValidDays = 0;
@@ -96,6 +142,8 @@ public class Ticket {
 
         Type = (Dump.get(4) >>> 12) & 0x3ff;
 
+        detectPassesTotalAndClass();
+
         IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
 
         StartUseBeforeInt = Dump.get(6) >>> 16;
@@ -109,7 +157,7 @@ public class Ticket {
         LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
 
         GateEntered = Dump.get(9) & 0xffff;
-        
+
         TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
 
         T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
@@ -163,7 +211,6 @@ public class Ticket {
             sb.append(ValidDays).append('\n');
         }
         if (IssuedInt != 0){
-            //sb.append(c.getString(R.string.valid)).append(": ");
             sb.append("  from ");
             sb.append(getReadableDate(IssuedInt)).append(" to ");
             sb.append(getReadableDate(IssuedInt+ValidDays - 1)).append("\n");
@@ -171,11 +218,11 @@ public class Ticket {
             sb.append(c.getString(R.string.start_use_before)).append(": ");
             sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
         }
-        
+
 // TODO: Translate messages
         if (PassesLeft == 0) {
             sb.append("\n\tE M P T Y\n");
-        } else if (IssuedInt == 0 ) { 
+        } else if (IssuedInt == 0 ) {
             if (isDateInPast(StartUseBeforeInt)) {
                 sb.append("\n\tE X P I R E D\n");
             }
@@ -185,9 +232,9 @@ public class Ticket {
             }
         }
         sb.append("\n- - - -\n");
-        
+
         sb.append(c.getString(R.string.passes_left)).append(": ");
-        sb.append(PassesLeft).append('\n');
+        sb.append(PassesLeft).append("\n\n");
 
         switch (Layout) {
             case 8:
@@ -201,7 +248,12 @@ public class Ticket {
             case 13:
                 if (GateEntered != 0) {
 
-                    sb.append(c.getString(R.string.last_trip)).append(":\n  ");
+                    sb.append(c.getString(R.string.last_trip));
+                    if (getPassesTotal() > 0) {
+                        sb.append(" №");
+                        sb.append(getPassesTotal() - PassesLeft);
+                    }
+                    sb.append(": ");
                     sb.append(getReadableDate(LastUsedDateInt)).append(" ");
                     sb.append(c.getString(R.string.at)).append(" ");
                     sb.append(getReadableTime(LastUsedTimeInt));
@@ -290,7 +342,7 @@ public class Ticket {
     public String getHashAsHexString() {
         return Integer.toHexString(Hash);
     }
-    
+
     private boolean isDateInPast(int dateInt) {
         Calendar date = Calendar.getInstance();
         date.clear();
@@ -318,6 +370,162 @@ public class Ticket {
                     Lang.tarnliterate(Decode.getStationName(id));
         } else {
             return "№" + id;
+        }
+    }
+
+    public int getPassesTotal() {
+        if (PassesTotal == 0) detectPassesTotalAndClass();
+        return PassesTotal;
+    }
+
+    public void detectPassesTotalAndClass() {
+        switch (Type) {
+            case TO_M1:
+                PassesTotal = 1;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M2:
+                PassesTotal = 2;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M3:
+                PassesTotal = 3;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M4:
+                PassesTotal = 4;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M5:
+                PassesTotal = 5;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M10:
+                PassesTotal = 10;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M20:
+                PassesTotal = 20;
+                Class = C_OLD_METRO;
+                break;
+            case TO_M60:
+                PassesTotal = 60;
+                Class = C_OLD_METRO;
+                break;
+            case TO_BAGGAGE_AND_PASS:
+                PassesTotal = 1;
+                Class = C_OLD_SPECIAL;
+                break;
+            case TO_BAGGAGE:
+                PassesTotal = 1;
+                Class = C_OLD_SPECIAL;
+                break;
+            case TO_UL70:
+                PassesTotal = -1;
+                Class = C_OLD_SPECIAL;
+                break;
+            case TO_VESB:
+                PassesTotal = -1;
+                Class = C_OLD_SPECIAL;
+                break;
+            
+            case TN_G1:
+                PassesTotal = 1;
+                Class = C_GROUND;
+                break;
+            case TN_G2:
+                PassesTotal = 2;
+                Class = C_GROUND;
+                break;
+            case TN_G3_DRV:
+                PassesTotal = 3;
+                Class = C_GROUND;
+                SellByDriver = true;
+                break;
+            case TN_G5:
+                PassesTotal = 5;
+                Class = C_GROUND;
+                break;
+            case TN_G11:
+                PassesTotal = 11;
+                Class = C_GROUND;
+                break;
+            case TN_G20:
+                PassesTotal = 20;
+                Class = C_GROUND;
+                break;
+            case TN_G40:
+                PassesTotal = 40;
+                Class = C_GROUND;
+                break;
+            case TN_G60:
+                PassesTotal = 60;
+                Class = C_GROUND;
+                break;
+            case TN_U1_DRV:
+                PassesTotal = 1;
+                Class = C_UNIVERSAL;
+                SellByDriver = true;
+                break;
+            case TN_U1:
+                Class = C_UNIVERSAL;
+                PassesTotal = 1;
+                break;
+            case TN_U2:
+                PassesTotal = 2;
+                Class = C_UNIVERSAL;
+                break;
+            case TN_U5:
+                PassesTotal = 5;
+                Class = C_UNIVERSAL;
+                break;
+            case TN_U11:
+                PassesTotal = 11;
+                Class = C_UNIVERSAL;
+                break;
+            case TN_U20:
+                PassesTotal = 20;
+                Class = C_UNIVERSAL;
+                break;
+            case TN_U40:
+                PassesTotal = 40;
+                Class = C_UNIVERSAL;
+                break;
+            case TN_U60:
+                PassesTotal = 60;
+                Class = C_UNIVERSAL;
+                break;
+            case TN_90U1:
+                PassesTotal = 1;
+                Class = C_90UNIVERSAL;
+                break;
+            case TN_90U2:
+                PassesTotal = 2;
+                Class = C_90UNIVERSAL;
+                break;
+            case TN_90U5:
+                PassesTotal = 5;
+                Class = C_90UNIVERSAL;
+                break;
+            case TN_90U11:
+                PassesTotal = 11;
+                Class = C_90UNIVERSAL;
+                break;
+            case TN_90U20:
+                PassesTotal = 20;
+                Class = C_90UNIVERSAL;
+                break;
+            case TN_90U40:
+                PassesTotal = 40;
+                Class = C_90UNIVERSAL;
+                break;
+            case TN_90U60:
+                PassesTotal = 60;
+                Class = C_90UNIVERSAL;
+                break;
+            default:
+                PassesTotal = 0;
+                break;
         }
     }
 }
