@@ -52,9 +52,10 @@ public class Decode
             case 13321: // [2] (2-nd from left) (2462677851-05-03)(2462677851-05-02)
             case 13405: // [3] (3-rd from left) (2458927306-11-07)
             case 12386: // [4] (4-th from left) (tt.txt)
-            case 12854: // [6?5] (right, before baggage) (1016237832-02-01.1m)
-            case 11440: // [7?] (right, baggage) (2464659182-05-00)
-                return "Крестьянская застава";
+            case 13090: // [5] (5-th from left) (1016363888-05-05.3m)
+            case 12854: // [6] (right, before baggage) (1016237832-02-01.1m)
+            case 11440: // [] (right, baggage) (2464659182-05-00)
+                return "Крестьянская застава"; // 2015-12-24 complete
             case 12988:
                 return "Марксистская";
             case 12519:
@@ -83,7 +84,9 @@ public class Decode
                 return "Текстильщики";
             case 12193: // [14] (left) (2458927306-11-04)
                 return "Лубянка (восточный)";
-
+            case 11760: // [?] (2516440644-40-18)
+                return "Беляево (южный)";
+            
             case 1230: // from original code
             case 2290: // from original code
                 return "Парк культуры (радиальная)";
@@ -129,7 +132,7 @@ public class Decode
             case 150:
                 return c.getString(R.string.vesb);
 
-            // Ney layout 0x0d
+            // New layout 0x0d
             case 601: // 1 passes, ground, sell by driver (0002277252)
                 return "(.) " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
             case 602: // 2 passes ground (0001585643, with paper check)
@@ -171,10 +174,10 @@ public class Decode
                 return "90 minutes, " + "5 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 424: // 11 passes, 90 minutes, universal (1016235763, with paper sheck)
                 return "90 minutes, " + "11 " + Lang.getNounCase(1, R.array.trip_cases, c);
-            case 425: // 20 passes, 90 minutes, universal ()
-                return "(p) " + "90 minutes, " + "20 " + Lang.getNounCase(1, R.array.trip_cases, c);
-            case 426: // 40 passes, 90 minutes, universal ()
-                return "(p) " + "90 minutes, " + "40 " + Lang.getNounCase(1, R.array.trip_cases, c);
+            case 425: // 20 passes, 90 minutes, universal (1016043594, with paper check)
+                return "90 minutes, " + "20 " + Lang.getNounCase(1, R.array.trip_cases, c);
+            case 426: // 40 passes, 90 minutes, universal (1016043595, with paper check)
+                return "90 minutes, " + "40 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case 427: // 60 passes, 90 minutes, universal (1015907198, Max)
                 return "90 minutes, " + "60 " + Lang.getNounCase(1, R.array.trip_cases, c);
 

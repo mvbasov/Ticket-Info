@@ -126,7 +126,7 @@ public class Ticket {
         if (T90MCount != 0 || T90GCount != 0) {
 // TODO: Need to check date change
             if (getCurrentTimeInt() >= LastUsedTimeInt) {
-                T90TripTimeLeftInt = 90 - getCurrentTimeInt() - LastUsedTimeInt;
+                T90TripTimeLeftInt = 90 - (getCurrentTimeInt() - LastUsedTimeInt);
             }
             if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
         }
@@ -274,7 +274,7 @@ public class Ticket {
         Return minutes since current day midnight
          */
         Calendar now = Calendar.getInstance();
-        return now.get(Calendar.HOUR) * 60 + now.get(Calendar.MINUTE);
+        return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
     }
 
     public String getReadableTime(int time){
