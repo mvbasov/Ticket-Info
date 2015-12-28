@@ -1,5 +1,21 @@
 ### Change log.
 
+#### Version 2.05b
+##### Date:   Mon Dec 28 14:59:24 2015 +0300, commit ffe98ad551ee48c501c8c87f999ba6f17556ab11
+
+- Check UID CRC
+- Get and display answer to GET_VERSION command
+- Chip detection.
+- Page acces condition displayed in dump.
+- One way counters display.
+- Read and display IC signature.
+- Display 90 minutes trip details.
+- Several new tickets types, stations and turnstails.
+- MainActivity as small as possible. NFCaDump code ready to use in another progects.
+- Last trip type (metro|ground) detection.
+- Check expired by date.
+- Code reorganization. Prepared to dump functionality.
+
 #### Version 2.04b
 ##### Date:   Wed Dec 9 16:43:29 2015 +0300, commit 3ee9a208b59621360024a5d8b0e289f811484972
 

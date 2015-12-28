@@ -37,18 +37,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- Check UID CRC
-- Get and display answer to GET_VERSION command
-- Chip detection.
-- Page acces condition displayed in dump.
-- One way counters display.
-- Read and display IC signature.
-- Display 90 minutes trip details.
-- Several new tickets types, stations and turnstails.
-- MainActivity as small as possible. NFCaDump code ready to use in another progects.
-- Last trip type (metro|ground) detection.
-- Check expired by date.
-- Code reorganization. Prepared to dump functionality.
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
