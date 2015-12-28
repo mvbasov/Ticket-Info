@@ -631,13 +631,8 @@ public class NFCaDump {
 
 /* Display dump an IC tech . information */
 
-    public String getIC_InfoAsString() {
-
+    public String getUIDCheckAsString() {
         StringBuilder sb = new StringBuilder();
-
-        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n",
-                getPagesNumber() - 4 + getLastBlockValidPages(),
-                (getPagesNumber() - 4 + getLastBlockValidPages()) * 4));
         sb.append("UID: ").append(String.format("%08x %08x\n", getPageAsInt(0), getPageAsInt(1)));
         sb.append(String.format("  BCC0: %02x, BCC1: %02x", getPage(0)[3], getPage(2)[0]));
 
@@ -648,16 +643,30 @@ public class NFCaDump {
         }
         sb.append("\n");
 
-        int int_byte = (int)(getPage(2)[1] & 0xffL);
-        sb.append("Manufacturer internal byte: ");
-        sb.append(String.format("%02x\n", int_byte));
+        return sb.toString();
+    }
+
+    public String getMemoryInfoAsString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n",
+                getPagesNumber() - 4 + getLastBlockValidPages(),
+                (getPagesNumber() - 4 + getLastBlockValidPages()) * 4));
+
+        return sb.toString();
+    }
+
+    public String getIC_InfoAsString() {
+
+        StringBuilder sb = new StringBuilder();
+
         sb.append(String.format("ATQA: %02x %02x\n",
                 getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
                 getATQA()[0]));
         sb.append(String.format("SAK: %02x\n", getSAK()));
 
         if (!isVERSIONEmpty()) {
-            sb.append("GET_VERSION: ");
+            sb.append("GET_VERSION:\n");
+            sb.append("  ");
             for (int i = 0; i < getVersionInfo().length; i++) {
                 sb.append(String.format("%02x ", getVersionInfo()[i]));
             }
@@ -695,6 +704,11 @@ public class NFCaDump {
         }
         sb.append('\n');
 
+        return sb.toString();
+    }
+
+    public String getDetectedICTypeAsString() {
+        StringBuilder sb = new StringBuilder();
         sb.append("Chip manufacturer: ");
         sb.append(getManufName()).append("\n");
         sb.append("Chip: ");
@@ -703,7 +717,7 @@ public class NFCaDump {
         return sb.toString();
     }
 
-    public String getDumpAsString() {
+    public String getDumpAsDetailedString() {
         StringBuilder sb = new StringBuilder();
         sb.append("- - - Dump: - - -\n");
         for (int i=0; i < getPagesNumber() - ( 4 - getLastBlockValidPages() ); i++){
@@ -729,7 +743,18 @@ public class NFCaDump {
         sb.append(":i: - reserved for internal use\n");
 
         return sb.toString();
-
     }
 
+    public String getDumpAsSimpleString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < getPagesNumber(); i++) {
+            if (i == getPagesNumber() - (4 - getLastBlockValidPages())) {
+                sb.append("-?-\n");
+            }
+            sb.append(String.format("%08x\n", getPageAsInt(i)));
+        }
+
+
+        return sb.toString();
+    }
 }

@@ -95,29 +95,31 @@ public class Ticket {
     public static final int C_90UNIVERSAL = C_UNKNOWN + 5;
 
     // Data fields definition
-    ArrayList<Integer> Dump;
-    boolean DumpValid = false;
-    long Number = 0L;
-    int Layout = 0;
-    int App = A_UNKNOWN;
-    int Type = T_UNKNOWN;
-    int Class = C_UNKNOWN;
-    boolean SellByDriver = false;
-    int IssuedInt = 0;
-    int StartUseBeforeInt = 0;
-    int ValidDays = 0;
-    int PassesTotal = 0;
-    int PassesLeft = 0;
-    int LastUsedDateInt = 0;
-    int LastUsedTimeInt = 0;
-    int GateEntered = 0;
-    int TransportType = TT_UNKNOWN;
-    int T90MCount = 0;
-    int T90GCount = 0;
-    int T90ChangeTimeInt = 0;
-    int T90TripTimeLeftInt = 0;
-    int OTP = 0;
-    int Hash = 0;
+    private ArrayList<Integer> Dump;
+    private boolean DumpValid = false;
+    private long Number = 0L;
+    private int Layout = 0;
+    private int App = A_UNKNOWN;
+    private int Type = T_UNKNOWN;
+    private int TicketClass = C_UNKNOWN;
+    private boolean SellByDriver = false;
+    private int IssuedInt = 0;
+    private int StartUseBeforeInt = 0;
+    private int ValidDays = 0;
+    private int PassesTotal = 0; // -1 is unlimited
+    private int PassesLeft = 0;
+    private int TripNumber = 0;
+    private int LastUsedDateInt = 0;
+    private int LastUsedTimeInt = 0;
+    private int GateEntered = 0;
+    private int TransportType = TT_UNKNOWN;
+    private int T90MCount = 0;
+    private int T90GCount = 0;
+    private int T90RelChangeTimeInt = 0;
+    private int T90ChangeTimeInt = 0;
+    private int T90TripTimeLeftInt = 0;
+    private int OTP = 0;
+    private int Hash = 0;
 
     private DateFormat df;
 
@@ -143,13 +145,28 @@ public class Ticket {
 
         detectPassesTotalAndClass();
 
+        PassesLeft = (Dump.get(9) >>> 16) & 0xff;
+
+        if ((Layout != 0x08 && Layout != 0x0d) ||
+                App == A_UNKNOWN ||
+                Type == T_UNKNOWN ||
+                PassesTotal == 0 ||
+                PassesTotal < -1 ||
+                PassesTotal > 60 ||
+                PassesLeft > PassesTotal ||
+                PassesLeft < 0
+                ) {
+            DumpValid = false;
+            return;
+        }
+
+        TripNumber = PassesTotal - PassesLeft;
+
         IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
 
         StartUseBeforeInt = Dump.get(6) >>> 16;
 
         ValidDays = (Dump.get(8) >>> 8) & 0xff;
-
-        PassesLeft = (Dump.get(9) >>> 16) & 0xff;
 
         LastUsedDateInt = Dump.get(11) >>> 16;
 
@@ -159,23 +176,27 @@ public class Ticket {
 
         TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
 
-        T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
+        if (TicketClass == C_90UNIVERSAL) {
 
-        T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
+            T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
 
-        T90ChangeTimeInt = 0;
-        if ((Dump.get(8) & 0xff) != 0) {
+            T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
+
+            T90ChangeTimeInt = 0;
+            if ((Dump.get(8) & 0xff) != 0) {
+                T90RelChangeTimeInt = Dump.get(8) & 0xff;
 // TODO: Need to add date change (around midnight) processing
-            T90ChangeTimeInt = (Dump.get(8) & 0xff) * 5 + LastUsedTimeInt;
-        }
-
-        T90TripTimeLeftInt = 0;
-        if (T90MCount != 0 || T90GCount != 0) {
-// TODO: Need to check date change
-            if (getCurrentTimeInt() >= LastUsedTimeInt) {
-                T90TripTimeLeftInt = 90 - (getCurrentTimeInt() - LastUsedTimeInt);
+                T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;
             }
-            if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
+
+            T90TripTimeLeftInt = 0;
+            if (T90MCount != 0 || T90GCount != 0) {
+// TODO: Need to check date change
+                if (getCurrentTimeInt() >= LastUsedTimeInt) {
+                    T90TripTimeLeftInt = 90 - (getCurrentTimeInt() - LastUsedTimeInt);
+                }
+                if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
+            }
         }
 
         OTP = Dump.get(3);
@@ -320,45 +341,31 @@ public class Ticket {
         return sb.toString();
     }
 
-    private int getCurrentTimeInt() {
-        /*
-        Return minutes since current day midnight
-         */
-        Calendar now = Calendar.getInstance();
-        return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+    public boolean isTicketFormatValid() { return DumpValid; }
+
+    public long getNumber() { return Number; }
+
+    public int getTripNumber() { return TripNumber; }
+
+    public int getTicketClass() { return TicketClass; }
+
+    public int getPassesTotal() {
+        if (PassesTotal == 0) detectPassesTotalAndClass();
+        return PassesTotal;
     }
 
-    public String getReadableTime(int time){
-        return String.format("%02d:%02d",
-                time / 60,
-                time % 60);
+    public int getRelTimeOfTransportChangeMinutes() {
+        return T90RelChangeTimeInt * 5;
     }
 
-    public String getOTPasBinaryString() {
+/* Internal functions */
+
+    private String getOTPasBinaryString() {
         return Integer.toBinaryString(OTP);
     }
 
-    public String getHashAsHexString() {
+    private String getHashAsHexString() {
         return Integer.toHexString(Hash);
-    }
-
-    private boolean isDateInPast(int dateInt) {
-        Calendar date = Calendar.getInstance();
-        date.clear();
-        date.set(1991, Calendar.DECEMBER, 31);
-        date.add(Calendar.DATE, dateInt);
-        if (date.compareTo(Calendar.getInstance()) <= 0){
-            return true;
-        }
-        return false;
-    }
-
-    private String getReadableDate(int days) {
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(1991, Calendar.DECEMBER, 31);
-        c.add(Calendar.DATE, days);
-        return df.format(c.getTime());
     }
 
     private String getGateDesc(Context c, int id) {
@@ -372,159 +379,190 @@ public class Ticket {
         }
     }
 
-    public int getPassesTotal() {
-        if (PassesTotal == 0) detectPassesTotalAndClass();
-        return PassesTotal;
-    }
-
-    public void detectPassesTotalAndClass() {
+    private void detectPassesTotalAndClass() {
         switch (Type) {
             case TO_M1:
                 PassesTotal = 1;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M2:
                 PassesTotal = 2;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M3:
                 PassesTotal = 3;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M4:
                 PassesTotal = 4;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M5:
                 PassesTotal = 5;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M10:
                 PassesTotal = 10;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M20:
                 PassesTotal = 20;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_M60:
                 PassesTotal = 60;
-                Class = C_OLD_METRO;
+                TicketClass = C_OLD_METRO;
                 break;
             case TO_BAGGAGE_AND_PASS:
                 PassesTotal = 1;
-                Class = C_OLD_SPECIAL;
+                TicketClass = C_OLD_SPECIAL;
                 break;
             case TO_BAGGAGE:
                 PassesTotal = 1;
-                Class = C_OLD_SPECIAL;
+                TicketClass = C_OLD_SPECIAL;
                 break;
             case TO_UL70:
                 PassesTotal = -1;
-                Class = C_OLD_SPECIAL;
+                TicketClass = C_OLD_SPECIAL;
                 break;
             case TO_VESB:
                 PassesTotal = -1;
-                Class = C_OLD_SPECIAL;
+                TicketClass = C_OLD_SPECIAL;
                 break;
             
             case TN_G1:
                 PassesTotal = 1;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_G2:
                 PassesTotal = 2;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_G3_DRV:
                 PassesTotal = 3;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 SellByDriver = true;
                 break;
             case TN_G5:
                 PassesTotal = 5;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_G11:
                 PassesTotal = 11;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_G20:
                 PassesTotal = 20;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_G40:
                 PassesTotal = 40;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_G60:
                 PassesTotal = 60;
-                Class = C_GROUND;
+                TicketClass = C_GROUND;
                 break;
             case TN_U1_DRV:
                 PassesTotal = 1;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 SellByDriver = true;
                 break;
             case TN_U1:
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 PassesTotal = 1;
                 break;
             case TN_U2:
                 PassesTotal = 2;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 break;
             case TN_U5:
                 PassesTotal = 5;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 break;
             case TN_U11:
                 PassesTotal = 11;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 break;
             case TN_U20:
                 PassesTotal = 20;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 break;
             case TN_U40:
                 PassesTotal = 40;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 break;
             case TN_U60:
                 PassesTotal = 60;
-                Class = C_UNIVERSAL;
+                TicketClass = C_UNIVERSAL;
                 break;
             case TN_90U1:
                 PassesTotal = 1;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             case TN_90U2:
                 PassesTotal = 2;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             case TN_90U5:
                 PassesTotal = 5;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             case TN_90U11:
                 PassesTotal = 11;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             case TN_90U20:
                 PassesTotal = 20;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             case TN_90U40:
                 PassesTotal = 40;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             case TN_90U60:
                 PassesTotal = 60;
-                Class = C_90UNIVERSAL;
+                TicketClass = C_90UNIVERSAL;
                 break;
             default:
                 PassesTotal = 0;
                 break;
         }
     }
+
+/* Time related internal functions */
+
+    private String getReadableDate(int days) {
+        Calendar c = Calendar.getInstance();
+        c.clear();
+        c.set(1991, Calendar.DECEMBER, 31);
+        c.add(Calendar.DATE, days);
+        return df.format(c.getTime());
+    }
+
+    private String getReadableTime(int time){
+        return String.format("%02d:%02d",
+                time / 60,
+                time % 60);
+    }
+
+    private int getCurrentTimeInt() {
+        /*
+        Return minutes since current day midnight
+         */
+        Calendar now = Calendar.getInstance();
+        return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+    }
+
+    private boolean isDateInPast(int dateInt) {
+        Calendar date = Calendar.getInstance();
+        date.clear();
+        date.set(1991, Calendar.DECEMBER, 31);
+        date.add(Calendar.DATE, dateInt);
+        if (date.compareTo(Calendar.getInstance()) <= 0){
+            return true;
+        }
+        return false;
+    }
+
 }

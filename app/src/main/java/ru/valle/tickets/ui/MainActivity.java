@@ -55,7 +55,7 @@ public final class MainActivity extends Activity {
     private IntentFilter[] filters;
     private String[][] techList;
     //private DateFormat df;
-    private Context c;
+    private static Context c;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -175,8 +175,16 @@ public final class MainActivity extends Activity {
                                 sb.append(t.getTicketAsString(c));
                             }
 
+                            sb.append(dump.getMemoryInfoAsString());
+                            sb.append(dump.getUIDCheckAsString());
                             sb.append(dump.getIC_InfoAsString());
-                            sb.append(dump.getDumpAsString());
+                            sb.append(dump.getDetectedICTypeAsString());
+                            sb.append(dump.getDumpAsDetailedString());
+                            if (FileIO.writeAutoDump(dump)) {
+                                sb.append("\nDump saved\n");
+                            } else {
+                                sb.append("\nDump already exists.\n");
+                            }
                             text.setText(sb.toString());
 
                         } else {
@@ -192,5 +200,9 @@ public final class MainActivity extends Activity {
         } else {
             text.setText(getString(R.string.ticket_disclaimer));
         }
+    }
+
+    public static Context getAppContext() {
+        return c;
     }
 }
