@@ -145,19 +145,19 @@ public class Decode
                 return "11 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case Ticket.TN_G20: // 20 passes, ground (0002275051)
                 return "(.) " + "20 " + Lang.getNounCase(60, R.array.trip_cases, c);
-            case Ticket.TN_G40: // 40 passes, ground ()
-                return "(p) " + "40 " + Lang.getNounCase(60, R.array.trip_cases, c);
+            case Ticket.TN_G40: // 40 passes, ground (0002551487, with paper check)
+                return "40 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case Ticket.TN_G60: // 60 passes, ground (0000108646, with paper check)
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case Ticket.TN_U1_DRV: // 1 pass, universal, sell by ground driver (0020905097)
                 return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
-            case Ticket.TN_U1: // 1 passes, universal (2462677850, had paper check)
+            case Ticket.TN_U1: // 1 passes, universal (2462677850, with paper check)
                 return c.getString(R.string.universal) + ", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_U2: // 2 passes, universal (2507009879)
                 return "(.) " + c.getString(R.string.universal) + ", 2 " + Lang.getNounCase(2, R.array.trip_cases, c);
-            case Ticket.TN_U5: // 5 passes, universal (2462677851, had paper check)
+            case Ticket.TN_U5: // 5 passes, universal (2462677851, with paper check)
                 return c.getString(R.string.universal) + ", 5 " + Lang.getNounCase(5, R.array.trip_cases, c);
-            case Ticket.TN_U11: // 11 passes, universal (2458927306, had paper check)
+            case Ticket.TN_U11: // 11 passes, universal (2458927306, with paper check)
                 return c.getString(R.string.universal) + ", 11 " + Lang.getNounCase(11, R.array.trip_cases, c);
             case Ticket.TN_U20: // 20 passes, universal ()
                 return "(p) " + c.getString(R.string.universal) + ", 20 " + Lang.getNounCase(11, R.array.trip_cases, c);

@@ -44,12 +44,12 @@ public class FileIO {
         StringBuilder dName = new StringBuilder();
         boolean rc = false;
 
-        dName.append(String.format("%010d", ticket.getNumber()));
+        dName.append(String.format("%010d", ticket.getTicketNumber()));
         if (ticket.isTicketFormatValid()) {
             dName.append(String.format("-%02d", ticket.getPassesTotal()));
-            dName.append(String.format("-%02d", ticket.getTripNumber()));
+            dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
             if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
-                dName.append(String.format(".%02d",ticket.getRelTimeOfTransportChangeMinutes()));
+                dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
             }
         } else {
             dName.append("-xx-xx");

@@ -97,7 +97,7 @@ public class Ticket {
     // Data fields definition
     private ArrayList<Integer> Dump;
     private boolean DumpValid = false;
-    private long Number = 0L;
+    private long TicketNumber = 0L;
     private int Layout = 0;
     private int App = A_UNKNOWN;
     private int Type = T_UNKNOWN;
@@ -108,7 +108,7 @@ public class Ticket {
     private int ValidDays = 0;
     private int PassesTotal = 0; // -1 is unlimited
     private int PassesLeft = 0;
-    private int TripNumber = 0;
+    private int TripSeqNumber = 0;
     private int LastUsedDateInt = 0;
     private int LastUsedTimeInt = 0;
     private int GateEntered = 0;
@@ -127,7 +127,7 @@ public class Ticket {
 
         Dump = new ArrayList<Integer>();
 // TODO: Think about which is allowed minimum of pages to decode.
-        if (dump.getPagesNumber() < 12) {
+        if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
             DumpValid = false;
             return;
         }
@@ -135,7 +135,7 @@ public class Ticket {
             Dump.add(dump.getPageAsInt(i));
         }
 
-        Number = (((Dump.get(4) & 0xfff) << 20) | (Dump.get(5) >>> 12)) & 0xffffffffL;
+        TicketNumber = (((Dump.get(4) & 0xfff) << 20) | (Dump.get(5) >>> 12)) & 0xffffffffL;
 
         Layout = ((Dump.get(5) >>> 8) & 0xf);
 
@@ -160,7 +160,7 @@ public class Ticket {
             return;
         }
 
-        TripNumber = PassesTotal - PassesLeft;
+        TripSeqNumber = PassesTotal - PassesLeft;
 
         IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
 
@@ -223,7 +223,7 @@ public class Ticket {
         sb.append("\n- - - -\n");
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
-        sb.append(String.format("%010d", Number));
+        sb.append(String.format("%010d", TicketNumber));
         sb.append(" (till ");
         sb.append(getReadableDate(StartUseBeforeInt)).append(")\n");
         if (ValidDays != 0) {
@@ -343,9 +343,9 @@ public class Ticket {
 
     public boolean isTicketFormatValid() { return DumpValid; }
 
-    public long getNumber() { return Number; }
+    public long getTicketNumber() { return TicketNumber; }
 
-    public int getTripNumber() { return TripNumber; }
+    public int getTripSeqNumber() { return TripSeqNumber; }
 
     public int getTicketClass() { return TicketClass; }
 
@@ -354,7 +354,7 @@ public class Ticket {
         return PassesTotal;
     }
 
-    public int getRelTimeOfTransportChangeMinutes() {
+    public int getRelTransportChangeTimeMinutes() {
         return T90RelChangeTimeInt * 5;
     }
 
