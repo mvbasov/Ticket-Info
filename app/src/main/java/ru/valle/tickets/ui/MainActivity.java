@@ -160,7 +160,6 @@ public final class MainActivity extends Activity {
                     @Override
                     protected void onPostExecute(NFCaDump dump) {
                         if (dump != null) {
-// TODO: Write continuous (optional) log
                             Ticket t = new Ticket(dump);
                             StringBuilder sb = new StringBuilder();
 

@@ -38,8 +38,8 @@ public class Ticket {
     // Constants definition
     /* Used transport types */
     public static final int TT_UNKNOWN = 0;
-    public static final int TT_METRO = TT_UNKNOWN + 1;
-    public static final int TT_GROUND = TT_UNKNOWN + 2;
+    public static final int TT_METRO = 1;
+    public static final int TT_GROUND = 2;
     /* Application */
     public static final int A_UNKNOWN = 0;
     public static final int A_METRO = 262;
@@ -126,7 +126,6 @@ public class Ticket {
     public Ticket(NFCaDump dump) {
 
         Dump = new ArrayList<Integer>();
-// TODO: Think about which is allowed minimum of pages to decode.
         if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
             DumpValid = false;
             return;
@@ -357,6 +356,8 @@ public class Ticket {
     public int getRelTransportChangeTimeMinutes() {
         return T90RelChangeTimeInt * 5;
     }
+
+    public int getT90ChangeCount() { return T90GCount + T90MCount; }
 
 /* Internal functions */
 

@@ -50,6 +50,7 @@ public class FileIO {
             dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
             if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
                 dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
+                dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
             }
         } else {
             dName.append("-xx-xx");
@@ -68,7 +69,7 @@ public class FileIO {
         dText.append(dump.getDetectedICTypeAsString());
 
         dText.append("---\n");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
         dText.append("DD: ");
         Calendar c = Calendar.getInstance();
         dText.append(df.format(c.getTime()));
