@@ -69,7 +69,7 @@ public class FileIO {
         dText.append(dump.getDetectedICTypeAsString());
 
         dText.append("---\n");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dText.append("DD: ");
         Calendar c = Calendar.getInstance();
         dText.append(df.format(c.getTime()));
