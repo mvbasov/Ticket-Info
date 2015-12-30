@@ -182,7 +182,7 @@ public class Ticket {
             T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
 
             T90ChangeTimeInt = 0;
-            if ((Dump.get(8) & 0xff) != 0) {
+            if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80) {
                 T90RelChangeTimeInt = Dump.get(8) & 0xff;
 // TODO: Need to add date change (around midnight) processing
                 T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;

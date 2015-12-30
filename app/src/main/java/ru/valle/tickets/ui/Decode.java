@@ -37,24 +37,24 @@ public class Decode
                 return "Царицыно";
             case 13482:
             case 13354:
-            case 13499: // [11] (3-rd from right) (2487157655-60-15)
-            case 12907: // [12] (2-nd from right) (2464659182-05-01)
-            case 13488: // [13] (right) (2516440644-40-39)
+            case 13499: // [11] (3-rd from right) (2487157655-60-45)
+            case 12907: // [12] (2-nd from right) (2464659182-05-04)
+            case 13488: // [13] (right) (2516440644-40-01)
                 return "Тропарёво (северный)";
-            case 13442: // [9] (left) (2487157655-60-46 new format)
-            case 10781: // [10] (2-nd from left) (2458927306-11-05)
+            case 13442: // [9] (left) (2487157655-60-46)
+            case 10781: // [10] (2-nd from left) (2458927306-11-06)
             case 13001:
-            case 13083: // [15] (right) (2462677851-05-01)
+            case 13083: // [15] (right) (2462677851-05-04)
                 return "Пролетарская (северный)";
-            case 12905: // [1] (left, baggage) (1016237832-02-02.3m)
+            case 12905: // [1] (left, baggage) (1016237832-02-01.10.3)
                 return "Пролетарская (южный)";
-            case 12877: // [1] (left) (2458927306-11-10)
-            case 13321: // [2] (2-nd from left) (2462677851-05-03)(2462677851-05-02)
-            case 13405: // [3] (3-rd from left) (2458927306-11-07)
-            case 12386: // [4] (4-th from left) (2469438311-60-13.txt)
-            case 13090: // [5] (5-th from left) (1016363888-05-05.3m)
-            case 12854: // [6] (right, before baggage) (1016237832-02-01.1m)
-            case 11440: // [] (right, baggage) (2464659182-05-00)
+            case 12877: // [1] (left) (2458927306-11-01)
+            case 13321: // [2] (2-nd from left) (2462677851-05-02)(2462677851-05-03)
+            case 13405: // [3] (3-rd from left) (2458927306-11-04)
+            case 12386: // [4] (4-th from left) (2469438311-60-47)
+            case 13090: // [5] (5-th from left) (1016363888-05-01.45.3)
+            case 12854: // [6] (right, before baggage) (1016237832-02-02.00.1)
+            case 11440: // [] (right, baggage) (2464659182-05-05)
                 return "Крестьянская застава"; // 2015-12-24 complete
             case 12988:
                 return "Марксистская";
@@ -71,26 +71,26 @@ public class Decode
                 return "Киевская";
             case 13033:
                 return "Проспект Вернадского";
-            case 12493: // [1] (left, baggage)(2462677851-05-00)
-            case 11556: // [2] (2-nd from left) (2458927306-11-09)
+            case 12493: // [1] (left, baggage)(2462677851-05-05)
+            case 11556: // [2] (2-nd from left) (2458927306-11-02)
                 return "Деловой центер";
             case 12254:
             case 12036:
                 return "Фрунзенская";
-            case 12473: // [?] (2-nd from left) (2458927306-11-08)
+            case 12473: // [?] (2-nd from left) (2458927306-11-03)
                 return "Савёловская";
             case 11715:
             case 11482:
                 return "Текстильщики";
-            case 12193: // [14] (left) (2458927306-11-04)
+            case 12193: // [14] (left) (2458927306-11-07)
                 return "Лубянка (восточный)";
-            case 11760: // [?] (2516440644-40-18)
+            case 11760: // [?] (2516440644-40-22)
                 return "Беляево (южный)";
             
             case 1230: // from original code
             case 2290: // from original code
                 return "Парк культуры (радиальная)";
-            case 12958: // [1] (left) (2458927306-11-06)
+            case 12958: // [1] (left) (2458927306-11-05)
             case 1228: // from original code
             case 2211: // from original code
                 return "Авиамоторная";
@@ -143,8 +143,8 @@ public class Decode
                 return "5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case Ticket.TN_G11: // 11 passes ground (0002551460, with paper check)
                 return "11 " + Lang.getNounCase(5, R.array.trip_cases, c);
-            case Ticket.TN_G20: // 20 passes, ground (0002275051)
-                return "(.) " + "20 " + Lang.getNounCase(60, R.array.trip_cases, c);
+            case Ticket.TN_G20: // 20 passes, ground (0002275051)(0002688466, with paper check)
+                return "20 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case Ticket.TN_G40: // 40 passes, ground (0002551487, with paper check)
                 return "40 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case Ticket.TN_G60: // 60 passes, ground (0000108646, with paper check)
@@ -166,8 +166,8 @@ public class Decode
             case Ticket.TN_U60: // 60 passes, universal (2478069296, confirmed lly)
                 return c.getString(R.string.universal) + ", 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
 // TODO: Translate messages    
-            case Ticket.TN_90U1: // 1 pass, 90 minutes, universal
-                return "(.) " + "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
+            case Ticket.TN_90U1: // 1 pass, 90 minutes, universal (1013862735, with paper check)
+                return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_90U2: // 2 passes, 90 minutes, universal (1016237832, with paper check)
                 return "90 minutes, " + "2 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_90U5: // 5 passes, 90 minutes, universal (1016363888, with paper check)
