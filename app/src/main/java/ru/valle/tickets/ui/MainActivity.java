@@ -40,6 +40,7 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -181,6 +182,8 @@ public final class MainActivity extends Activity {
                             sb.append(dump.getDumpAsDetailedString());
                             if (FileIO.writeAutoDump(dump)) {
                                 sb.append("\nDump saved\n");
+                                Toast toast = Toast.makeText(c, "Dump saved.", Toast.LENGTH_LONG);
+                                toast.show();
                             } else {
                                 sb.append("\nDump already exists.\n");
                             }
