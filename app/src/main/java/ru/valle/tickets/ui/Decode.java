@@ -35,8 +35,8 @@ public class Decode
                 return "Проспект Мира (радиальная)";
             case 11531:
                 return "Царицыно";
-            case 13482:
-            case 13354:
+            case 13354: // [6] (left, baggage) (2464659182-05-02)
+            case 13482: // [8] () (2462677850-01-01)
             case 13499: // [11] (3-rd from right) (2487157655-60-45)
             case 12907: // [12] (2-nd from right) (2464659182-05-04)
             case 13488: // [13] (right) (2516440644-40-01)
@@ -56,7 +56,7 @@ public class Decode
             case 12854: // [6] (right, before baggage) (1016237832-02-02.00.1)
             case 11440: // [] (right, baggage) (2464659182-05-05)
                 return "Крестьянская застава"; // 2015-12-24 complete
-            case 12988:
+            case 12988: // [7] (left) (2487157655-60-44)
                 return "Марксистская";
             case 12519:
                 return "Алтуфьево";
