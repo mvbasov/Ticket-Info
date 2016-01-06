@@ -213,7 +213,7 @@ public class Ticket {
 
         if (!DumpValid) {
 // TODO: Translate message
-            sb.append("Dump not valid\n");
+            sb.append("Dump not valid or ticket type unknown\n");
             return sb.toString();
         }
 
