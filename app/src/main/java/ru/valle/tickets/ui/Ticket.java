@@ -71,6 +71,7 @@ public class Ticket {
     public static final int TN_G20 = 605;
     public static final int TN_G40 = 606;
     public static final int TN_G60 = 607;
+    public static final int TN_GB1 = 571;
     public static final int TN_U1_DRV = 410;
     public static final int TN_U1 = 411;
     public static final int TN_U2 = 412;
@@ -214,7 +215,8 @@ public class Ticket {
         if (!DumpValid) {
 // TODO: Translate message
             sb.append("Dump not valid or ticket type unknown\n");
-            return sb.toString();
+// TODO: Need to fix crash on unknown tickets types
+            //return sb.toString();
         }
 
         sb.append(Decode.getAppIdDesc(c, App)).append('\n');

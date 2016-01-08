@@ -35,6 +35,8 @@ public class Decode
                 return "Проспект Мира (радиальная)";
             case 11531:
                 return "Царицыно";
+            case 13489: // [21] (right, baggage) (2523074756-02-01)
+                return "Тропарёво (южный)";
             case 13354: // [6] (left, baggage) (2464659182-05-02)
             case 11226: // [7] (2-nd from left) (1013862735-01-01.00.1)
             case 13482: // [8] (3-rd from left) (2462677850-01-01)
@@ -158,8 +160,8 @@ public class Decode
                 return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
             case Ticket.TN_U1: // 1 passes, universal (2462677850, with paper check)
                 return c.getString(R.string.universal) + ", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
-            case Ticket.TN_U2: // 2 passes, universal (2507009879)
-                return "(.) " + c.getString(R.string.universal) + ", 2 " + Lang.getNounCase(2, R.array.trip_cases, c);
+            case Ticket.TN_U2: // 2 passes, universal (2523074756, with paper check)
+                return c.getString(R.string.universal) + ", 2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case Ticket.TN_U5: // 5 passes, universal (2462677851, with paper check)
                 return c.getString(R.string.universal) + ", 5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case Ticket.TN_U11: // 11 passes, universal (2458927306, with paper check)
