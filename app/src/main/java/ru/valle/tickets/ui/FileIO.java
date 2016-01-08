@@ -84,7 +84,8 @@ public class FileIO {
         try {
             fName = "/" + fNamePrefix + "/" + dName;
             fileW = new File(sdcard, fName + ".txt");
-            fileW.getParentFile().mkdirs();
+            if (!fileW.getParentFile().exists())
+                fileW.getParentFile().mkdirs();
             if (!fileW.exists()) {
                 outputStream = new FileOutputStream(fileW);
                 outputStream.write(dText.toString().getBytes());

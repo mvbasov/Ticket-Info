@@ -156,6 +156,11 @@ public class Decode
                 return "40 " + Lang.getNounCase(60, R.array.trip_cases, c);
             case Ticket.TN_G60: // 60 passes, ground (0000108646, with paper check)
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
+// TODO: Translate message
+            case Ticket.TN_GB1_DRV: // 1 pass, ground, Zone B (0000021180 script on ticket)
+                return "Zone B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
+            case Ticket.TN_GB2: // 1 pass, ground, Zone B (predicted)
+                return "(p) Zone B, " + "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case Ticket.TN_U1_DRV: // 1 pass, universal, sell by ground driver (0020905097)
                 return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" "+c.getString(R.string.sell_by_driver);
             case Ticket.TN_U1: // 1 passes, universal (2462677850, with paper check)
@@ -166,7 +171,7 @@ public class Decode
                 return c.getString(R.string.universal) + ", 5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case Ticket.TN_U11: // 11 passes, universal (2458927306, with paper check)
                 return c.getString(R.string.universal) + ", 11 " + Lang.getNounCase(11, R.array.trip_cases, c);
-            case Ticket.TN_U20: // 20 passes, universal ()
+            case Ticket.TN_U20: // 20 passes, universal (predicted)
                 return "(p) " + c.getString(R.string.universal) + ", 20 " + Lang.getNounCase(11, R.array.trip_cases, c);
             case Ticket.TN_U40: // 40 passes, universal (2516440644, with paper check)
                 return c.getString(R.string.universal) + ", 40 " + Lang.getNounCase(40, R.array.trip_cases, c);

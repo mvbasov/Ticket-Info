@@ -71,7 +71,8 @@ public class Ticket {
     public static final int TN_G20 = 605;
     public static final int TN_G40 = 606;
     public static final int TN_G60 = 607;
-    public static final int TN_GB1 = 571;
+    public static final int TN_GB1_DRV = 571;
+    public static final int TN_GB2 = 572; // predicted
     public static final int TN_U1_DRV = 410;
     public static final int TN_U1 = 411;
     public static final int TN_U2 = 412;
@@ -92,8 +93,9 @@ public class Ticket {
     public static final int C_OLD_METRO = C_UNKNOWN + 1;
     public static final int C_OLD_SPECIAL = C_UNKNOWN + 2;
     public static final int C_GROUND = C_UNKNOWN + 3;
-    public static final int C_UNIVERSAL = C_UNKNOWN + 4;
-    public static final int C_90UNIVERSAL = C_UNKNOWN + 5;
+    public static final int C_GROUND_B = C_UNKNOWN +4;
+    public static final int C_UNIVERSAL = C_UNKNOWN + 5;
+    public static final int C_90UNIVERSAL = C_UNKNOWN + 6;
 
     // Data fields definition
     private ArrayList<Integer> Dump;
@@ -126,6 +128,10 @@ public class Ticket {
 
     public Ticket(NFCaDump dump) {
 
+        DumpValid = true;
+
+        df = new SimpleDateFormat("dd.MM.yyyy");
+
         Dump = new ArrayList<Integer>();
         if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
             DumpValid = false;
@@ -157,7 +163,6 @@ public class Ticket {
                 PassesLeft < 0
                 ) {
             DumpValid = false;
-            return;
         }
 
         TripSeqNumber = PassesTotal - PassesLeft;
@@ -203,10 +208,6 @@ public class Ticket {
 
         Hash = Dump.get(10);
 
-        df = new SimpleDateFormat("dd.MM.yyyy");
-
-        DumpValid = true;
-
     }
 
     public String getTicketAsString(Context c) {
@@ -215,8 +216,6 @@ public class Ticket {
         if (!DumpValid) {
 // TODO: Translate message
             sb.append("Dump not valid or ticket type unknown\n");
-// TODO: Need to fix crash on unknown tickets types
-            //return sb.toString();
         }
 
         sb.append(Decode.getAppIdDesc(c, App)).append('\n');
@@ -466,6 +465,15 @@ public class Ticket {
                 PassesTotal = 60;
                 TicketClass = C_GROUND;
                 break;
+            case TN_GB1_DRV:
+                PassesTotal = 1;
+                TicketClass = C_GROUND_B;
+                SellByDriver = true;
+                break;
+            case TN_GB2:
+                PassesTotal = 2;
+                TicketClass = C_GROUND_B;
+                break;
             case TN_U1_DRV:
                 PassesTotal = 1;
                 TicketClass = C_UNIVERSAL;
@@ -540,7 +548,7 @@ public class Ticket {
         c.clear();
         c.set(1991, Calendar.DECEMBER, 31);
         c.add(Calendar.DATE, days);
-        return df.format(c.getTime());
+        return this.df.format(c.getTime());
     }
 
     private String getReadableTime(int time){
