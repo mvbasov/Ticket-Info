@@ -50,6 +50,7 @@ public class Decode
             case 10781: // [10] (2-nd from left) (2458927306-11-06)
             case 13148: // [11] (3-rd from left) (2487157655-60-48)
             case 13001:
+            case 10925: // [14] 3-rd from right) (2458927306-11-09)
             case 13083: // [15] (2-nd from right) (2462677851-05-04)
             case 13173: // [16] (right, baggage) (2517927572-05-05)
                 return "Пролетарская (северный)";
