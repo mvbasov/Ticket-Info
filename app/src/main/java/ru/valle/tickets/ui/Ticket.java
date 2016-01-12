@@ -88,6 +88,7 @@ public class Ticket {
     public static final int TN_90U20 = 425;
     public static final int TN_90U40 = 426;
     public static final int TN_90U60 = 427;
+    public static final int TN_UL1D = 419;
     /* Ticket class */
     public static final int C_UNKNOWN = 0;
     public static final int C_OLD_METRO = C_UNKNOWN + 1;
@@ -95,7 +96,8 @@ public class Ticket {
     public static final int C_GROUND = C_UNKNOWN + 3;
     public static final int C_GROUND_B = C_UNKNOWN +4;
     public static final int C_UNIVERSAL = C_UNKNOWN + 5;
-    public static final int C_90UNIVERSAL = C_UNKNOWN + 6;
+    public static final int C_UNLIM_DAYS = C_UNKNOWN + 6;
+    public static final int C_90UNIVERSAL = C_UNKNOWN + 7;
 
     // Data fields definition
     private ArrayList<Integer> Dump;
@@ -108,12 +110,14 @@ public class Ticket {
     private boolean SellByDriver = false;
     private int IssuedInt = 0;
     private int StartUseBeforeInt = 0;
+    private int StartUseTimeInt = 0;
     private int ValidDays = 0;
     private int PassesTotal = 0; // -1 is unlimited
     private int PassesLeft = 0;
     private int TripSeqNumber = 0;
     private int LastUsedDateInt = 0;
     private int LastUsedTimeInt = 0;
+    private int TimeToNextTrip = 0;
     private int GateEntered = 0;
     private int TransportType = TT_UNKNOWN;
     private int T90MCount = 0;
@@ -159,7 +163,6 @@ public class Ticket {
                 PassesTotal == 0 ||
                 PassesTotal < -1 ||
                 PassesTotal > 60 ||
-                PassesLeft > PassesTotal ||
                 PassesLeft < 0
                 ) {
             DumpValid = false;
@@ -203,6 +206,16 @@ public class Ticket {
                 if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
             }
         }
+        
+        if (TicketClass == C_UNLIM_DAYS){
+            TripSeqNumber = PassesLeft;
+            PassesTotal = -1;
+            PassesLeft = -1;
+            StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
+// TODO: Need to check date change
+            TimeToNextTrip = (LastUsedTimeInt + 20) - getCurrentTimeInt();
+            //if (TimeToNextTrip < 0) TimeToNextTrip = 0;
+        }
 
         OTP = Dump.get(3);
 
@@ -232,8 +245,18 @@ public class Ticket {
         }
         if (IssuedInt != 0){
             sb.append("  from ");
-            sb.append(getReadableDate(IssuedInt)).append(" to ");
-            sb.append(getReadableDate(IssuedInt+ValidDays - 1)).append("\n");
+            if (TicketClass == C_UNLIM_DAYS){
+                sb.append(String.format(" %s %s\n    to  %s %s", 
+                        getReadableDate(IssuedInt),
+                        getReadableTime(StartUseTimeInt),
+                        getReadableDate(IssuedInt+ValidDays),
+                        getReadableTime(StartUseTimeInt)));
+            } else {
+                sb.append(getReadableDate(IssuedInt));
+                sb.append(" to ");
+                sb.append(getReadableDate(IssuedInt+ValidDays - 1));
+            }
+            sb.append('\n');
         } else {
             sb.append(c.getString(R.string.start_use_before)).append(": ");
             sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
@@ -247,15 +270,25 @@ public class Ticket {
                 sb.append("\n\tE X P I R E D\n");
             }
         } else {
-            if (isDateInPast(IssuedInt+ValidDays)) {
+            if (isDateInPast(IssuedInt+ValidDays) &&
+                    TicketClass != C_UNLIM_DAYS) {
                 sb.append("\n\tE X P I R E D\n");
             }
         }
+        
+        if (TicketClass == C_UNLIM_DAYS) {
+            if (TimeToNextTrip > 0) {
+                sb.append("\n\tW A I T\n");
+            }
+        }
+
         sb.append("\n- - - -\n");
 
-        sb.append(c.getString(R.string.passes_left)).append(": ");
-        sb.append(PassesLeft).append("\n\n");
-
+        if (PassesLeft != -1){
+            sb.append(c.getString(R.string.passes_left)).append(": ");
+            sb.append(PassesLeft).append("\n\n");
+        }
+        
         switch (Layout) {
             case 8:
                 if ( GateEntered != 0) {
@@ -269,9 +302,9 @@ public class Ticket {
                 if (GateEntered != 0) {
 
                     sb.append(c.getString(R.string.last_trip));
-                    if (getPassesTotal() > 0) {
+                    if (getTripSeqNumber() > 0) {
                         sb.append(" №");
-                        sb.append(getPassesTotal() - PassesLeft);
+                        sb.append(getTripSeqNumber());
                     }
                     sb.append(": ");
                     sb.append(getReadableDate(LastUsedDateInt)).append(" ");
@@ -299,7 +332,7 @@ public class Ticket {
                     sb.append('\n');
 
 // TODO: Translate messages
-                    if (T90MCount != 0 || T90GCount != 0) {
+                    if (TicketClass == C_90UNIVERSAL) {
                        sb.append("90 minutes trip details:\n");
                        if (T90TripTimeLeftInt > 0) {
                             sb.append("  Time left: ");
@@ -317,6 +350,12 @@ public class Ticket {
                         sb.append(T90GCount).append('\n');
                         sb.append("  Change  time: ");
                         sb.append(getReadableTime(T90ChangeTimeInt)).append('\n');
+                    }
+                    
+                    if (TicketClass == Ticket.C_UNLIM_DAYS &&
+                            TimeToNextTrip > 0) {
+                        sb.append(String.format("  %d minutes to next trip", TimeToNextTrip));
+                        sb.append('\n');
                     }
 
                 }
@@ -353,7 +392,9 @@ public class Ticket {
         if (PassesTotal == 0) detectPassesTotalAndClass();
         return PassesTotal;
     }
-
+    public int getPassesLeft(){
+        return PassesLeft;
+    }
     public int getRelTransportChangeTimeMinutes() {
         return T90RelChangeTimeInt * 5;
     }
@@ -507,6 +548,10 @@ public class Ticket {
                 PassesTotal = 60;
                 TicketClass = C_UNIVERSAL;
                 break;
+            case TN_UL1D:
+                PassesTotal = -1;
+                TicketClass = C_UNLIM_DAYS;
+                break;
             case TN_90U1:
                 PassesTotal = 1;
                 TicketClass = C_90UNIVERSAL;
@@ -575,5 +620,10 @@ public class Ticket {
         }
         return false;
     }
-
+    
+    public int getCurrentDateInt() {
+// TODO: need to be implemented
+        return 0;
+    }
+    
 }

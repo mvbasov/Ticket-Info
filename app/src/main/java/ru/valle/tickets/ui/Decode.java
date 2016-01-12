@@ -35,6 +35,8 @@ public class Decode
                 return "Проспект Мира (радиальная)";
             case 11531:
                 return "Царицыно";
+            case 13490: // [14] (left) (0001029499-ul-01)
+            case 13507: // [15] (2-nd from left) (0001029499-ul-04)
             case 13489: // [21] (right, baggage) (2523074756-02-01)
                 return "Тропарёво (южный)";
             case 13354: // [6] (left, baggage) (2464659182-05-02)
@@ -49,6 +51,7 @@ public class Decode
             case 13442: // [9] (left) (2487157655-60-46)
             case 10781: // [10] (2-nd from left) (2458927306-11-06)
             case 13148: // [11] (3-rd from left) (2487157655-60-48)
+            case 10763: // [12] (4-th from left) (0001029499-ul-003)
             case 13001:
             case 10925: // [14] 3-rd from right) (2458927306-11-09)
             case 13083: // [15] (2-nd from right) (2462677851-05-04)
@@ -90,6 +93,8 @@ public class Decode
             case 11715:
             case 11482:
                 return "Текстильщики";
+            case 12024: // [13] (right) (0001029499-ul-02)
+                return "Лубянка (западный)";
             case 12193: // [14] (left) (2458927306-11-07)
                 return "Лубянка (восточный)";
             case 11760: // [?] (2516440644-40-22)
@@ -178,7 +183,9 @@ public class Decode
                 return c.getString(R.string.universal) + ", 40 " + Lang.getNounCase(40, R.array.trip_cases, c);
             case Ticket.TN_U60: // 60 passes, universal (2478069296, confirmed lly)
                 return c.getString(R.string.universal) + ", 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
-// TODO: Translate messages    
+// TODO: Translate messages
+            case Ticket.TN_UL1D:
+                return "Universal, 1 day, unlimited passes, 20 minutes between passes";
             case Ticket.TN_90U1: // 1 pass, 90 minutes, universal (1013862735, with paper check)
                 return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_90U2: // 2 passes, 90 minutes, universal (1016237832, with paper check)
