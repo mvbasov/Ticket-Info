@@ -26,6 +26,7 @@ package ru.valle.tickets.ui;
  */
 
 import android.content.Context;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,6 +36,23 @@ import java.util.Calendar;
 import ru.valle.tickets.R;
 
 public class Ticket {
+    // Debug facility
+    static final String TAG = "tickets";
+    private static final boolean DEBUG_TIME = false;
+    private static final DateFormat ddf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private Calendar getNowCalendar() {
+        Calendar now = Calendar.getInstance();
+        /*
+        For debug set now to time
+         */
+        if (DEBUG_TIME) {
+            now.clear();
+            //now.set(2016, Calendar.JANUARY, 12, 12, 20);
+            now.set(2015, Calendar.DECEMBER, 29, 12, 45);
+        }
+        return now;
+    }
+
     // Constants definition
     /* Used transport types */
     public static final int TT_UNKNOWN = 0;
@@ -111,6 +129,7 @@ public class Ticket {
     private int IssuedInt = 0;
     private int StartUseBeforeInt = 0;
     private int StartUseTimeInt = 0;
+    private Calendar StartUseDayTime = Calendar.getInstance();
     private int ValidDays = 0;
     private int PassesTotal = 0; // -1 is unlimited
     private int PassesLeft = 0;
@@ -162,8 +181,8 @@ public class Ticket {
                 Type == T_UNKNOWN ||
                 PassesTotal == 0 ||
                 PassesTotal < -1 ||
-                PassesTotal > 60 ||
-                PassesLeft < 0
+                PassesTotal > 70 ||
+                PassesLeft < -1
                 ) {
             DumpValid = false;
         }
@@ -212,6 +231,7 @@ public class Ticket {
             PassesTotal = -1;
             PassesLeft = -1;
             StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
+            setStartUseDaytime(IssuedInt, StartUseTimeInt);
 // TODO: Need to check date change
             TimeToNextTrip = (LastUsedTimeInt + 20) - getCurrentTimeInt();
             //if (TimeToNextTrip < 0) TimeToNextTrip = 0;
@@ -226,9 +246,13 @@ public class Ticket {
     public String getTicketAsString(Context c) {
         StringBuilder sb = new StringBuilder();
 
+        if (DEBUG_TIME)
+            sb.append(String.format("! ! ! App time set to %s\n\n",
+                    ddf.format(getNowCalendar().getTime())));
+
         if (!DumpValid) {
 // TODO: Translate message
-            sb.append("Dump not valid or ticket type unknown\n");
+            sb.append("! ! ! Dump not valid or ticket type unknown\n\n");
         }
 
         sb.append(Decode.getAppIdDesc(c, App)).append('\n');
@@ -277,7 +301,15 @@ public class Ticket {
         }
         
         if (TicketClass == C_UNLIM_DAYS) {
-            if (TimeToNextTrip > 0) {
+            Calendar tmp = (Calendar)StartUseDayTime.clone();
+            tmp.add(Calendar.HOUR, 24 * ValidDays);
+
+            if (DEBUG_TIME)
+                Log.d(TAG, String.format("Compare: %s\n", ddf.format(tmp.getTime())));
+
+            if (tmp.compareTo(getNowCalendar()) < 0){
+                sb.append("\n\tE X P I R E D\n");
+            }else if (TimeToNextTrip > 0) {
                 sb.append("\n\tW A I T\n");
             }
         }
@@ -606,7 +638,7 @@ public class Ticket {
         /*
         Return minutes since current day midnight
          */
-        Calendar now = Calendar.getInstance();
+        Calendar now = getNowCalendar();
         return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
     }
 
@@ -615,7 +647,7 @@ public class Ticket {
         date.clear();
         date.set(1991, Calendar.DECEMBER, 31);
         date.add(Calendar.DATE, dateInt);
-        if (date.compareTo(Calendar.getInstance()) <= 0){
+        if (date.compareTo(getNowCalendar()) <= 0){
             return true;
         }
         return false;
@@ -625,5 +657,13 @@ public class Ticket {
 // TODO: need to be implemented
         return 0;
     }
-    
+
+    private void setStartUseDaytime(int date, int time){
+        StartUseDayTime.clear();
+        StartUseDayTime.set(1991, Calendar.DECEMBER, 31);
+        StartUseDayTime.add(Calendar.DATE, date);
+        StartUseDayTime.add(Calendar.MINUTE, time);
+        if (DEBUG_TIME)
+            Log.d(TAG,String.format("Set: %s\n",ddf.format(StartUseDayTime.getTime())));
+    }
 }
