@@ -40,6 +40,7 @@ public class Ticket {
     static final String TAG = "tickets";
     private static final boolean DEBUG_TIME = false;
     private static final DateFormat ddf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
     private Calendar getNowCalendar() {
         Calendar now = Calendar.getInstance();
         /*
@@ -424,14 +425,16 @@ public class Ticket {
         if (PassesTotal == 0) detectPassesTotalAndClass();
         return PassesTotal;
     }
-    public int getPassesLeft(){
-        return PassesLeft;
-    }
+    
+    public int getPassesLeft() { return PassesLeft; }
+    
     public int getRelTransportChangeTimeMinutes() {
         return T90RelChangeTimeInt * 5;
     }
 
     public int getT90ChangeCount() { return T90GCount + T90MCount; }
+    
+    public int getValidDays() { return ValidDays; }
 
 /* Internal functions */
 
@@ -651,11 +654,6 @@ public class Ticket {
             return true;
         }
         return false;
-    }
-    
-    public int getCurrentDateInt() {
-// TODO: need to be implemented
-        return 0;
     }
 
     private void setStartUseDaytime(int date, int time){

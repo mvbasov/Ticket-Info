@@ -47,7 +47,7 @@ public class FileIO {
         dName.append(String.format("%010d", ticket.getTicketNumber()));
         if (ticket.isTicketFormatValid()) {
             if (ticket.getTicketClass() == Ticket.C_UNLIM_DAYS){
-                dName.append("-ul");
+                dName.append(String.format("-%dd",ticket.getValidDays()));
                 dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
             } else {
                 dName.append(String.format("-%02d", ticket.getPassesTotal()));
