@@ -309,10 +309,16 @@ public class Ticket {
             if (DEBUG_TIME)
                 Log.d(TAG, String.format("Compare: %s\n", ddf.format(tmp.getTime())));
 
-            if (tmp.compareTo(getNowCalendar()) < 0){
-                sb.append("\n\tE X P I R E D\n");
-            }else if (TimeToNextTrip > 0) {
-                sb.append("\n\tW A I T\n");
+            if (IssuedInt == 0 ) {
+                if (isDateInPast(StartUseBeforeInt)) {
+                    sb.append("\n\tE X P I R E D\n");
+                }
+            } else {
+                if (tmp.compareTo(getNowCalendar()) < 0) {
+                    sb.append("\n\tE X P I R E D\n");
+                } else if (TimeToNextTrip > 0) {
+                    sb.append("\n\tW A I T\n");
+                }
             }
         }
 
