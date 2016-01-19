@@ -189,6 +189,8 @@ public class Decode
 // TODO: Translate messages
             case Ticket.TN_UL1D:
                 return "Universal, 1 day, unlimited passes, 20 minutes between passes";
+            case Ticket.TN_UL3D:
+                return "Universal, 3 days, unlimited passes, 20 minutes between passes";
             case Ticket.TN_90U1: // 1 pass, 90 minutes, universal (1013862735, with paper check)
                 return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_90U2: // 2 passes, 90 minutes, universal (1016237832, with paper check)
