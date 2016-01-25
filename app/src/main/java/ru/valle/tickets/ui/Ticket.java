@@ -109,6 +109,7 @@ public class Ticket {
     public static final int TN_90U60 = 427;
     public static final int TN_UL1D = 419;
     public static final int TN_UL3D = 435;
+    public static final int TN_UL7D = 436;
     /* Ticket class */
     public static final int C_UNKNOWN = 0;
     public static final int C_OLD_METRO = C_UNKNOWN + 1;
@@ -599,6 +600,11 @@ public class Ticket {
                 PassesTotal = -1;
                 TicketClass = C_UNLIM_DAYS;
                 if (ValidDays == 0) ValidDays = 3;
+                break;
+            case TN_UL7D:
+                PassesTotal = -1;
+                TicketClass = C_UNLIM_DAYS;
+                if (ValidDays == 0) ValidDays = 7;
                 break;
             case TN_90U1:
                 PassesTotal = 1;
