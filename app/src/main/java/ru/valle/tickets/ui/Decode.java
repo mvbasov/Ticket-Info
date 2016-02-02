@@ -54,7 +54,7 @@ public class Decode
             case 13488: // [13] (right) (2516440644-40-01)
                 return "Тропарёво (северный)"; // 2016-01-06 complete
             case 13175: // [9] (left) (0001192751-3d-003)
-            case 10781: // [10] (2-nd from left) (2458927306-11-06)
+            case 10754: // [10] (2-nd from left) (000119240-7d-015)
             case 13148: // [11] (3-rd from left) (2487157655-60-48)
             case 10763: // [12] (4-th from left) (0001029499-1d-003)
             case 13442: // [13] (4-th from right) (2518437516-20-01)
@@ -65,6 +65,11 @@ public class Decode
             case 11771: // [8] (right) (2523074756-02-02)
             case 12905: // [1] (left, baggage) (1016237832-02-01.10.3)
                 return "Пролетарская (западный)";
+            case 12537: // [] (left) (0001192740-7d-009)
+            case 10781: // [] (2-nd from left) (0001192740-7d-014)
+            case 10586: // [] (2-nd from right) (2487157655-60-51)
+            case 11824: // [] (right, baggage) (0001192740-7d-012)
+            /* After repair at 2016-01 all turtstiles changed
             case 12877: // [1] (left) (2458927306-11-01)
             case 13321: // [2] (2-nd from left) (2462677851-05-02)(2462677851-05-03)
             case 13405: // [3] (3-rd from left) (2458927306-11-04)
@@ -72,8 +77,10 @@ public class Decode
             case 13090: // [5] (5-th from left) (1016363888-05-01.45.3)
             case 12854: // [6] (right, before baggage) (1016237832-02-02.00.1)
             case 11440: // [] (right, baggage) (2464659182-05-05)
+            */
                 return "Крестьянская застава"; // 2015-12-24 complete
             case 12988: // [7] (left) (2487157655-60-44)
+            case 12977: // [] (right, next after 13) (0001192740-7d-002)
                 return "Марксистская";
             case 12519:
                 return "Алтуфьево";
@@ -102,10 +109,15 @@ public class Decode
             case 12227: // [1] (left) (0001192751-3d-004)
             case 13317: // [2] (2-nd from left) (0001192751-3d-007)
             case 12057: // [3] (3-td from left) (0001192751-3d-011)
-            case 12099: // [12] (2-nd from right) (0001192751-3d-002)
+            case 11952: // [4] (4-th from left) (0001192740-7d-003)
+            case 12099: // [12] (2-nd from right) (0001192751-3d-002)          
             case 12024: // [13] (right) (0001029499-1d-002)
                 return "Лубянка (западный)";
             case 12193: // [14] (left) (2458927306-11-07)
+            case 11922: // [15] (2-nd from left) (0001192740-7d-008)
+            case 13322: // [16] (3-rd rfom left) (0001192740-7d-011)
+            case 13323: // [19] (2-nd from right) (0001192740-7d-016)
+            case 11965: // [20] (right) (0001192740-7d-005)
                 return "Лубянка (восточный)";
             case 11760: // [?] (2516440644-40-22)
                 return "Беляево (южный)";
@@ -120,6 +132,10 @@ public class Decode
             case 1228: // from original code
             case 2211: // from original code
                 return "Авиамоторная";
+            case 12265: // [1] (left) (2487157655-60-50)
+                return "Юго-Западная (северный)";
+            case 12200: // [9] (left) (2458927306-11-10)
+                return "Юго-Западная (южный)";         
             case 2194: // from original code
                 return "Юго-Западная";
             case 2233: // from original code

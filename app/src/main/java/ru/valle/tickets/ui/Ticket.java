@@ -236,7 +236,7 @@ public class Ticket {
             StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
             setStartUseDaytime(IssuedInt, StartUseTimeInt);
 // TODO: Need to check date change
-            TimeToNextTrip = (LastUsedTimeInt + 20) - getCurrentTimeInt();
+            TimeToNextTrip = (LastUsedTimeInt + 21) - getCurrentTimeInt();
             //if (TimeToNextTrip < 0) TimeToNextTrip = 0;
         }
 
@@ -258,7 +258,7 @@ public class Ticket {
             sb.append("! ! ! Dump not valid or ticket type unknown\n\n");
         }
 
-        sb.append(Decode.getAppIdDesc(c, App)).append('\n');
+        //sb.append(Decode.getAppIdDesc(c, App)).append('\n');
         sb.append(Decode.descCardType(c, Type)).append('\n');
         sb.append("\n- - - -\n");
 
@@ -354,22 +354,6 @@ public class Ticket {
                     sb.append(",\n  ");
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
                     sb.append(getGateDesc(c, GateEntered));
-                    sb.append("\n");
-// TODO: Translate messages
-                    switch (TransportType) {
-                        case TT_METRO:
-                            sb.append("  (Metro)");
-                            break;
-                        case TT_GROUND:
-                            sb.append("  (Ground)");
-                            break;
-                        case TT_UNKNOWN:
-                            sb.append("  (Unknown)");
-                            break;
-                        default:
-                            sb.append("  (!!! Internal error !!!)");
-                            break;
-                    }
                     sb.append('\n');
 
 // TODO: Translate messages
@@ -417,7 +401,7 @@ public class Ticket {
         sb.append(getHashAsHexString()).append('\n');
         sb.append(c.getString(R.string.otp)).append(": ");
         sb.append(getOTPasBinaryString()).append('\n');
-
+        
         return sb.toString();
     }
 
@@ -455,13 +439,30 @@ public class Ticket {
     }
 
     private String getGateDesc(Context c, int id) {
+        // TODO: Translate messages
+        String trType ="";
+        switch (TransportType) {
+            case TT_METRO:
+                trType +="Metro";
+                break;
+            case TT_GROUND:
+                trType += "Ground";
+                break;
+            case TT_UNKNOWN:
+                trType += "Unknown";
+                break;
+            default:
+                trType += "!!! Internal error !!!";
+                break;
+        }
         String SN = Lang.tarnliterate(Decode.getStationName(id));
+        String gateNumType = "№" + id + " (" + trType + ")";
         if (SN.length() != 0) {
-            return "№" + id + "\n  " +
-                    c.getString(R.string.station) + " " +
-                    Lang.tarnliterate(Decode.getStationName(id));
+            return gateNumType + '\n' +
+                    "  " + c.getString(R.string.station) + " " +
+                    SN;
         } else {
-            return "№" + id;
+            return gateNumType;
         }
     }
 
