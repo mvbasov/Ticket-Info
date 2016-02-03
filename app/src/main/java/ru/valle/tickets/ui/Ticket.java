@@ -1,5 +1,3 @@
-package ru.valle.tickets.ui;
-
 /**
  * The MIT License (MIT)
 
@@ -24,6 +22,8 @@ package ru.valle.tickets.ui;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+package ru.valle.tickets.ui;
 
 import android.content.Context;
 import android.util.Log;
@@ -187,12 +187,12 @@ public class Ticket {
                 PassesTotal == 0 ||
                 PassesTotal < -1 ||
                 PassesTotal > 70 ||
-                PassesLeft < -1
+                getPassesLeft() < -1
                 ) {
             DumpValid = false;
         }
 
-        TripSeqNumber = PassesTotal - PassesLeft;
+        TripSeqNumber = PassesTotal - getPassesLeft();
 
         IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
 
@@ -230,7 +230,7 @@ public class Ticket {
         }
         
         if (TicketClass == C_UNLIM_DAYS){
-            TripSeqNumber = PassesLeft;       
+            TripSeqNumber = getPassesLeft();
             PassesLeft = -1;
             StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
             setStartUseDaytime(IssuedInt, StartUseTimeInt);
@@ -289,7 +289,7 @@ public class Ticket {
         }
 
 // TODO: Translate messages
-        if (PassesLeft == 0) {
+        if (getPassesLeft() == 0) {
             sb.append("\n\tE M P T Y\n");
         } else if (IssuedInt == 0 ) {
             if (isDateInPast(StartUseBeforeInt)) {
@@ -324,9 +324,9 @@ public class Ticket {
 
         sb.append("\n- - - -\n");
 
-        if (PassesLeft != -1){
+        if (getPassesLeft() != -1){
             sb.append(c.getString(R.string.passes_left)).append(": ");
-            sb.append(PassesLeft).append("\n\n");
+            sb.append(getPassesLeft()).append("\n\n");
         }
         
         switch (Layout) {
@@ -438,17 +438,16 @@ public class Ticket {
     }
 
     private String getGateDesc(Context c, int id) {
-        // TODO: Translate messages
         String trType ="";
         switch (TransportType) {
             case TT_METRO:
-                trType +="Metro";
+                trType +=c.getString(R.string.tt_metro);
                 break;
             case TT_GROUND:
-                trType += "Ground";
+                trType += c.getString(R.string.tt_ground);
                 break;
             case TT_UNKNOWN:
-                trType += "Unknown";
+                trType += c.getString(R.string.tt_unknown);
                 break;
             default:
                 trType += "!!! Internal error !!!";

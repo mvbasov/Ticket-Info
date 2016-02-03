@@ -1,5 +1,3 @@
-package ru.valle.tickets.ui;
-
 /**
  * The MIT License (MIT)
 
@@ -25,6 +23,8 @@ package ru.valle.tickets.ui;
 
  * Created by mvb on 12/28/15.
  */
+
+package ru.valle.tickets.ui;
 
 import android.util.Log;
 

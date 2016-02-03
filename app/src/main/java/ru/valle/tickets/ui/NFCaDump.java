@@ -1,5 +1,3 @@
-package ru.valle.tickets.ui;
-
 /**
  * The MIT License (MIT)
 
@@ -23,6 +21,8 @@ package ru.valle.tickets.ui;
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+package ru.valle.tickets.ui;
 
 import android.nfc.tech.NfcA;
 
