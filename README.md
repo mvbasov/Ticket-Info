@@ -37,7 +37,11 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- 
+- Automaticaly save dumps to /sdcard/Android/data/ru.valle.tickets/files/AutoDumps
+- New tickets types: 
+  - Universal, unlimited passes (20 minutes between passes), limited to 1,3 or 7 days
+  - Zone B ground 1 pass
+- Several new turnstiles and stations.
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
