@@ -174,6 +174,8 @@ public class Ticket {
         App = Dump.get(4) >>> 22;
 
         Type = (Dump.get(4) >>> 12) & 0x3ff;
+        
+        ValidDays = (Dump.get(8) >>> 8) & 0xff;
 
         detectPassesTotalAndClass();
 
@@ -194,9 +196,7 @@ public class Ticket {
 
         IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
 
-        StartUseBeforeInt = Dump.get(6) >>> 16;
-
-        ValidDays = (Dump.get(8) >>> 8) & 0xff;
+        StartUseBeforeInt = Dump.get(6) >>> 16;      
 
         LastUsedDateInt = Dump.get(11) >>> 16;
 
@@ -230,8 +230,7 @@ public class Ticket {
         }
         
         if (TicketClass == C_UNLIM_DAYS){
-            TripSeqNumber = PassesLeft;
-            PassesTotal = -1;
+            TripSeqNumber = PassesLeft;       
             PassesLeft = -1;
             StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
             setStartUseDaytime(IssuedInt, StartUseTimeInt);

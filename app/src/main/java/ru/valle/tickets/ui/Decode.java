@@ -65,10 +65,11 @@ public class Decode
             case 11771: // [8] (right) (2523074756-02-02)
             case 12905: // [1] (left, baggage) (1016237832-02-01.10.3)
                 return "Пролетарская (западный)";
-            case 12537: // [] (left) (0001192740-7d-009)
-            case 10781: // [] (2-nd from left) (0001192740-7d-014)
-            case 10586: // [] (2-nd from right) (2487157655-60-51)
-            case 11824: // [] (right, baggage) (0001192740-7d-012)
+            case 12537: // [1?] (left) (0001192740-7d-009)
+            case 10781: // [2?] (2-nd from left) (0001192740-7d-014)
+            case 11912: // [3?] (3-rd from left) (245892730-11-11)
+            case 10586: // [6?] (2-nd from right) (2487157655-60-51)
+            case 11824: // [7?] (right, baggage) (0001192740-7d-012)
             /* After repair at 2016-01 all turtstiles changed
             case 12877: // [1] (left) (2458927306-11-01)
             case 13321: // [2] (2-nd from left) (2462677851-05-02)(2462677851-05-03)
@@ -110,6 +111,7 @@ public class Decode
             case 13317: // [2] (2-nd from left) (0001192751-3d-007)
             case 12057: // [3] (3-td from left) (0001192751-3d-011)
             case 11952: // [4] (4-th from left) (0001192740-7d-003)
+            case 13135: // [5] (5-th from left) (0001192613-3d-002)
             case 12099: // [12] (2-nd from right) (0001192751-3d-002)          
             case 12024: // [13] (right) (0001029499-1d-002)
                 return "Лубянка (западный)";
@@ -128,6 +130,8 @@ public class Decode
             case 1230: // from original code
             case 2290: // from original code
                 return "Парк культуры (радиальная)";
+            case 13492: // [] (left, baggage)
+                return "Парк культуры (кольцевая, радиальная)";
             case 12958: // [1] (left) (2458927306-11-05)
             case 1228: // from original code
             case 2211: // from original code
