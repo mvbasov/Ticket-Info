@@ -70,7 +70,7 @@ public class Turnstiles {
             case 11912: // [3?] (3-rd from left) (245892730-11-11)
             case 10586: // [6?] (2-nd from right) (2487157655-60-51)
             case 11824: // [7?] (right, baggage) (0001192740-7d-012)
-            /* After repair at 2016-01 all turtstiles changed
+            /* After repair at 2016-01 all turnstiles changed
             case 12877: // [1] (left) (2458927306-11-01)
             case 13321: // [2] (2-nd from left) (2462677851-05-02)(2462677851-05-03)
             case 13405: // [3] (3-rd from left) (2458927306-11-04)
@@ -114,13 +114,13 @@ public class Turnstiles {
             case 13135: // [5] (5-th from left) (0001192613-3d-002)
             case 12099: // [12] (2-nd from right) (0001192751-3d-002)
             case 12024: // [13] (right) (0001029499-1d-002)
-                return "Лубянка (западный)";
+                return "Лубянка (южный) (Детский мир)";
             case 12193: // [14] (left) (2458927306-11-07)
             case 11922: // [15] (2-nd from left) (0001192740-7d-008)
-            case 13322: // [16] (3-rd rfom left) (0001192740-7d-011)
+            case 13322: // [16] (3-rd from left) (0001192740-7d-011)
             case 13323: // [19] (2-nd from right) (0001192740-7d-016)
             case 11965: // [20] (right) (0001192740-7d-005)
-                return "Лубянка (восточный)";
+                return "Лубянка (северный)";
             case 11760: // [?] (2516440644-40-22)
                 return "Беляево (южный)";
             case 13539: // [] (left, baggage) (0001192751-3d-005)
