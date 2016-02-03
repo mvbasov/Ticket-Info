@@ -42,6 +42,10 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.basov.metro.Ticket;
+import net.basov.nfc.NFCaDump;
+import net.basov.util.FileIO;
+
 import java.io.IOException;
 
 import ru.valle.tickets.R;

@@ -23,10 +23,12 @@
  THE SOFTWARE.
  */
 
-package ru.valle.tickets.ui;
+package net.basov.metro;
 
 import android.content.Context;
 import android.util.Log;
+
+import net.basov.nfc.NFCaDump;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,6 +36,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import ru.valle.tickets.R;
+import ru.valle.tickets.ui.Decode;
+import ru.valle.tickets.ui.Lang;
+
+import net.basov.metro.Turnstiles;
 
 public class Ticket {
     // Debug facility
@@ -82,34 +88,34 @@ public class Ticket {
     public static final int TO_UL70 = 149;
     public static final int TO_VESB = 150; // Temporary universal social ticket
     /* Type new (layout 0x0d) */
-    public static final int TN_G1 = 601;
-    public static final int TN_G2 = 602;
-    public static final int TN_G3_DRV = 608;
-    public static final int TN_G5 = 603;
-    public static final int TN_G11 = 604;
-    public static final int TN_G20 = 605;
-    public static final int TN_G40 = 606;
-    public static final int TN_G60 = 607;
-    public static final int TN_GB1_DRV = 571;
+    public static final int TN_G1 = 601; // 1 passes, ground (0002277252)(0002550204, with paper check)
+    public static final int TN_G2 = 602; // 2 passes ground (0001585643, with paper check)
+    public static final int TN_G3_DRV = 608; // 3 passes, ground, sell by driver (0010197214)
+    public static final int TN_G5 = 603; // 5 passes ground (0000060635)(0002550205, with paper check)
+    public static final int TN_G11 = 604; // 11 passes ground (0002551460, with paper check)
+    public static final int TN_G20 = 605; // 20 passes, ground (0002275051)(0002688466, with paper check)
+    public static final int TN_G40 = 606; // 40 passes, ground (0002551487, with paper check)
+    public static final int TN_G60 = 607; // 60 passes, ground (0000108646, with paper check)
+    public static final int TN_GB1_DRV = 571; // 1 pass, ground, Zone B (0000021180 script on ticket)
     public static final int TN_GB2 = 572; // predicted
-    public static final int TN_U1_DRV = 410;
-    public static final int TN_U1 = 411;
-    public static final int TN_U2 = 412;
-    public static final int TN_U5 = 413;
-    public static final int TN_U11 = 415;
-    public static final int TN_U20 = 416;
-    public static final int TN_U40 = 417;
-    public static final int TN_U60 = 418;
-    public static final int TN_90U1 = 421;
-    public static final int TN_90U2 = 422;
-    public static final int TN_90U5 = 423;
-    public static final int TN_90U11 = 424;
-    public static final int TN_90U20 = 425;
-    public static final int TN_90U40 = 426;
-    public static final int TN_90U60 = 427;
-    public static final int TN_UL1D = 419;
-    public static final int TN_UL3D = 435;
-    public static final int TN_UL7D = 436;
+    public static final int TN_U1_DRV = 410; // 1 pass, universal, sell by ground driver (0020905097)
+    public static final int TN_U1 = 411; // 1 passes, universal (2462677850, with paper check)
+    public static final int TN_U2 = 412; // 2 passes, universal (2523074756, with paper check)
+    public static final int TN_U5 = 413; // 5 passes, universal (2462677851, with paper check)
+    public static final int TN_U11 = 415; // 11 passes, universal (2458927306, with paper check)
+    public static final int TN_U20 = 416; // 20 passes, universal (2518437516, with paper check)
+    public static final int TN_U40 = 417; // 40 passes, universal (2516440644, with paper check)
+    public static final int TN_U60 = 418; // 60 passes, universal (2478069296, confirmed lly)
+    public static final int TN_90U1 = 421; // 1 pass, 90 minutes, universal (1013862735, with paper check)
+    public static final int TN_90U2 = 422; // 2 passes, 90 minutes, universal (1016237832, with paper check)
+    public static final int TN_90U5 = 423; // 5 passes, 90 minutes, universal (1016363888, with paper check)
+    public static final int TN_90U11 = 424; // 11 passes, 90 minutes, universal (1016235763, with paper sheck)
+    public static final int TN_90U20 = 425; // 20 passes, 90 minutes, universal (1016043594, with paper check)
+    public static final int TN_90U40 = 426; // 40 passes, 90 minutes, universal (1016043595, with paper check)
+    public static final int TN_90U60 = 427; // 60 passes, 90 minutes, universal (1015907198, confirmed Max)
+    public static final int TN_UL1D = 419; // 1 days, unlimited passes, 20 minutes between passes (0001029499, with paper check)
+    public static final int TN_UL3D = 435; // 3 days, unlimited passes, 20 minutes between passes (0001192751, with paper check)
+    public static final int TN_UL7D = 436; // 7 days, unlimited passes, 20 minutes between passes (0001192740, with paper check)
     /* Ticket class */
     public static final int C_UNKNOWN = 0;
     public static final int C_OLD_METRO = C_UNKNOWN + 1;
@@ -453,7 +459,7 @@ public class Ticket {
                 trType += "!!! Internal error !!!";
                 break;
         }
-        String SN = Lang.tarnliterate(Decode.getStationName(id));
+        String SN = Lang.tarnliterate(Turnstiles.getStationByTurnstile(id));
         String gateNumType = "№" + id + " (" + trType + ")";
         if (SN.length() != 0) {
             return gateNumType + '\n' +

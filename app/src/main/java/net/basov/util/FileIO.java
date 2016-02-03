@@ -24,15 +24,17 @@
  * Created by mvb on 12/28/15.
  */
 
-package ru.valle.tickets.ui;
-
-import android.util.Log;
+package net.basov.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import ru.valle.tickets.ui.MainActivity;
+import net.basov.nfc.NFCaDump;
+import net.basov.metro.Ticket;
 
 public class FileIO {
 

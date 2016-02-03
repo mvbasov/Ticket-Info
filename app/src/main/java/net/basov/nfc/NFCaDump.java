@@ -22,7 +22,7 @@
  THE SOFTWARE.
  */
 
-package ru.valle.tickets.ui;
+package net.basov.nfc;
 
 import android.nfc.tech.NfcA;
 
