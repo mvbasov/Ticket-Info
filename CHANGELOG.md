@@ -1,5 +1,15 @@
 ### Change log.
 
+#### Version 2.06b
+##### Date:   Wed Feb 3 15:30:54 2016 +0300, commit 903ccff180747207a9370fd56d40d5c3a325f192
+
+- Automaticaly save dumps to /sdcard/Android/data/ru.valle.tickets/files/AutoDumps
+- New tickets types:
+  - Universal, unlimited passes (20 minutes between passes), limited to 1,3 or 7 days
+  - Zone B ground 1 pass
+- Several new turnstiles and stations.
+
+
 #### Version 2.05b
 ##### Date:   Mon Dec 28 14:59:24 2015 +0300, commit ffe98ad551ee48c501c8c87f999ba6f17556ab11
 
