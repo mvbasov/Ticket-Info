@@ -106,8 +106,10 @@ public class Ticket {
     public static final int TN_U20 = 416; // 20 passes, universal (2518437516, with paper check)
     public static final int TN_U40 = 417; // 40 passes, universal (2516440644, with paper check)
     public static final int TN_U60 = 418; // 60 passes, universal (2478069296, confirmed lly)
-    public static final int TN_90U1 = 421; // 1 pass, 90 minutes, universal (1013862735, with paper check)
-    public static final int TN_90U2 = 422; // 2 passes, 90 minutes, universal (1016237832, with paper check)
+    public static final int TN_90U1_G = 421; // 1 pass, 90 minutes, universal, sell on ground (1013862735, with paper check)
+    public static final int TN_90U1 = 437; // 1 passs, 90 minutes, universal, sell in metro (1016236236, with paper check)
+    public static final int TN_90U2_G = 438; // 2 passes, 90 minutes, universal, sell on ground (1014908560, with paper check)
+    public static final int TN_90U2 = 422; // 2 passes, 90 minutes, universal, sell in metro (1016237832, with paper check)
     public static final int TN_90U5 = 423; // 5 passes, 90 minutes, universal (1016363888, with paper check)
     public static final int TN_90U11 = 424; // 11 passes, 90 minutes, universal (1016235763, with paper sheck)
     public static final int TN_90U20 = 425; // 20 passes, 90 minutes, universal (1016043594, with paper check)
@@ -121,11 +123,16 @@ public class Ticket {
     public static final int C_OLD_METRO = C_UNKNOWN + 1;
     public static final int C_OLD_SPECIAL = C_UNKNOWN + 2;
     public static final int C_GROUND = C_UNKNOWN + 3;
-    public static final int C_GROUND_B = C_UNKNOWN +4;
+    public static final int C_GROUND_B = C_UNKNOWN + 4;
     public static final int C_UNIVERSAL = C_UNKNOWN + 5;
     public static final int C_UNLIM_DAYS = C_UNKNOWN + 6;
     public static final int C_90UNIVERSAL = C_UNKNOWN + 7;
-
+    /* Where selll */
+    public static final int WS_UNKNOWN = 0;
+    public static final int WS_METRO = 1;
+    public static final int WS_GROUND = WS_METRO >>> 1;
+    public static final int WS_DRIVER = WS_METRO >>> 2;
+    
     // Data fields definition
     private ArrayList<Integer> Dump;
     private boolean DumpValid = false;
@@ -134,7 +141,7 @@ public class Ticket {
     private int App = A_UNKNOWN;
     private int Type = T_UNKNOWN;
     private int TicketClass = C_UNKNOWN;
-    private boolean SellByDriver = false;
+    private int WhereSell = WS_UNKNOWN;
     private int IssuedInt = 0;
     private int StartUseBeforeInt = 0;
     private int StartUseTimeInt = 0;
@@ -183,7 +190,7 @@ public class Ticket {
         
         ValidDays = (Dump.get(8) >>> 8) & 0xff;
 
-        detectPassesTotalAndClass();
+        getTypeRelatedInfo();
 
         PassesLeft = (Dump.get(9) >>> 16) & 0xff;
 
@@ -419,7 +426,7 @@ public class Ticket {
     public int getTicketClass() { return TicketClass; }
 
     public int getPassesTotal() {
-        if (PassesTotal == 0) detectPassesTotalAndClass();
+        if (PassesTotal == 0) getTypeRelatedInfo();
         return PassesTotal;
     }
     
@@ -470,7 +477,7 @@ public class Ticket {
         }
     }
 
-    private void detectPassesTotalAndClass() {
+    private void getTypeRelatedInfo() {
         switch (Type) {
             case TO_M1:
                 PassesTotal = 1;
@@ -524,120 +531,157 @@ public class Ticket {
             case TN_G1:
                 PassesTotal = 1;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;
                 break;
             case TN_G2:
                 PassesTotal = 2;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;            
                 break;
             case TN_G3_DRV:
                 PassesTotal = 3;
                 TicketClass = C_GROUND;
-                SellByDriver = true;
+                WhereSell = WS_DRIVER;
                 break;
             case TN_G5:
                 PassesTotal = 5;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;
                 break;
             case TN_G11:
                 PassesTotal = 11;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;
                 break;
             case TN_G20:
                 PassesTotal = 20;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;
                 break;
             case TN_G40:
                 PassesTotal = 40;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;
                 break;
             case TN_G60:
                 PassesTotal = 60;
                 TicketClass = C_GROUND;
+                WhereSell = WS_GROUND;
                 break;
             case TN_GB1_DRV:
                 PassesTotal = 1;
                 TicketClass = C_GROUND_B;
-                SellByDriver = true;
+                WhereSell = WS_DRIVER;
                 break;
             case TN_GB2:
                 PassesTotal = 2;
                 TicketClass = C_GROUND_B;
+                WhereSell = WS_GROUND;
                 break;
             case TN_U1_DRV:
                 PassesTotal = 1;
                 TicketClass = C_UNIVERSAL;
-                SellByDriver = true;
+                WhereSell = WS_DRIVER;
                 break;
             case TN_U1:
                 TicketClass = C_UNIVERSAL;
                 PassesTotal = 1;
+                WhereSell = WS_METRO;
                 break;
             case TN_U2:
                 PassesTotal = 2;
                 TicketClass = C_UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_U5:
                 PassesTotal = 5;
                 TicketClass = C_UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_U11:
                 PassesTotal = 11;
                 TicketClass = C_UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_U20:
                 PassesTotal = 20;
                 TicketClass = C_UNIVERSAL;
+// TODO: As code example. Need to check.     
+                WhereSell = WS_GROUND;
+                WhereSell |= WS_METRO;
                 break;
             case TN_U40:
                 PassesTotal = 40;
                 TicketClass = C_UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_U60:
                 PassesTotal = 60;
                 TicketClass = C_UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_UL1D:
                 PassesTotal = -1;
                 TicketClass = C_UNLIM_DAYS;
                 if (ValidDays == 0) ValidDays = 1;
+                WhereSell = WS_METRO;
                 break;
             case TN_UL3D:
                 PassesTotal = -1;
                 TicketClass = C_UNLIM_DAYS;
                 if (ValidDays == 0) ValidDays = 3;
+                WhereSell = WS_METRO;
                 break;
             case TN_UL7D:
                 PassesTotal = -1;
                 TicketClass = C_UNLIM_DAYS;
                 if (ValidDays == 0) ValidDays = 7;
+                WhereSell = WS_METRO;
+                break;
+            case TN_90U1_G:
+                PassesTotal = 1;
+                TicketClass = C_90UNIVERSAL;            
+                WhereSell = WS_GROUND;
                 break;
             case TN_90U1:
                 PassesTotal = 1;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
+                break;
+            case TN_90U2_G:
+                PassesTotal = 2;
+                TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_GROUND;
                 break;
             case TN_90U2:
                 PassesTotal = 2;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_90U5:
                 PassesTotal = 5;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_90U11:
                 PassesTotal = 11;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_90U20:
                 PassesTotal = 20;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_90U40:
                 PassesTotal = 40;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             case TN_90U60:
                 PassesTotal = 60;
                 TicketClass = C_90UNIVERSAL;
+                WhereSell = WS_METRO;
                 break;
             default:
                 PassesTotal = 0;

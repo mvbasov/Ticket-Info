@@ -62,9 +62,15 @@ public class Turnstiles {
             case 13083: // [15] (2-nd from right) (2462677851-05-04)
             case 13173: // [16] (right, baggage) (2517927572-05-05)
                 return "Пролетарская (восточный)"; // 2016-01-20 complete
-            case 11771: // [8] (right) (2523074756-02-02)
             case 12905: // [1] (left, baggage) (1016237832-02-01.10.3)
-                return "Пролетарская (западный)";
+            case 13001: // [2] (2-nd from left) (1014908460-02-02.00.1)
+            case 10787: // [3] (3-rd from left) (2375517573-20-02)
+            case 12485: // [4] (4-th from left) (2375517573-20-04)
+            case 12938: // [5] (4-th from right) (2375517573-20-11)
+            case 13129: // [6] (3-rd from right) (2375517573-20-09)
+            case 13145: // [7] (2-nd from right) (2375517573-20-07)
+            case 11771: // [8] (right) (2523074756-02-02)
+                return "Пролетарская (западный)"; // 2016-02-25 complete
             case 12537: // [1?] (left) (0001192740-7d-009)
             case 10781: // [2?] (2-nd from left) (0001192740-7d-014)
             case 11912: // [3?] (3-rd from left) (245892730-11-11)
@@ -87,15 +93,20 @@ public class Turnstiles {
                 return "Коньково";
             case 11501:
                 return "Киевская";
-            case 13033:
+            case 13033:         
                 return "Проспект Вернадского";
-            case 12493: // [1] (left, baggage)(2462677851-05-05)
+            case 12215: // [2] (2-nd from left) (2378235665-20-02)
+                return "Проспект Вернадского (южный)";              
+            case 12493: // [1] (left, baggage) (2462677851-05-05)
             case 11556: // [2] (2-nd from left) (2458927306-11-02)
                 return "Деловой центер";
             case 12254:
             case 12036:
                 return "Фрунзенская";
-            case 12473: // [?] (2-nd from left) (2458927306-11-03)
+            case 11211: // [11] (left in new block) (2375517573-20-03)
+            case 12587: // [14] (right in new block, baggage) (2375517573-20-06)
+            case 12473: // [2] (2-nd from left in old block) (2458927306-11-03)
+            case 12147: // [10] (right in new block) (2378235665-20-15)
                 return "Савёловская";
             case 11715:
             case 11482:
@@ -117,10 +128,16 @@ public class Turnstiles {
             case 13323: // [19] (2-nd from right) (0001192740-7d-016)
             case 11965: // [20] (right) (0001192740-7d-005)
                 return "Лубянка (северный)";
+            case 11955: // [7] (2-nd from right) (2378235665-20-04)
+            case 11839: // [8] (right) (2378235665-20-03)
+                return "Чистые пруды";
             case 11760: // [?] (2516440644-40-22)
                 return "Беляево (южный)";
             case 13539: // [] (left, baggage) (0001192751-3d-005)
                 return "Румянцево (южный)";
+            case 13558: // [] (left, baggage) (2522701976-02-01)
+            case 13554: // [] (right, 11-th from left, baggage) (2522710198-02-01)
+                return "Саларьево";
             case 11379: // [] (left, baggage) (0001192751-3d-009)
                 return "Павелецкая (северный)";
             case 13492: // [] (left, baggage)
@@ -132,6 +149,8 @@ public class Turnstiles {
             case 12059: // [8] (right) (0001192613-3d-005)
                 return "Юго-Западная (северный)";
             case 12200: // [9] (left) (2458927306-11-10)
+            case 12023: // [15] (2-nd from right) (scribe on case)
+            case 10675: // [16] (right) (1014908460-02-01.05.2)
                 return "Юго-Западная (южный)";
 
             default:
