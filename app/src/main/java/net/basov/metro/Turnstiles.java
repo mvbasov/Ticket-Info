@@ -152,6 +152,9 @@ public class Turnstiles {
             case 12023: // [15] (2-nd from right) (scribe on case)
             case 10675: // [16] (right) (1014908460-02-01.05.2)
                 return "Юго-Западная (южный)";
+			case 10814: // [2] (2-nd from left) (2378235665-20-17)
+			case 11223: // [3?] (3-rd from left) (0006981689-su-0005)
+				return "Арбатская (арбатско-покровской)";
 
             default:
                 return "";

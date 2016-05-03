@@ -252,6 +252,11 @@ public class Ticket {
             //if (TimeToNextTrip < 0) TimeToNextTrip = 0;
         }
 
+		if (Type == TO_VESB) {
+			TripSeqNumber = (Dump.get(9) >>> 16) & 0xfff;
+			PassesLeft = -1;
+		}
+		
         OTP = Dump.get(3);
 
         Hash = Dump.get(10);
@@ -345,6 +350,13 @@ public class Ticket {
         switch (Layout) {
             case 8:
                 if ( GateEntered != 0) {
+					sb.append(c.getString(R.string.last_trip));
+                    if (getTripSeqNumber() > 0) {
+                        sb.append(" №");
+                        sb.append(getTripSeqNumber());
+                    }
+                    sb.append(":\n  ");
+           
                     sb.append(c.getString(R.string.station_last_enter)).append(": ");
                     sb.append(getGateDesc(c, GateEntered)).append('\n');
                 }
@@ -416,6 +428,8 @@ public class Ticket {
         
         return sb.toString();
     }
+	
+	public int getType() { return Type; }
 
     public boolean isTicketFormatValid() { return DumpValid; }
 

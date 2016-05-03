@@ -52,12 +52,17 @@ public class FileIO {
                 dName.append(String.format("-%dd",ticket.getValidDays()));
                 dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
             } else {
-                dName.append(String.format("-%02d", ticket.getPassesTotal()));
-                dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
-                if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
-                    dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
-                    dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
-            }
+				if (ticket.getType() == ticket.TO_VESB) {
+					dName.append(String.format("-su"));
+                    dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
+				} else {
+                    dName.append(String.format("-%02d", ticket.getPassesTotal()));
+                    dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
+                    if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
+                        dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
+                        dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
+                    }
+				}
             }
         } else {
             dName.append("-xx-xx");
