@@ -82,6 +82,8 @@ public class Decode {
                 return "Zone B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver) + ")";
             case Ticket.TN_GB2: // 2 pass, ground, Zone B (predicted)
                 return "(p) Zone B, " + "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
+            case Ticket.TN_GAB1: // 1 pass, ground, Zone A and B (0000021180 script on ticket)
+                return "Zone A and B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver) + ")";
             case Ticket.TN_U1_DRV: // 1 pass, universal, sell by ground driver (0020905097)
                 return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver) + ")";
             case Ticket.TN_U1: // 1 passes, universal (2462677850, with paper check)

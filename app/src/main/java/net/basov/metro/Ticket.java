@@ -98,6 +98,7 @@ public class Ticket {
     public static final int TN_G60 = 607; // 60 passes, ground (0000108646, with paper check)
     public static final int TN_GB1_DRV = 571; // 1 pass, ground, Zone B (0000021180 script on ticket)
     public static final int TN_GB2 = 572; // predicted
+    public static final int TN_GAB1 = 581; // 1 pass, zone A and B (0000197461)
     public static final int TN_U1_DRV = 410; // 1 pass, universal, sell by ground driver (0020905097)
     public static final int TN_U1 = 411; // 1 passes, universal (2462677850, with paper check)
     public static final int TN_U2 = 412; // 2 passes, universal (2523074756, with paper check)
@@ -124,9 +125,10 @@ public class Ticket {
     public static final int C_OLD_SPECIAL = C_UNKNOWN + 2;
     public static final int C_GROUND = C_UNKNOWN + 3;
     public static final int C_GROUND_B = C_UNKNOWN + 4;
-    public static final int C_UNIVERSAL = C_UNKNOWN + 5;
-    public static final int C_UNLIM_DAYS = C_UNKNOWN + 6;
-    public static final int C_90UNIVERSAL = C_UNKNOWN + 7;
+    public static final int C_GROUND_AB = C_UNKNOWN + 5;
+    public static final int C_UNIVERSAL = C_UNKNOWN + 6;
+    public static final int C_UNLIM_DAYS = C_UNKNOWN + 7;
+    public static final int C_90UNIVERSAL = C_UNKNOWN + 8;
     /* Where selll */
     public static final int WS_UNKNOWN = 0;
     public static final int WS_METRO = 1;
@@ -591,6 +593,11 @@ public class Ticket {
                 PassesTotal = 2;
                 TicketClass = C_GROUND_B;
                 WhereSell = WS_GROUND;
+                break;
+            case TN_GAB1:
+                PassesTotal = 1;
+                TicketClass = C_GROUND_AB;
+                WhereSell = WS_DRIVER;
                 break;
             case TN_U1_DRV:
                 PassesTotal = 1;
