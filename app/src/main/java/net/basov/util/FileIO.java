@@ -26,11 +26,16 @@
 
 package net.basov.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import ru.valle.tickets.ui.MainActivity;
 import net.basov.nfc.NFCaDump;
@@ -87,8 +92,6 @@ public class FileIO {
         dText.append(df.format(c.getTime()));
         dText.append("\n");
 
-        //Log.d(TAG, String.format("%s\n", dText));
-
         FileOutputStream outputStream;
         File sdcard = MainActivity.getAppContext().getExternalFilesDir(null);
         String fNamePrefix = "AutoDumps/";
@@ -108,7 +111,113 @@ public class FileIO {
             e.printStackTrace();
         }
 
-
         return rc;
     }
+	
+	public static boolean ReadDump(NFCaDump dump, String fileName) {
+		ArrayList<String> file_content = new ArrayList<String>();
+		try {
+			BufferedReader input = new BufferedReader(new FileReader(fileName));
+			if (!input.ready()) {
+				throw new IOException();
+			}
+			
+			String line = "";
+					
+			while ((line = input.readLine()) != null) {
+				file_content.add(line);
+			}
+			input.close();
+
+		} catch (IOException e) {
+			System.out.println(e);
+			return false;
+        }
+		dump.setReadFrom(NFCaDump.READ_FROM_FILE);
+		ParseDump(dump, file_content);
+		return true;
+	}
+	
+	// Parser states
+	final static int PS_UNKNOWN = 0;
+	final static int PS_DUMP = PS_UNKNOWN + 1;
+	final static int PS_FAKE_PAGES = PS_UNKNOWN + 2;
+	final static int PS_IC_INFO = PS_UNKNOWN + 3;
+	final static int PS_IC_DECODE = PS_UNKNOWN + 4;
+	final static int PS_REMARK = PS_UNKNOWN + 5;
+	
+	public static void ParseDump(NFCaDump dump, List<String> content) {
+		int parserState = PS_DUMP;
+
+		for (String line : content) {
+			if(line.matches("-\\?-")){
+				parserState = PS_FAKE_PAGES;
+				continue;
+			}
+			if(line.matches("\\+\\+\\+")){
+				parserState = PS_IC_INFO;
+				continue;
+			}
+			if(line.matches("===")){
+				parserState = PS_IC_DECODE;
+				continue;
+			}
+			if(line.matches("---")){
+				parserState = PS_REMARK;
+				continue;
+			}
+			switch(parserState){
+				case PS_FAKE_PAGES:
+					//TODO: Check is it need to set dump.LastBlockValidPages (now private) here
+					if (!ReadVerifyStoreDumpPage(dump, line)){
+						parserState = PS_UNKNOWN;
+					}
+					//dump.appendRemark("F: :" + line + ":\n");
+					break;
+				case PS_DUMP:
+					if (!ReadVerifyStoreDumpPage(dump, line)){
+						parserState = PS_UNKNOWN;
+					} 
+					break;
+				case PS_REMARK:
+					dump.appendRemark(line+"\n");
+					break;
+				case PS_UNKNOWN:
+					dump.appendRemark("U: :" + line + ":\n");
+					break;
+				//TODO: Reading of these parts of dump will be implemented
+				case PS_IC_INFO:
+				case PS_IC_DECODE:
+					break;
+				default:
+			}
+		}
+	}
+	
+	private static Boolean ReadVerifyStoreDumpPage(NFCaDump dump, String line){
+		Boolean rc = false;
+		line.trim();
+		line.replace(" ", "");
+		if (line.matches("-?[0-9a-fA-F]+") && line.length() == 8){
+			dump.addPage(hexStringToByteArray(line));
+			rc = true;
+		} else {
+			dump.appendRemark("E: :" + line + ":\n");
+			rc = false;
+		}
+		return rc;
+	}
+
+	public static byte[] hexStringToByteArray(String s) {
+		// Grabed from http://stackoverflow.com/a/18714790
+		int len = s.length();
+		byte[] data = new byte[len/2];
+
+		for(int i = 0; i < len; i+=2){
+			data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+		}
+
+		return data;
+	}
+	
 }

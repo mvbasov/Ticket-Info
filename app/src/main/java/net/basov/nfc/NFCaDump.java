@@ -66,6 +66,10 @@ public class NFCaDump {
     public static final byte IC_MF0UL21 = IC_UNKNOWN + 3;
     public static final byte IC_MIK640D = IC_UNKNOWN + 4;
     public static final byte IC_MIK1312ED = IC_UNKNOWN + 5;
+	
+	public static final byte READ_UNSET = 0;
+	public static final byte READ_FROM_NFC = READ_UNSET + 1;
+	public static final byte READ_FROM_FILE = READ_UNSET + 2;
 
     public static final byte CMD_GET_VERSION = (byte)0x60;
     public static final byte CMD_READ_SIGN = (byte)0x3C;
@@ -73,6 +77,7 @@ public class NFCaDump {
     public static final byte CMD_INCR_CNT = (byte)0xA5;
 
     // Data fields definition
+	private byte ReadFrom;
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
     private boolean LastBlockVerifyed;
@@ -86,8 +91,10 @@ public class NFCaDump {
     private boolean VERSIONisEmpty;
     private byte IC_Type;
     private byte[] PagesAccess;
+	private String Remark;
 
     public NFCaDump() {
+		ReadFrom = READ_UNSET;
         Pages = new ArrayList<byte[]>();
         Counters = new ArrayList<byte[]>();
         AndTechList = new ArrayList<String>();
@@ -102,8 +109,16 @@ public class NFCaDump {
         for (int i = 0; i < MAX_PAGES - 1; i++) {
             PagesAccess[i] = AC_UNKNOWN;
         }
+		Remark = "";
     }
 
+	public void setRemark(String remark) { Remark = remark; }
+	public String getRemark() { return Remark; }
+	public void appendRemark(String line) { Remark = Remark + line; }
+	
+	public void setReadFrom(byte from) { ReadFrom = from; }
+	public byte getReadFrom() { return ReadFrom; }
+	
 /* Operate with ATQA and SAK */
 
     public void readATQA(NfcA nfca) {
@@ -201,7 +216,9 @@ public class NFCaDump {
     }
 
     public byte[] getPage(int n) {
-        return this.Pages.get(n);
+		if (n < this.Pages.size()) {
+			return this.Pages.get(n);
+		} else return null;
     }
 
     public int getPageAsInt(int n) {
@@ -245,6 +262,9 @@ public class NFCaDump {
 /* Pages access condition detection and show functions */
 
     private void detectPagesAccess() {
+		
+		// TODO: Think where to put diagnostic/error
+		if (2+1 > getPagesNumber()) return;
 
         PagesAccess[0] = AC_FACTORY_LOCKED;
         PagesAccess[1] = AC_FACTORY_LOCKED;
@@ -269,6 +289,8 @@ public class NFCaDump {
                 PagesAccess[17] = AC_SPECIAL;
                 PagesAccess[18] = AC_SPECIAL;
                 PagesAccess[19] = AC_SPECIAL;
+				// TODO: Think where to put diagnostic/error
+				if (16+1 > getPagesNumber()) return;
                 if (getPage(16)[3] != (byte)0xff) {
                     for (int i = (int)(getPage(16)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
                         PagesAccess[i] = AC_AUTH_REQUIRE;
@@ -283,6 +305,8 @@ public class NFCaDump {
                 break;
             case IC_MIK1312ED:
             case IC_MF0UL21:
+				// TODO: Think where to put diagnostic/error
+				if (37+1 > getPagesNumber()) return;
                 PagesAccess[16] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 PagesAccess[17] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 PagesAccess[18] = ((getPage(36)[0] & 0x02) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;

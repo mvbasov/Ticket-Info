@@ -49,6 +49,7 @@ import net.basov.util.FileIO;
 import java.io.IOException;
 
 import ru.valle.tickets.R;
+import android.net.Uri;
 
 public final class MainActivity extends Activity {
 
@@ -58,6 +59,7 @@ public final class MainActivity extends Activity {
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
     private IntentFilter[] filters;
+	private NFCaDump d;
     private String[][] techList;
     //private DateFormat df;
     private static Context c;
@@ -66,6 +68,7 @@ public final class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         c = this;
+		d = new NFCaDump();
         setContentView(R.layout.main);
         text = (TextView) findViewById(R.id.body);
         text.setMovementMethod(new ScrollingMovementMethod());
@@ -75,6 +78,7 @@ public final class MainActivity extends Activity {
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
         }
+		
 // TODO: Do I need get/set date format here?
         //df = new SimpleDateFormat("dd.MM.yyyy");
         onNewIntent(getIntent());
@@ -122,11 +126,11 @@ public final class MainActivity extends Activity {
                     @Override
                     protected NFCaDump doInBackground(NfcA... paramss) {
                         try {
-
-                            NFCaDump d = new NFCaDump();
+							d = new NFCaDump();
 
                             nfca.connect();
 
+							d.setReadFrom(NFCaDump.READ_FROM_NFC);
                             d.readATQA(nfca);
                             d.readSAK(nfca);
                             d.readPages(nfca);
@@ -204,7 +208,29 @@ public final class MainActivity extends Activity {
                 Log.e(TAG, "read err", th);
             }
         } else {
-            text.setText(getString(R.string.ticket_disclaimer));
+			// get shared file
+			if(intent.getAction().equals(Intent.ACTION_SEND) &&
+			   intent.getType().startsWith("text/")){
+				Uri rcvUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+				if (rcvUri != null) {
+					FileIO.ReadDump(d, rcvUri.getPath());
+					if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
+						StringBuilder sb = new StringBuilder();
+						d.setReadFrom(NFCaDump.READ_FROM_FILE);
+						Ticket t = new Ticket(d);
+						if (d.getRemark().length() != 0){
+							sb.append("File: " + rcvUri.getPath() + "\n");
+							sb.append(d.getRemark());
+							sb.append("\n- - - -\n");
+						}
+						sb.append(t.getTicketAsString(c));
+						sb.append(d.getDumpAsDetailedString());
+						text.setText(sb.toString());
+					}
+				}
+			} else {
+				text.setText(getString(R.string.ticket_disclaimer));
+			}
         }
     }
 
