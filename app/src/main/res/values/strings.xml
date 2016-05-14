@@ -3,7 +3,7 @@
   <string name="app_name">Ticket info</string>
   <string name="ticket_is_reading">Ticket reading...</string>
   <string name="ticket_read_error">Unable to read the ticket</string>
-  <string name="ticket_disclaimer">Bring a ticket</string>
+  <string name="ticket_disclaimer">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
   <string name="ticket_num">Ticket number</string>
   <string name="passes_left">Trips left</string>
   <string name="valid">Valid</string>

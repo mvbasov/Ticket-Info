@@ -207,31 +207,37 @@ public final class MainActivity extends Activity {
                 text.setText(getString(R.string.ticket_read_error));
                 Log.e(TAG, "read err", th);
             }
-        } else {
-			// get shared file
-			if(intent.getAction().equals(Intent.ACTION_SEND) &&
-			   intent.getType().startsWith("text/")){
-				Uri rcvUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-				if (rcvUri != null) {
-					FileIO.ReadDump(d, rcvUri.getPath());
-					if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
-						StringBuilder sb = new StringBuilder();
-						d.setReadFrom(NFCaDump.READ_FROM_FILE);
-						Ticket t = new Ticket(d);
-						if (d.getRemark().length() != 0){
-							sb.append("File: " + rcvUri.getPath() + "\n");
-							sb.append(d.getRemark());
-							sb.append("\n- - - -\n");
-						}
-						sb.append(t.getTicketAsString(c));
-						sb.append(d.getDumpAsDetailedString());
-						text.setText(sb.toString());
-					}
-				}
-			} else {
-				text.setText(getString(R.string.ticket_disclaimer));
+        } else if((intent.getAction().equals(Intent.ACTION_SEND)
+				|| intent.getAction().equals(intent.ACTION_VIEW))
+				&& intent.getType().startsWith("text/")){
+					
+			Uri rcvUri = null;
+			
+			if (intent.getAction().equals(Intent.ACTION_SEND)) {
+				rcvUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			} else if (intent.getAction().equals(Intent.ACTION_VIEW)){
+				rcvUri = intent.getData();
 			}
-        }
+			
+			if (rcvUri != null) {
+				FileIO.ReadDump(d, rcvUri.getPath());
+				if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
+					StringBuilder sb = new StringBuilder();
+					d.setReadFrom(NFCaDump.READ_FROM_FILE);
+					Ticket t = new Ticket(d);
+					if (d.getRemark().length() != 0){
+						sb.append("File: " + rcvUri.getPath() + "\n");
+						sb.append(d.getRemark());
+						sb.append("\n- - - -\n");
+					}
+					sb.append(t.getTicketAsString(c));
+					sb.append(d.getDumpAsDetailedString());
+					text.setText(sb.toString());
+				}
+			}
+		} else {
+			text.setText(getString(R.string.ticket_disclaimer));
+		}
     }
 
     public static Context getAppContext() {

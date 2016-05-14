@@ -3,7 +3,7 @@
   <string name="app_name">Просмотр билета</string>
   <string name="ticket_is_reading">Чтение билета...</string>
   <string name="ticket_read_error">Не удалось прочитать билет</string>
-  <string name="ticket_disclaimer">Поднесите билет к телефону</string>
+  <string name="ticket_disclaimer">Поднесите билет к NFC антенне или откройте сохранённый дамп с помощью файлового менеджера</string>
   <string name="ticket_num">Номер билета</string>
   <string name="passes_left">Осталось поездок</string>
   <string name="valid">Действителен</string>
