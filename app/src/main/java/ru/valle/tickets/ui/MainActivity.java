@@ -230,7 +230,17 @@ public final class MainActivity extends Activity {
 						sb.append(d.getRemark());
 						sb.append("\n- - - -\n");
 					}
-					sb.append(t.getTicketAsString(c));
+					if (d.getPagesNumber() < 12) {
+						sb.append("!!! Dump partial.\n");
+						sb.append("!!! Decoding ticket information impossible.\n");
+						sb.append("- - - -\n");
+					} else {
+						sb.append(t.getTicketAsString(c));
+					}
+					sb.append(d.getMemoryInfoAsString());
+					sb.append(d.getUIDCheckAsString());
+					sb.append(d.getIC_InfoAsString());
+					sb.append(d.getDetectedICTypeAsString());
 					sb.append(d.getDumpAsDetailedString());
 					text.setText(sb.toString());
 				}

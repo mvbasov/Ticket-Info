@@ -89,6 +89,8 @@ public class NFCaDump {
     private ArrayList<String> AndTechList;
     private boolean SIGNisEmpty;
     private boolean VERSIONisEmpty;
+	private boolean SIGNHisEmpty;
+	private boolean SAKisEmpty;
     private byte IC_Type;
     private byte[] PagesAccess;
 	private String Remark;
@@ -101,6 +103,8 @@ public class NFCaDump {
         LastBlockValidPages = 4;
         SIGNisEmpty = true;
         VERSIONisEmpty = true;
+		SIGNHisEmpty = true;
+		SAKisEmpty = true;
         LastBlockVerifyed = false;
         //VersionInfo = new byte[8];
         //SIGN = new byte[32];
@@ -145,6 +149,7 @@ public class NFCaDump {
 
     public void setSAK(byte SAK) {
         this.SAK = SAK;
+		SAKisEmpty = false;
     }
 
     public byte getSAK() {
@@ -532,7 +537,29 @@ public class NFCaDump {
         return SIGNisEmpty;
     }
 
-    public void setSIGN(byte[] SIGN) {
+    public void setSIGN(byte[] aSIGN) {
+		if (aSIGN.length == 32){
+			setSIGNisEmpty(false);
+			this.SIGN = aSIGN;
+		} else {
+			if (isSIGNHEmpty()) {
+				byte[] SIGNnewHi = new byte[32];
+				// hi 16 bytes of sign
+				reverseByteArray(aSIGN);
+				System.arraycopy(aSIGN, 0, SIGNnewHi, 16, aSIGN.length);
+				this.SIGN = SIGNnewHi;
+				setSIGNHisEmpty(false);
+			} else {
+				// low 16 bytes of sign
+				reverseByteArray(aSIGN);
+				System.arraycopy(aSIGN, 0, this.SIGN, 0, aSIGN.length);
+				setSIGNisEmpty(false); 
+			}
+		}
+    }
+	
+	public void appendSIGN(byte[] SIGN) {
+		setSIGNisEmpty(false);
         this.SIGN = SIGN;
     }
 
@@ -558,6 +585,11 @@ public class NFCaDump {
     public void setVERSIONisEmpty(boolean VERSIONisEmpty) {
         this.VERSIONisEmpty = VERSIONisEmpty;
     }
+	
+	public void setSIGNHisEmpty(boolean state) {
+        this.SIGNHisEmpty = state;
+    }
+
 
     public void setVERSIONisEmpty() {
         this.VERSIONisEmpty = true;
@@ -566,8 +598,13 @@ public class NFCaDump {
     public boolean isVERSIONEmpty() {
         return VERSIONisEmpty;
     }
+	
+	public boolean isSIGNHEmpty() {
+        return SIGNHisEmpty;
+    }
 
     public void setVersionInfo(byte[] versionInfo) {
+		setVERSIONisEmpty(false);
         this.VersionInfo = versionInfo;
     }
 
@@ -682,12 +719,14 @@ public class NFCaDump {
     public String getIC_InfoAsString() {
 
         StringBuilder sb = new StringBuilder();
-
-        sb.append(String.format("ATQA: %02x %02x\n",
-                getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
-                getATQA()[0]));
-        sb.append(String.format("SAK: %02x\n", getSAK()));
-
+		if (ATQA != null) {
+        	sb.append(String.format("ATQA: %02x %02x\n",
+					getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
+                	getATQA()[0]));
+		}
+		if (!SAKisEmpty){
+        	sb.append(String.format("SAK: %02x\n", getSAK()));
+		}
         if (!isVERSIONEmpty()) {
             sb.append("GET_VERSION:\n");
             sb.append("  ");
@@ -711,23 +750,30 @@ public class NFCaDump {
 
         if (!isSIGNEmpty()) {
             sb.append("READ_SIG:\n  ");
-            for (int i = 0; i < getSIGN().length; i++) {
-                sb.append(String.format("%02x", getSIGN()[i]));
-                if ((i + 1) % 16 == 0 && (i + 1) != 32) sb.append("\n  ");
+			//TODO: It is BIG mistake. Byte order is reverse!
+			//All dumps before 2016-05-15 has reverse byte order !!!
+            //for (int i = 0; i < getSIGN().length; i++) {
+            //    sb.append(String.format("%02x", getSIGN()[i]));
+            //    if ((i + 1) % 16 == 0 && (i + 1) != 32) sb.append("\n  ");
+            //}
+			//sb.append("\nnormal:\n  ");
+			for (int i = getSIGN().length; i > 0; i--) {
+                sb.append(String.format("%02x", getSIGN()[i-1]));
+                if (i == 16 + 1) sb.append("\n  ");
             }
             sb.append("\n");
         }
-
-        String prefix = "android.nfc.tech.";
-        sb.append("Android technologies: \n   ");
-        for (int i = 0; i < getAndTechList().size(); i++) {
-            if (i != 0) {
-                sb.append(", ");
-            }
-            sb.append(getAndTechList().get(i).substring(prefix.length()));
-        }
-        sb.append('\n');
-
+		if(!AndTechList.isEmpty()){
+        	String prefix = "android.nfc.tech.";
+        	sb.append("Android technologies: \n   ");
+        	for (int i = 0; i < getAndTechList().size(); i++) {
+            	if (i != 0) {
+                	sb.append(", ");
+            	}
+            	sb.append(getAndTechList().get(i).substring(prefix.length()));
+        	}
+        	sb.append('\n');
+		}
         return sb.toString();
     }
 
@@ -781,4 +827,21 @@ public class NFCaDump {
 
         return sb.toString();
     }
+	
+	public static void reverseByteArray(byte[] array) {
+		// Grab from http://stackoverflow.com/a/12893827
+		if (array == null) {
+			return;
+		}
+		int i = 0;
+		int j = array.length - 1;
+		byte tmp;
+		while (j > i) {
+			tmp = array[j];
+			array[j] = array[i];
+			array[i] = tmp;
+			j--;
+			i++;
+		}
+	}
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import ru.valle.tickets.ui.MainActivity;
 import net.basov.nfc.NFCaDump;
 import net.basov.metro.Ticket;
+import android.util.Log;
 
 public class FileIO {
 
@@ -145,26 +146,35 @@ public class FileIO {
 	final static int PS_IC_INFO = PS_UNKNOWN + 3;
 	final static int PS_IC_DECODE = PS_UNKNOWN + 4;
 	final static int PS_REMARK = PS_UNKNOWN + 5;
+	// Parser substates when read IC info
+	final static int PS_IC_INFO_UNKNOWN = 20;
+	final static int PS_IC_INFO_VERSION = PS_IC_INFO_UNKNOWN + 1;
+	final static int PS_IC_INFO_COUNTERS = PS_IC_INFO_UNKNOWN + 2;
+	final static int PS_IC_INFO_SIG = PS_IC_INFO_UNKNOWN + 3;
+	final static int PS_IC_INFO_TECH = PS_IC_INFO_UNKNOWN + 4;
 	
 	public static void ParseDump(NFCaDump dump, List<String> content) {
 		int parserState = PS_DUMP;
+		int parserICsubState = PS_IC_INFO_UNKNOWN;
 
 		for (String line : content) {
-			if(line.matches("-\\?-")){
-				parserState = PS_FAKE_PAGES;
-				continue;
-			}
-			if(line.matches("\\+\\+\\+")){
-				parserState = PS_IC_INFO;
-				continue;
-			}
-			if(line.matches("===")){
-				parserState = PS_IC_DECODE;
-				continue;
-			}
-			if(line.matches("---")){
-				parserState = PS_REMARK;
-				continue;
+			if(parserState != PS_REMARK){
+				if(line.matches("-\\?-")){
+					parserState = PS_FAKE_PAGES;
+					continue;
+				}
+				if(line.matches("\\+\\+\\+")){
+					parserState = PS_IC_INFO;
+					continue;
+				}
+				if(line.matches("===")){
+					parserState = PS_IC_DECODE;
+					continue;
+				}
+				if(line.matches("---")){
+					parserState = PS_REMARK;
+					continue;
+				}
 			}
 			switch(parserState){
 				case PS_FAKE_PAGES:
@@ -172,7 +182,6 @@ public class FileIO {
 					if (!ReadVerifyStoreDumpPage(dump, line)){
 						parserState = PS_UNKNOWN;
 					}
-					//dump.appendRemark("F: :" + line + ":\n");
 					break;
 				case PS_DUMP:
 					if (!ReadVerifyStoreDumpPage(dump, line)){
@@ -185,19 +194,63 @@ public class FileIO {
 				case PS_UNKNOWN:
 					dump.appendRemark("U: :" + line + ":\n");
 					break;
-				//TODO: Reading of these parts of dump will be implemented
 				case PS_IC_INFO:
+					if (line.startsWith("SAK:")){
+						String value = line.split(":")[1];
+						dump.setSAK(hexStringToByteArray(value)[0]);
+					}
+					if (line.startsWith("ATQA:")){
+						String value = line.split(":")[1];
+						dump.setATQA(hexStringToByteArray(value));
+					}
+					if (line.startsWith("GET_VERSION:")){
+						parserICsubState = PS_IC_INFO_VERSION;
+						continue;
+					}
+					if (line.startsWith("Counters(hex):")){
+						parserICsubState = PS_IC_INFO_COUNTERS;
+						continue;
+					}
+					if (line.startsWith("READ_SIG:")){
+						parserICsubState = PS_IC_INFO_SIG;
+						continue;
+					}
+					if (line.startsWith("Android technologies:")){
+						parserICsubState = PS_IC_INFO_TECH;
+						continue;
+					}
+					switch(parserICsubState){
+						case PS_IC_INFO_VERSION:
+							dump.setVersionInfo(hexStringToByteArray(line));
+							break;
+						case PS_IC_INFO_SIG:
+							dump.setSIGN(hexStringToByteArray(line));
+							break;
+						case PS_IC_INFO_COUNTERS:
+							byte[] val = hexStringToByteArray(line.split(":")[1]);
+							dump.reverseByteArray(val);
+							dump.addCounter(val);
+							break;
+						case PS_IC_INFO_TECH:
+							for(String tech : line.trim().split(",")){
+								dump.addAndTechList("android.nfc.tech."+tech.trim());
+							}
+							break;
+						default:
+							break;
+					}
+					break;
 				case PS_IC_DECODE:
+					//Doesn't read from dump. Get it from other dump information
 					break;
 				default:
+					break;
 			}
 		}
 	}
 	
 	private static Boolean ReadVerifyStoreDumpPage(NFCaDump dump, String line){
 		Boolean rc = false;
-		line.trim();
-		line.replace(" ", "");
 		if (line.matches("-?[0-9a-fA-F]+") && line.length() == 8){
 			dump.addPage(hexStringToByteArray(line));
 			rc = true;
@@ -210,7 +263,10 @@ public class FileIO {
 
 	public static byte[] hexStringToByteArray(String s) {
 		// Grabed from http://stackoverflow.com/a/18714790
+		s = s.trim();
+		s = s.replaceAll(" ", "");
 		int len = s.length();
+
 		byte[] data = new byte[len/2];
 
 		for(int i = 0; i < len; i+=2){
