@@ -118,6 +118,8 @@ public class Turnstiles {
             case 13135: // [5] (5-th from left) (0001192613-3d-002)
             case 11967: // [6] (6-th from left) (0001192613-3d-006)
             case 10716: // [7] (7-th from left) (script on case)
+            case 12110: // [8] (8-th from left) (2383954670-20-05)
+            case 12174: // [9] (9-th from left) (0006981689-su-0011)
             case 12099: // [12] (2-nd from right) (0001192751-3d-002)
             case 12024: // [13] (right) (0001029499-1d-002)
                 return "Лубянка (южный) (Детский мир)";
