@@ -27,8 +27,8 @@ android {
         applicationId "ru.valle.tickets"
         minSdkVersion 10
         targetSdkVersion 10
-        versionCode 207
-        versionName '2.07'
+        versionCode 208
+        versionName '2.08'
     }
     buildTypes {
         release {
