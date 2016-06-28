@@ -71,7 +71,6 @@ public final class MainActivity extends Activity {
 		d = new NFCaDump();
         setContentView(R.layout.main);
         text = (TextView) findViewById(R.id.body);
-        text.setMovementMethod(new ScrollingMovementMethod());
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName);
