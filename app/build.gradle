@@ -25,8 +25,8 @@ android {
     buildToolsVersion "23.0.1"
     defaultConfig {
         applicationId "ru.valle.tickets"
-        minSdkVersion 10
-        targetSdkVersion 10
+        minSdkVersion 11
+        targetSdkVersion 11
         versionCode 208
         versionName '2.08'
     }
