@@ -189,14 +189,28 @@ public class Ticket {
         App = Dump.get(4) >>> 22;
 
         Type = (Dump.get(4) >>> 12) & 0x3ff;
-        
-        ValidDays = (Dump.get(8) >>> 8) & 0xff;
 
         getTypeRelatedInfo();
+        
+        switch (Layout) {
+            case 0x08:
+            case 0x0d:
+                ValidDays = (Dump.get(8) >>> 8) & 0xff;
+                PassesLeft = (Dump.get(9) >>> 16) & 0xff;
+                IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
+                StartUseBeforeInt = Dump.get(6) >>> 16;
+                break;
+            case 0x0a:
+                ValidDays = ((Dump.get(6) & 0xfffff) >>> 1) / (24 * 60);
+                PassesLeft = (Dump.get(8) >>> 24) & 0xff;
+                // New layout date store format the same as in old layout but
+                // base date chenged from 01.01.1991 to 01.01.2016
+                // Difference between base dates is 8766 days.
+                IssuedInt = ((Dump.get(6) >>> 20) & 0xfff) + 8766;
+                break;
+        }
 
-        PassesLeft = (Dump.get(9) >>> 16) & 0xff;
-
-        if ((Layout != 0x08 && Layout != 0x0d) ||
+        if ((Layout != 0x08 && Layout != 0x0d && Layout != 0x0a) ||
                 App == A_UNKNOWN ||
                 Type == T_UNKNOWN ||
                 PassesTotal == 0 ||
@@ -208,10 +222,6 @@ public class Ticket {
         }
 
         TripSeqNumber = PassesTotal - getPassesLeft();
-
-        IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
-
-        StartUseBeforeInt = Dump.get(6) >>> 16;      
 
         LastUsedDateInt = Dump.get(11) >>> 16;
 
@@ -283,13 +293,16 @@ public class Ticket {
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
         sb.append(String.format("%010d", TicketNumber));
-        sb.append(" (till ");
-        sb.append(getReadableDate(StartUseBeforeInt)).append(")\n");
+        if (StartUseBeforeInt != 0) {
+            sb.append(" (till ");
+            sb.append(getReadableDate(StartUseBeforeInt)).append(")");
+        }
+        sb.append("\n");
         if (ValidDays != 0) {
             sb.append(c.getString(R.string.best_in_days)).append(": ");
             sb.append(ValidDays).append('\n');
         }
-        if (IssuedInt != 0){
+        if (IssuedInt != 0) {
             sb.append("  from ");
             if (TicketClass == C_UNLIM_DAYS){
                 sb.append(String.format(" %s %s\n    to  %s %s", 
@@ -302,11 +315,11 @@ public class Ticket {
                 sb.append(" to ");
                 sb.append(getReadableDate(IssuedInt+ValidDays - 1));
             }
-            sb.append('\n');
-        } else {
+        } else if (StartUseBeforeInt != 0) {
             sb.append(c.getString(R.string.start_use_before)).append(": ");
-            sb.append(getReadableDate(StartUseBeforeInt)).append('\n');
+            sb.append(getReadableDate(StartUseBeforeInt));
         }
+        sb.append('\n');
 
 // TODO: Translate messages
         if (getPassesLeft() == 0) {
@@ -413,7 +426,10 @@ public class Ticket {
                 sb.append("\n- - - -\n");
                 sb.append("Layuot 13 (0xd).").append('\n');
                 break;
-
+            case 10:
+                sb.append("\n- - - -\n");
+                sb.append("Layuot 10 (0xa).").append('\n');
+                break;
             default:
                 sb.append(c.getString(R.string.unknown_layout)).append(": ");
                 sb.append(Layout).append('\n');
