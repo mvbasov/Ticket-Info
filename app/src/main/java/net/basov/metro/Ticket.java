@@ -156,6 +156,7 @@ public class Ticket {
     private int LastUsedTimeInt = 0;
     private int TimeToNextTrip = 0;
     private int GateEntered = 0;
+    private int EntranceEntered = 0;
     private int TransportType = TT_UNKNOWN;
     private int T90MCount = 0;
     private int T90GCount = 0;
@@ -199,6 +200,9 @@ public class Ticket {
                 PassesLeft = (Dump.get(9) >>> 16) & 0xff;
                 IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
                 StartUseBeforeInt = Dump.get(6) >>> 16;
+                GateEntered = Dump.get(9) & 0xffff;
+                LastUsedDateInt = Dump.get(11) >>> 16;
+                LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
                 break;
             case 0x0a:
                 ValidDays = ((Dump.get(6) & 0xfffff) >>> 1) / (24 * 60);
@@ -207,6 +211,10 @@ public class Ticket {
                 // base date chenged from 01.01.1991 to 01.01.2016
                 // Difference between base dates is 8766 days.
                 IssuedInt = ((Dump.get(6) >>> 20) & 0xfff) + 8766;
+                EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
+                LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
+                LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
+
                 break;
         }
 
@@ -222,12 +230,6 @@ public class Ticket {
         }
 
         TripSeqNumber = PassesTotal - getPassesLeft();
-
-        LastUsedDateInt = Dump.get(11) >>> 16;
-
-        LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
-
-        GateEntered = Dump.get(9) & 0xffff;
 
         TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
 
@@ -257,7 +259,17 @@ public class Ticket {
         if (TicketClass == C_UNLIM_DAYS){
             TripSeqNumber = getPassesLeft();
             PassesLeft = -1;
-            StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
+            switch (Layout) {
+                case 0x08:
+                case 0x0d:
+                    StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
+                    break;
+                case 0x0a:
+                    StartUseTimeInt = ((Dump.get(6) & 0xfffff) >>> 1) % (24 * 60) - 1;
+                    break;
+                default:
+                    break;
+            }
             setStartUseDaytime(IssuedInt, StartUseTimeInt);
 // TODO: Need to check date change
             TimeToNextTrip = (LastUsedTimeInt + 21) - getCurrentTimeInt();
@@ -427,6 +439,21 @@ public class Ticket {
                 sb.append("Layuot 13 (0xd).").append('\n');
                 break;
             case 10:
+                if (EntranceEntered != 0) {
+                    sb.append(c.getString(R.string.last_trip));
+                    if (getTripSeqNumber() > 0) {
+                        sb.append(" №");
+                        sb.append(getTripSeqNumber());
+                    }
+                    sb.append(": ");
+                    sb.append(getReadableDate(LastUsedDateInt)).append(" ");
+                    sb.append(c.getString(R.string.at)).append(" ");
+                    sb.append(getReadableTime(LastUsedTimeInt));
+                    sb.append(",\n  ");
+                    sb.append(getStationDesc(c, EntranceEntered));
+                    sb.append('\n');
+
+                }
                 sb.append("\n- - - -\n");
                 sb.append("Layuot 10 (0xa).").append('\n');
                 break;
@@ -508,6 +535,45 @@ public class Ticket {
             return gateNumType;
         }
     }
+
+    private String getStationDesc(Context c, int id) {
+        StringBuilder sb = new StringBuilder();
+        String trType ="";
+        switch (TransportType) {
+            case TT_METRO:
+                trType +=c.getString(R.string.tt_metro);
+                break;
+            case TT_GROUND:
+                trType += c.getString(R.string.tt_ground);
+                break;
+            case TT_UNKNOWN:
+                trType += c.getString(R.string.tt_unknown);
+                break;
+            default:
+                trType += "!!! Internal error !!!";
+                break;
+        }
+        String SN = Lang.tarnliterate(Stations.getStationByStationId(id));
+/*
+        String gateNumType = "№" + id + " (" + trType + ")";
+        if (SN.length() != 0) {
+            return gateNumType + '\n' +
+                    "  " + c.getString(R.string.station) + " " +
+                    SN;
+        } else {
+            return gateNumType;
+        }
+*/
+        if (SN.length() != 0) {
+            sb.append("  " + c.getString(R.string.station) + " " + SN + '\n');
+        }
+        sb.append(String.format("    id: %d [0x%04x]", id, id));
+//        sb.append("" + id);
+//        sb.append(" [" + Integer.toHexString(id) + "]");
+        return sb.toString();
+
+    }
+
 
     private void getTypeRelatedInfo() {
         switch (Type) {
