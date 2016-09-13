@@ -203,6 +203,7 @@ public class Ticket {
                 GateEntered = Dump.get(9) & 0xffff;
                 LastUsedDateInt = Dump.get(11) >>> 16;
                 LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
+                TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
                 break;
             case 0x0a:
                 ValidDays = ((Dump.get(6) & 0xfffff) >>> 1) / (24 * 60);
@@ -214,7 +215,7 @@ public class Ticket {
                 EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
                 LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
                 LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
-
+                TransportType = Dump.get(7) & 0xf;
                 break;
         }
 
@@ -230,8 +231,6 @@ public class Ticket {
         }
 
         TripSeqNumber = PassesTotal - getPassesLeft();
-
-        TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
 
         if (TicketClass == C_90UNIVERSAL) {
 
@@ -553,23 +552,15 @@ public class Ticket {
                 trType += "!!! Internal error !!!";
                 break;
         }
+        
         String SN = Lang.tarnliterate(Stations.getStationByStationId(id));
-/*
-        String gateNumType = "№" + id + " (" + trType + ")";
-        if (SN.length() != 0) {
-            return gateNumType + '\n' +
-                    "  " + c.getString(R.string.station) + " " +
-                    SN;
-        } else {
-            return gateNumType;
-        }
-*/
+
         if (SN.length() != 0) {
             sb.append("  " + c.getString(R.string.station) + " " + SN + '\n');
         }
-        sb.append(String.format("    id: %d [0x%04x]", id, id));
-//        sb.append("" + id);
-//        sb.append(" [" + Integer.toHexString(id) + "]");
+        
+        sb.append(String.format("    id: %1$d [0x%1$04x] (%2$s)", id, trType));
+
         return sb.toString();
 
     }

@@ -29,16 +29,24 @@ package net.basov.metro;
 public class Stations {
     public static String getStationByStationId(int stationId){
         switch (stationId) {
-            case 0x08e9:
+            case 0x08e9: //(0001983509-3d-015)
                 return "Тропарёво (первый)";
-            case 0x08ea:
+            case 0x08ea: //(0001983509-3d-014)
                 return "Тропарёво (второй)";
-            case 0x00bf:
+            case 0x00bf: //(0001983509-3d-013)
                 return "Юго-Западная (северный)";
-            case 0x04a7:
+            case 0x0098: //(2579056354-02-02)
+                return "Спортивная (южный)";
+            case 0x04a7: //(0001983509-3d-012)
                 return "Тверская";
-            case 0x0480:
-                return "Пролетарская (западный?)";
+            case 0x0480: //(new-2575358437-01-01)
+                return "Пролетарская (восточный)";
+            case 0x05fb: //(2580244002-20-16)
+                return "Крестьянская застава";
+            case 0x04c5: //?(2577096376-60-25)
+                return "Беговая(вход со стороны платформы)";
+            case 0x0425: //?(2580635469-60-02)
+                return "Коньково(северный)";
             default:
                 return "";
         }
