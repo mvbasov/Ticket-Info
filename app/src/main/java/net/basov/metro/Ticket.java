@@ -183,6 +183,8 @@ public class Ticket {
             Dump.add(dump.getPageAsInt(i));
         }
 
+        OTP = Dump.get(3);
+
         TicketNumber = (((Dump.get(4) & 0xfff) << 20) | (Dump.get(5) >>> 12)) & 0xffffffffL;
 
         Layout = ((Dump.get(5) >>> 8) & 0xf);
@@ -199,23 +201,46 @@ public class Ticket {
                 ValidDays = (Dump.get(8) >>> 8) & 0xff;
                 PassesLeft = (Dump.get(9) >>> 16) & 0xff;
                 IssuedInt = (Dump.get(8) >>> 16) & 0xffff;
-                StartUseBeforeInt = Dump.get(6) >>> 16;
+                StartUseBeforeInt = (Dump.get(6) >>> 16) & 0xffff;
+                StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
                 GateEntered = Dump.get(9) & 0xffff;
-                LastUsedDateInt = Dump.get(11) >>> 16;
+                LastUsedDateInt = (Dump.get(11) >>> 16) & 0xffff;
                 LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
                 TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
+                if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80 && Layout == 0x0a) {
+                    T90RelChangeTimeInt = Dump.get(8) & 0xff;
+// TODO: Need to add date change (around midnight) processing
+                    T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;
+                }
+
+                T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
+                T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
+
+
                 break;
             case 0x0a:
-                ValidDays = ((Dump.get(6) & 0xfffff) >>> 1) / (24 * 60);
+                ValidDays = ((Dump.get(6) >>> 1) & 0x7ffff) / (24 * 60);
                 PassesLeft = (Dump.get(8) >>> 24) & 0xff;
                 // New layout date store format the same as in old layout but
                 // base date chenged from 01.01.1991 to 01.01.2016
                 // Difference between base dates is 8766 days.
                 IssuedInt = ((Dump.get(6) >>> 20) & 0xfff) + 8766;
+                StartUseTimeInt = ((Dump.get(6) & 0xfffff) >>> 1) % (24 * 60) - 1;
                 EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
                 LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
                 LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
                 TransportType = Dump.get(7) & 0xf;
+
+                // I think it is right.
+                //TODO: Need to check it.
+                T90MCount = (Dump.get(8) >>> 6) & 0x01;
+                //TODO: Check! Check! Check!
+                T90GCount = (Dump.get(8) >>> 3) & 0x07;
+
+                // TODO: Check and realize 90 minutes change time
+                T90RelChangeTimeInt = 0;
+                T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;
+
                 break;
         }
 
@@ -233,18 +258,7 @@ public class Ticket {
         TripSeqNumber = PassesTotal - getPassesLeft();
 
         if (TicketClass == C_90UNIVERSAL) {
-
-            T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
-
-            T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
-
             T90ChangeTimeInt = 0;
-            if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80) {
-                T90RelChangeTimeInt = Dump.get(8) & 0xff;
-// TODO: Need to add date change (around midnight) processing
-                T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;
-            }
-
             T90TripTimeLeftInt = 0;
             if (T90MCount != 0 || T90GCount != 0) {
 // TODO: Need to check date change
@@ -258,17 +272,6 @@ public class Ticket {
         if (TicketClass == C_UNLIM_DAYS){
             TripSeqNumber = getPassesLeft();
             PassesLeft = -1;
-            switch (Layout) {
-                case 0x08:
-                case 0x0d:
-                    StartUseTimeInt = (Dump.get(6) & 0xfff0) >>> 5;
-                    break;
-                case 0x0a:
-                    StartUseTimeInt = ((Dump.get(6) & 0xfffff) >>> 1) % (24 * 60) - 1;
-                    break;
-                default:
-                    break;
-            }
             setStartUseDaytime(IssuedInt, StartUseTimeInt);
 // TODO: Need to check date change
             TimeToNextTrip = (LastUsedTimeInt + 21) - getCurrentTimeInt();
@@ -279,8 +282,6 @@ public class Ticket {
 			TripSeqNumber = (Dump.get(9) >>> 16) & 0xfff;
 			PassesLeft = -1;
 		}
-		
-        OTP = Dump.get(3);
 
         Hash = Dump.get(10);
 
@@ -452,6 +453,31 @@ public class Ticket {
                     sb.append(getStationDesc(c, EntranceEntered));
                     sb.append('\n');
 
+                    if (TicketClass == C_90UNIVERSAL) {
+                        sb.append("90 minutes trip details:\n");
+                        if (T90TripTimeLeftInt > 0) {
+                            sb.append("  Time left: ");
+                            sb.append(getReadableTime(T90TripTimeLeftInt)).append('\n');
+                        } else {
+                            sb.append("  Trip time ended\n");
+                        }
+                        sb.append("  Metro  count: ");
+                        sb.append(T90MCount);
+                        if (T90MCount > 0) {
+                            sb.append(" (no more allowed)");
+                        }
+                        sb.append('\n');
+                        sb.append("  Ground count: ");
+                        sb.append(T90GCount).append('\n');
+                        sb.append("  Change  time: ");
+                        sb.append(getReadableTime(T90ChangeTimeInt)).append('\n');
+                    }
+
+                    if (TicketClass == Ticket.C_UNLIM_DAYS &&
+                            TimeToNextTrip > 0) {
+                        sb.append(String.format("  %d minutes to next trip", TimeToNextTrip));
+                        sb.append('\n');
+                    }
                 }
                 sb.append("\n- - - -\n");
                 sb.append("Layuot 10 (0xa).").append('\n');
