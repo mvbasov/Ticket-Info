@@ -229,7 +229,7 @@ public class Ticket {
                 EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
                 LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
                 LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
-                TransportType = Dump.get(7) & 0xf;
+                TransportType = Dump.get(7) & 0x7;
 
                 // I think it is right.
                 //TODO: Need to check it.
