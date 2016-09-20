@@ -863,8 +863,12 @@ public class NFCaDump {
                     dName.append(String.format("-%02d", ticket.getPassesTotal()));
                     dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
                     if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
-                        dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
-                        dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
+						if (ticket.getLayout() == 0x0d) {
+                        	dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
+                        	dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
+						} else if (ticket.getLayout() == 0x0a) {
+							dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
+						}
                     }
                 }
             }

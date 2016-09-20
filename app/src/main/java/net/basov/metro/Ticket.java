@@ -229,17 +229,17 @@ public class Ticket {
                 EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
                 LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
                 LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
-                TransportType = Dump.get(7) & 0x7;
+                TransportType = Dump.get(7) & 0x3;
 
                 // I think it is right.
                 //TODO: Need to check it.
                 T90MCount = (Dump.get(8) >>> 6) & 0x01;
                 //TODO: Check! Check! Check!
-                T90GCount = (Dump.get(8) >>> 3) & 0x07;
+                //T90GCount = (Dump.get(8) >>> 3) & 0x07;
 
                 // TODO: Check and realize 90 minutes change time
-                T90RelChangeTimeInt = 0;
-                T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;
+                T90RelChangeTimeInt = (Dump.get(7) >>> 2) & 0x3ff;
+                T90ChangeTimeInt = LastUsedTimeInt + T90RelChangeTimeInt;
 
                 break;
         }
@@ -258,7 +258,7 @@ public class Ticket {
         TripSeqNumber = PassesTotal - getPassesLeft();
 
         if (TicketClass == C_90UNIVERSAL) {
-            T90ChangeTimeInt = 0;
+            //T90ChangeTimeInt = 0;
             T90TripTimeLeftInt = 0;
             if (T90MCount != 0 || T90GCount != 0) {
 // TODO: Need to check date change
@@ -467,10 +467,14 @@ public class Ticket {
                             sb.append(" (no more allowed)");
                         }
                         sb.append('\n');
-                        sb.append("  Ground count: ");
-                        sb.append(T90GCount).append('\n');
+                        //sb.append("  Ground count: ");
+                        //sb.append(T90GCount).append('\n');
                         sb.append("  Change  time: ");
-                        sb.append(getReadableTime(T90ChangeTimeInt)).append('\n');
+                        sb.append(getReadableTime(T90ChangeTimeInt));
+						sb.append(String.format(" (%02d min)", T90RelChangeTimeInt));
+						sb.append('\n');
+						//TODO: next line to debug only
+						//sb.append(String.format("  %03x, %03x\n",T90ChangeTimeInt, T90RelChangeTimeInt));
                     }
 
                     if (TicketClass == Ticket.C_UNLIM_DAYS &&
@@ -508,6 +512,8 @@ public class Ticket {
     public int getTripSeqNumber() { return TripSeqNumber; }
 
     public int getTicketClass() { return TicketClass; }
+	
+	public int getLayout() { return Layout; }
 
     public int getPassesTotal() {
         if (PassesTotal == 0) getTypeRelatedInfo();
@@ -517,7 +523,13 @@ public class Ticket {
     public int getPassesLeft() { return PassesLeft; }
     
     public int getRelTransportChangeTimeMinutes() {
-        return T90RelChangeTimeInt * 5;
+		//TODO: fix! Conflct with 0xa layout! Ugly code!
+		if (Layout == 0x0d) {
+        	return T90RelChangeTimeInt * 5;
+		} else if (Layout == 0x0a) {
+			return T90RelChangeTimeInt;
+		}
+		return 0;
     }
 
     public int getT90ChangeCount() { return T90GCount + T90MCount; }
