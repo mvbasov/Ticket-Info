@@ -207,10 +207,10 @@ public class Ticket {
                 LastUsedDateInt = (Dump.get(11) >>> 16) & 0xffff;
                 LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
                 TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
-                if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80 && Layout == 0x0a) {
-                    T90RelChangeTimeInt = Dump.get(8) & 0xff;
+                if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80) {
+                    T90RelChangeTimeInt = (Dump.get(8) & 0xff) * 5;
 // TODO: Need to add date change (around midnight) processing
-                    T90ChangeTimeInt = T90RelChangeTimeInt * 5 + LastUsedTimeInt;
+                    T90ChangeTimeInt = T90RelChangeTimeInt + LastUsedTimeInt;
                 }
 
                 T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
@@ -461,11 +461,14 @@ public class Ticket {
                         } else {
                             sb.append("  Trip time ended\n");
                         }
-                        sb.append("  Metro  count: ");
+                        sb.append("  Metro trip");
                         sb.append(T90MCount);
                         if (T90MCount > 0) {
-                            sb.append(" (no more allowed)");
+                            sb.append(" is already done");
+                        } else {
+                            sb.append(" available");
                         }
+
                         sb.append('\n');
                         //sb.append("  Ground count: ");
                         //sb.append(T90GCount).append('\n');
@@ -522,15 +525,7 @@ public class Ticket {
     
     public int getPassesLeft() { return PassesLeft; }
     
-    public int getRelTransportChangeTimeMinutes() {
-		//TODO: fix! Conflct with 0xa layout! Ugly code!
-		if (Layout == 0x0d) {
-        	return T90RelChangeTimeInt * 5;
-		} else if (Layout == 0x0a) {
-			return T90RelChangeTimeInt;
-		}
-		return 0;
-    }
+    public int getRelTransportChangeTimeMinutes() { return T90RelChangeTimeInt; }
 
     public int getT90ChangeCount() { return T90GCount + T90MCount; }
     
