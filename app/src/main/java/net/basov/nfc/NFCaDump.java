@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+/**
+ * represent full dump of NFCa chip content
+ */
 public class NFCaDump {
     /*
     Operate with NFC A technology cards.
