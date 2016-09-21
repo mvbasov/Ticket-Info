@@ -207,15 +207,24 @@ public class Ticket {
                 LastUsedDateInt = (Dump.get(11) >>> 16) & 0xffff;
                 LastUsedTimeInt = (Dump.get(11) & 0xfff0) >>> 5;
                 TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
-                if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80) {
-                    T90RelChangeTimeInt = (Dump.get(8) & 0xff) * 5;
+                if (TicketClass == C_90UNIVERSAL) {
+                    if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80) {
+                        T90RelChangeTimeInt = (Dump.get(8) & 0xff) * 5;
 // TODO: Need to add date change (around midnight) processing
-                    T90ChangeTimeInt = T90RelChangeTimeInt + LastUsedTimeInt;
+                        T90ChangeTimeInt = T90RelChangeTimeInt + LastUsedTimeInt;
+                    }
+
+                    T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
+                    T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
+                    T90TripTimeLeftInt = 0;
+                    if (T90MCount != 0 || T90GCount != 0) {
+// TODO: Need to check date change
+                        if (getCurrentTimeInt() >= LastUsedTimeInt) {
+                            T90TripTimeLeftInt = 90 - (getCurrentTimeInt() - LastUsedTimeInt);
+                        }
+                        if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
+                    }
                 }
-
-                T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
-                T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
-
 
                 break;
             case 0x0a:
@@ -230,17 +239,17 @@ public class Ticket {
                 LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
                 LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
                 TransportType = Dump.get(7) & 0x3;
-
-                // I think it is right.
-                //TODO: Need to check it.
-                T90MCount = (Dump.get(8) >>> 6) & 0x01;
-                //TODO: Check! Check! Check!
-                //T90GCount = (Dump.get(8) >>> 3) & 0x07;
-
-                // TODO: Check and realize 90 minutes change time
-                T90RelChangeTimeInt = (Dump.get(7) >>> 2) & 0x3ff;
-                T90ChangeTimeInt = LastUsedTimeInt + T90RelChangeTimeInt;
-
+                if (TicketClass == C_90UNIVERSAL) {
+                    T90MCount = (Dump.get(8) >>> 6) & 0x01;
+                    T90RelChangeTimeInt = (Dump.get(7) >>> 2) & 0x3ff;
+                    T90ChangeTimeInt = LastUsedTimeInt + T90RelChangeTimeInt;
+                    T90TripTimeLeftInt = 0;
+// TODO: Need to check date change
+                    if (getCurrentTimeInt() >= LastUsedTimeInt && LastUsedTimeInt != 0) {
+                        T90TripTimeLeftInt = 90 - (getCurrentTimeInt() - LastUsedTimeInt);
+                    }
+                    if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
+                }
                 break;
         }
 
@@ -257,18 +266,6 @@ public class Ticket {
 
         TripSeqNumber = PassesTotal - getPassesLeft();
 
-        if (TicketClass == C_90UNIVERSAL) {
-            //T90ChangeTimeInt = 0;
-            T90TripTimeLeftInt = 0;
-            if (T90MCount != 0 || T90GCount != 0) {
-// TODO: Need to check date change
-                if (getCurrentTimeInt() >= LastUsedTimeInt) {
-                    T90TripTimeLeftInt = 90 - (getCurrentTimeInt() - LastUsedTimeInt);
-                }
-                if (T90TripTimeLeftInt < 0) T90TripTimeLeftInt = 0;
-            }
-        }
-        
         if (TicketClass == C_UNLIM_DAYS){
             TripSeqNumber = getPassesLeft();
             PassesLeft = -1;
