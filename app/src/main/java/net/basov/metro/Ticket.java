@@ -350,7 +350,7 @@ public class Ticket {
         getTypeRelatedInfo();
 
         /**
-         * Temporary variable to extract
+         * Temporary variable to extract values from dump pages
          */
         int tmp = 0;
 
@@ -364,6 +364,7 @@ public class Ticket {
                 tmp = (Dump.get(8) >>> 16) & 0xffff;
                 if ( tmp != 0) {
                     Issued = Calendar.getInstance();
+                    Issued.clear();
                     Issued.set(1991, Calendar.DECEMBER, 31);
                     Issued.add(Calendar.DATE, tmp);
                 }
@@ -373,12 +374,14 @@ public class Ticket {
                 tmp = (Dump.get(6) >>> 16) & 0xffff;
                 if (tmp != 0) {
                     StartUseBefore = Calendar.getInstance();
+                    StartUseBefore.clear();
                     StartUseBefore.set(1991, Calendar.DECEMBER, 31);
                     StartUseBefore.add(Calendar.DATE, tmp);
                 }
                 tmp = (Dump.get(6) & 0xfff0) >>> 5;
                 if (tmp != 0 ) {
                     StartUse = Calendar.getInstance();
+                    StartUse.clear();
                     StartUse.set(1991, Calendar.DECEMBER, 31);
                     StartUse.add(Calendar.MINUTE, tmp);
                 }
@@ -390,8 +393,9 @@ public class Ticket {
                 tmp = (Dump.get(11) >>> 16) & 0xffff;
                 if (tmp != 0) {
                     TripStart = Calendar.getInstance();
+                    TripStart.clear();
                     TripStart.set(1991, Calendar.DECEMBER, 31);
-                    TripStart.add(Calendar.DATE, tmp);
+                    TripStart.add(Calendar.DAY_OF_MONTH, tmp);
                     TripStart.add(Calendar.MINUTE, (Dump.get(11) & 0xfff0) >>> 5);
                     TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
                 }
@@ -433,18 +437,17 @@ public class Ticket {
                 //IssuedInt = ((Dump.get(6) >>> 20) & 0xfff) + 8766;
                 //StartUseTimeInt = ((Dump.get(6) & 0xfffff) >>> 1) % (24 * 60) - 1;
                 Issued = Calendar.getInstance();
-                Issued.set(1991, Calendar.DECEMBER, 31);
-                // New layout date store format the same as in old layout but
-                // base date chenged from 01.01.1991 to 01.01.2016
-                // Difference between base dates is 8766 days.
-                Issued.add(Calendar.DATE, 8766);
-                Issued.add(Calendar.DATE, (Dump.get(6) >>> 20) & 0xfff);
-                Issued.add(Calendar.MINUTE,((Dump.get(6) & 0xfffff) >>> 1) % (24 * 60) - 1);
+                Issued.clear();
+                Issued.set(2015, Calendar.DECEMBER, 31);
+                Issued.add(Calendar.DAY_OF_MONTH, (Dump.get(6) >>> 20) & 0xfff);
+                Issued.add(Calendar.MINUTE,(((Dump.get(6) >>> 1) & 0x7ffff) % (24 * 60)) - 1);
                 EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
                 //TODO: TIME FORMAT CHANGE
                 //LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
                 //LastUsedTimeInt = ((Dump.get(7) >>> 13) & 0x7ffff) % (24 * 60);
-                TripStart = (Calendar) Issued.clone();
+
+                // Base date (Issued) used with zerro time. Set it.
+                TripStart = getBaseDate((Calendar) Issued.clone());
                 TripStart.add(Calendar.MINUTE, (Dump.get(7) >>> 13) & 0x7ffff);
                 TransportType = Dump.get(7) & 0x3;
                 if (TicketClass == C_90UNIVERSAL) {
@@ -490,12 +493,15 @@ public class Ticket {
             //TODO: TIME FORMAT CHANGE
             //setStartUseDaytime(IssuedInt, StartUseTimeInt);
             //TimeToNextTrip = (LastUsedTimeInt + 21) - getCurrentTimeInt();
-            Calendar tmpCal = (Calendar) TripStart.clone();
-            tmpCal.add(Calendar.MINUTE, 21);
-            TimeToNextTrip = (int)((tmpCal.getTimeInMillis()
-                    - getNowCalendar().getTimeInMillis())
-                    /(1000L * 60));
-            if (TimeToNextTrip < 0) TimeToNextTrip = 0;
+            Calendar NextTrip = (Calendar) TripStart.clone();
+            NextTrip.add(Calendar.MINUTE, 21);
+            long NextTripInSeconds = NextTrip.getTimeInMillis() / 1000L;
+            long NowInSeconds = getNowCalendar().getTimeInMillis() / 1000L;
+            if (NextTripInSeconds > NowInSeconds ) {
+                TimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
+            } else {
+                TimeToNextTrip = 0;
+            }
         }
 
 		if (Type == TO_VESB) {
@@ -507,6 +513,16 @@ public class Ticket {
 
     }
 
+    /**
+     * Get Calendar object which set to start of the day.
+     */
+    private Calendar getBaseDate(Calendar cal) {
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE,0);
+        cal.set(Calendar.HOUR, 0);
+        return cal;
+    }
     /**
      * Get ticket string representation
      * @param c context
@@ -640,7 +656,7 @@ public class Ticket {
 //            }
 //        }
         if (TicketClass == C_UNLIM_DAYS) {
-            tmpCal = (Calendar)StartUse.clone();
+            tmpCal = (Calendar)Issued.clone();
             tmpCal.add(Calendar.HOUR, 24 * ValidDays);
 
             if (DEBUG_TIME)
@@ -659,7 +675,9 @@ public class Ticket {
             }
         }
 
+//TODO: remove debug version marker
         sb.append("\n- - . - -\n");
+//        sb.append("\n- - - -\n");
 
         if (getPassesLeft() != -1){
             sb.append(c.getString(R.string.passes_left)).append(": ");
@@ -1193,13 +1211,13 @@ public class Ticket {
      * @param days days from base date
      * @return date string representation
      */
-    private String getReadableDate(int days) {
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(1991, Calendar.DECEMBER, 31);
-        c.add(Calendar.DATE, days);
-        return this.df.format(c.getTime());
-    }
+//    private String getReadableDate(int days) {
+//        Calendar c = Calendar.getInstance();
+//        c.clear();
+//        c.set(1991, Calendar.DECEMBER, 31);
+//        c.add(Calendar.DATE, days);
+//        return this.df.format(c.getTime());
+//    }
 
     /**
      *
@@ -1216,26 +1234,26 @@ public class Ticket {
      *
      * @return minutes since current day midnight
      */
-    private int getCurrentTimeInt() {
-        Calendar now = getNowCalendar();
-        return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
-    }
+//    private int getCurrentTimeInt() {
+//        Calendar now = getNowCalendar();
+//        return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+//    }
 
     /**
      * Is date in past related to now
      * @param dateInt date provided as number of days from base date
      * @return
      */
-    private boolean isDateInPast(int dateInt) {
-        Calendar date = Calendar.getInstance();
-        date.clear();
-        date.set(1991, Calendar.DECEMBER, 31);
-        date.add(Calendar.DATE, dateInt);
-        if (date.compareTo(getNowCalendar()) <= 0){
-            return true;
-        }
-        return false;
-    }
+//    private boolean isDateInPast(int dateInt) {
+//        Calendar date = Calendar.getInstance();
+//        date.clear();
+//        date.set(1991, Calendar.DECEMBER, 31);
+//        date.add(Calendar.DATE, dateInt);
+//        if (date.compareTo(getNowCalendar()) <= 0){
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * Set Calendar object StartUseDayTime from provided parameters
