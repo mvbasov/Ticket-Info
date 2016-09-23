@@ -214,10 +214,12 @@ public class Ticket {
      * Start use date time.
      */
     private Calendar StartUse = null;
+
     /**
      * Ticket issue date
      */
     private Calendar Issued = null;
+
     /**
      * Ticket blank "Use before" date
      */
@@ -242,6 +244,7 @@ public class Ticket {
     private int TripSeqNumber = 0;
     //private int LastUsedDateInt = 0;
     //private int LastUsedTimeInt = 0;
+
     /**
      * When current trip start
      */
@@ -515,6 +518,8 @@ public class Ticket {
 
     /**
      * Get Calendar object which set to start of the day.
+     * @param cal calendar object
+     * @return calendar object
      */
     private Calendar getBaseDate(Calendar cal) {
         cal.set(Calendar.MILLISECOND, 0);
@@ -854,11 +859,38 @@ public class Ticket {
 
     public long getTicketNumber() { return TicketNumber; }
 
+    /**
+     * Ticket blank must be start used before this date.
+     * Usually printed at the right of ticket number
+     * @return {@link Ticket#StartUseBefore} calendar object
+     */
+    public Calendar getStartUseBefore() {
+        return StartUseBefore;
+    }
+
+    /**
+     * Date when ticket was issued.
+     * For day limited tickets also has time.
+     * @return {@link Ticket#Issued} calendar object represent issue date/time
+     */
+    public Calendar getIssued() {
+        return Issued;
+    }
+
+    /**
+     * When current trip start
+     * @return {@link Ticket#TripStart}
+     */
+    public Calendar getTripStart() {
+        return TripStart;
+    }
+
+
     public int getTripSeqNumber() { return TripSeqNumber; }
 
     /**
      * This trip current entered gate
-     * @return gate id
+     * @return {@link Ticket#GateEntered} gate id
      */
     public int getGateEntered() {
         return GateEntered;
@@ -866,13 +898,20 @@ public class Ticket {
 
     /**
      * This trip current Station entrance id or Ground transport validator id
-     * @return entrance id
+     * @return {@link Ticket#EntranceEntered} entrance id
      */
     public int getEntranceEntered() {
         return EntranceEntered;
     }
 
-
+    /**
+     * Get transport type. Possible values:
+     *
+     * @return {@link Ticket#TransportType} transport type
+     */
+    public int getTransportType() {
+        return TransportType;
+    }
 
     public int getTicketClass() { return TicketClass; }
 	
