@@ -450,7 +450,6 @@ public class Ticket {
                 TripStart.add(Calendar.MINUTE, (Dump.get(7) >>> 13) & 0x7ffff);
                 TransportType = Dump.get(7) & 0x3;
                 if (TicketClass == C_90UNIVERSAL) {
-                    Issued.add(Calendar.MINUTE, -1);
                     T90MCount = (Dump.get(8) >>> 6) & 0x01;
                     T90RelChangeTime = (Dump.get(7) >>> 2) & 0x3ff;
                     //TODO: TIME FORMAT CHANGE
