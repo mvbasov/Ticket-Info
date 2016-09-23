@@ -56,7 +56,7 @@ public class Ticket {
         return now;
     }
 
-    private static final DateFormat ddf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    public static final DateFormat ddf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     // Constants definition
     /* Used transport types */
@@ -315,9 +315,9 @@ public class Ticket {
      */
     private int Hash = 0;
 
-    public final static DateFormat df = new SimpleDateFormat("dd.MM.yyyy");;
-    public final static DateFormat tf = new SimpleDateFormat("HH:mm");;
-    public final static DateFormat dtf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private final static DateFormat df = new SimpleDateFormat("dd.MM.yyyy");;
+    private final static DateFormat tf = new SimpleDateFormat("HH:mm");;
+    private final static DateFormat dtf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
     /**
      * Class to store and represent Moscow transportation system ticket
@@ -470,6 +470,9 @@ public class Ticket {
                     }
                     if (T90TripTimeLeft < 0) T90TripTimeLeft = 0;
                 }
+
+// TODO: Check. Is it right place to to make day limited tickets time correct.
+// TODO: May be better way to do this at display time
                 if (getTicketClass() == C_UNLIM_DAYS) Issued.add(Calendar.MINUTE, -1);
 
                 break;

@@ -7,10 +7,8 @@ import net.basov.nfc.NFCaDump;
 
 import junit.framework.TestCase;
 
-import org.junit.Before;
-import org.junit.Test;
-
 /**
+ * Junit 4 tests for net.basov.metro.Ticket class
  * Created by mvb on 9/23/16.
  */
 public class TicketTest extends TestCase {
@@ -34,13 +32,14 @@ public class TicketTest extends TestCase {
     Calendar expectedIssued;
     Calendar expectedTripStart;
 
-    @Before
     public void setUp() throws Exception {
         super.setUp();
 
         //TDS_0xd_U1();
         //TDS_0xa_3D();
         TDS_0xa_U2();
+// TODO: Make test data set for 90 minutes, new layout
+        //TDS_0xa_90M2();
 
     }
 
@@ -70,13 +69,13 @@ public class TicketTest extends TestCase {
         expectedType = 410;
         expectedIssued = Calendar.getInstance();
         expectedIssued.clear();
-        expectedIssued.set(2016, Calendar.SEPTEMBER, 16, 00, 00);
+        expectedIssued.set(2016, Calendar.SEPTEMBER, 16, 0, 0);
         expectedTripStart = Calendar.getInstance();
         expectedTripStart.clear();
-        expectedTripStart.set(2016, Calendar.SEPTEMBER, 16, 00, 32);
+        expectedTripStart.set(2016, Calendar.SEPTEMBER, 16, 0, 32);
         expectedStartUseBefore = Calendar.getInstance();
         expectedStartUseBefore.clear();
-        expectedStartUseBefore.set(2017, Calendar.MAY, 28, 00, 00);
+        expectedStartUseBefore.set(2017, Calendar.MAY, 28, 0, 0);
 
         ArrayList<String> content = new ArrayList<String>();
         content.add("343d6ced");
@@ -125,10 +124,10 @@ public class TicketTest extends TestCase {
         expectedType = 435;
         expectedIssued = Calendar.getInstance();
         expectedIssued.clear();
-        expectedIssued.set(2016, Calendar.SEPTEMBER, 9, 11, 02, 00);
+        expectedIssued.set(2016, Calendar.SEPTEMBER, 9, 11, 2, 0);
         expectedTripStart = Calendar.getInstance();
         expectedTripStart.clear();
-        expectedTripStart.set(2016, Calendar.SEPTEMBER, 12, 11, 01, 00);
+        expectedTripStart.set(2016, Calendar.SEPTEMBER, 12, 11, 1, 0);
 
         ArrayList<String> content = new ArrayList<String>();
         content.add("34e793c8");
@@ -177,7 +176,7 @@ public class TicketTest extends TestCase {
         expectedType = 412;
         expectedIssued = Calendar.getInstance();
         expectedIssued.clear();
-        expectedIssued.set(2016, Calendar.SEPTEMBER, 8, 00, 00);
+        expectedIssued.set(2016, Calendar.SEPTEMBER, 8, 0, 0);
         expectedTripStart = Calendar.getInstance();
         expectedTripStart.clear();
         expectedTripStart.set(2016, Calendar.SEPTEMBER, 8, 11, 17);
@@ -205,89 +204,75 @@ public class TicketTest extends TestCase {
 
     }
 
-    @Test
     public void testGetValidDays() throws Exception {
         assertEquals(expectedValidDays, ticket.getValidDays());
     }
 
-    @Test
     public void testGetTicketNumber() throws Exception {
         assertEquals(expectedTicketNumber, ticket.getTicketNumber());
     }
 
-    @Test
     public void testGetStartUseBefore() throws Exception {
-        if (ticket.getStartUseBefore() != null) {
+        if (expectedStartUseBefore != null) {
             assertEquals(
                     "Expected: " +
-                            Ticket.df.format(expectedStartUseBefore.getTime()) +
+                            Ticket.ddf.format(expectedStartUseBefore.getTime()) +
                             " Result: " +
-                            Ticket.df.format(ticket.getStartUseBefore().getTime()),
+                            Ticket.ddf.format(ticket.getStartUseBefore().getTime()),
                     expectedStartUseBefore, ticket.getStartUseBefore());
         }
     }
 
-    @Test
     public void testGetType() throws Exception {
         assertEquals(expectedType, ticket.getType());
     }
 
-    @Test
     public void testGetTripSeqNumber() throws Exception {
         assertEquals(expectedTripSeqNumber, ticket.getTripSeqNumber());
     }
 
-    @Test
     public void testGetTicketClass() throws Exception {
         assertEquals(expectedClass, ticket.getTicketClass());
     }
 
-    @Test
     public void testGetLayout() throws Exception {
         assertEquals(expectedLayout, ticket.getLayout());
     }
 
-    @Test
     public void testGetPassesTotal() throws Exception {
         assertEquals(expectedPassesTotal, ticket.getPassesTotal());
     }
 
-    @Test
     public void testGetPassesLeft() throws Exception {
         assertEquals(expectedPassesLeft, ticket.getPassesLeft());
     }
 
-    @Test
     public void testGetGateEntered() throws Exception {
         assertEquals(expectedGateEntered, ticket.getGateEntered());
     }
 
-    @Test
     public void testGetEntranceEntered() throws Exception {
         assertEquals(expectedEntranceEntered, ticket.getEntranceEntered());
     }
 
-    @Test
     public void testGetIssued() throws Exception {
         assertEquals(
                 "Expected: " +
-                    Ticket.dtf.format(expectedIssued.getTime()) +
+                    Ticket.ddf.format(expectedIssued.getTime()) +
                 " Result: " +
-                    Ticket.dtf.format(ticket.getIssued().getTime()),
+                    Ticket.ddf.format(ticket.getIssued().getTime()),
                 expectedIssued, ticket.getIssued());
     }
 
-    @Test
     public void testGetTripStart() throws Exception {
         assertEquals(
                 "Expected: " +
-                        Ticket.dtf.format(expectedTripStart.getTime()) +
+                        Ticket.ddf.format(expectedTripStart.getTime()) +
                 " Result: " +
-                        Ticket.dtf.format(ticket.getTripStart().getTime()),
+                        Ticket.ddf.format(ticket.getTripStart().getTime()),
                 expectedTripStart, ticket.getTripStart());
     }
 
-    @Test
     public void testGetTransportType() throws Exception {
         assertEquals(expectedTransportType, ticket.getTransportType());
     }
