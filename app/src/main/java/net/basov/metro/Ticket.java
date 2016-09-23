@@ -315,9 +315,9 @@ public class Ticket {
      */
     private int Hash = 0;
 
-    private DateFormat df;
-    private DateFormat tf;
-    private DateFormat dtf;
+    public final static DateFormat df = new SimpleDateFormat("dd.MM.yyyy");;
+    public final static DateFormat tf = new SimpleDateFormat("HH:mm");;
+    public final static DateFormat dtf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
     /**
      * Class to store and represent Moscow transportation system ticket
@@ -326,10 +326,6 @@ public class Ticket {
     public Ticket(NFCaDump dump) {
 
         DumpValid = true;
-
-        df = new SimpleDateFormat("dd.MM.yyyy");
-        tf = new SimpleDateFormat("HH:mm");
-        dtf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
         Dump = new ArrayList<Integer>();
         if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
@@ -443,7 +439,7 @@ public class Ticket {
                 Issued.clear();
                 Issued.set(2015, Calendar.DECEMBER, 31);
                 Issued.add(Calendar.DAY_OF_MONTH, (Dump.get(6) >>> 20) & 0xfff);
-                Issued.add(Calendar.MINUTE,(((Dump.get(6) >>> 1) & 0x7ffff) % (24 * 60)) - 1);
+                Issued.add(Calendar.MINUTE,((Dump.get(6) >>> 1) & 0x7ffff) % (24 * 60));
                 EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
                 //TODO: TIME FORMAT CHANGE
                 //LastUsedDateInt = IssuedInt + (((Dump.get(7) >>> 13) & 0x7ffff) / (24 * 60)) ;
@@ -454,6 +450,7 @@ public class Ticket {
                 TripStart.add(Calendar.MINUTE, (Dump.get(7) >>> 13) & 0x7ffff);
                 TransportType = Dump.get(7) & 0x3;
                 if (TicketClass == C_90UNIVERSAL) {
+                    Issued.add(Calendar.MINUTE, -1);
                     T90MCount = (Dump.get(8) >>> 6) & 0x01;
                     T90RelChangeTime = (Dump.get(7) >>> 2) & 0x3ff;
                     //TODO: TIME FORMAT CHANGE
@@ -474,6 +471,8 @@ public class Ticket {
                     }
                     if (T90TripTimeLeft < 0) T90TripTimeLeft = 0;
                 }
+                if (getTicketClass() == C_UNLIM_DAYS) Issued.add(Calendar.MINUTE, -1);
+
                 break;
         }
 
@@ -521,7 +520,7 @@ public class Ticket {
      * @param cal calendar object
      * @return calendar object
      */
-    private Calendar getBaseDate(Calendar cal) {
+    public Calendar getBaseDate(Calendar cal) {
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MINUTE,0);

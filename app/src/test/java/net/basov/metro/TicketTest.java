@@ -38,8 +38,9 @@ public class TicketTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        prepareDataset1();
-        //prepareDataset2();
+        //TDS_0xd_U1();
+        //TDS_0xa_3D();
+        TDS_0xa_U2();
 
     }
 
@@ -54,7 +55,7 @@ public class TicketTest extends TestCase {
      * Layout 13, AppId 279, Type 410<br/>
      *
      */
-    private void prepareDataset1(){
+    private void TDS_0xd_U1(){
 
         expectedTicketNumber = 83381452L;
         expectedClass = Ticket.C_UNIVERSAL;
@@ -109,7 +110,7 @@ public class TicketTest extends TestCase {
      * Layout 10, AppId 279, Type 435<br/>
      *
      */
-    private void prepareDataset2() {
+    private void TDS_0xa_3D() {
 
         expectedTicketNumber = 1983509L;
         expectedClass = Ticket.C_UNLIM_DAYS;
@@ -150,6 +151,60 @@ public class TicketTest extends TestCase {
         ticket = new Ticket(dump);
     }
 
+    /**
+     * 2533158286<br/>
+     * Universal, 2 pass<br/>
+     * Valid 5 days (from 08.09.2016 to 12.09.2016)<br/>
+     * Trip N2 16.09.2016 at 00:32<br/>
+     * Gate 2281 (Metro)<br/>
+     * Passes left 0<br/>
+     *<br/>
+     * Layout 13, AppId 279, Type 410<br/>
+     *
+     */
+    private void TDS_0xa_U2(){
+
+        expectedTicketNumber = 2533158286L;
+        expectedClass = Ticket.C_UNIVERSAL;
+        expectedPassesTotal = 2;
+        expectedValidDays = 5;
+        expectedTripSeqNumber = 2;
+        expectedEntranceEntered = 2281;
+        expectedTransportType = Ticket.TT_METRO;
+        expectedPassesLeft = 0;
+        expectedLayout = 10;
+        expectedApp = 279;
+        expectedType = 412;
+        expectedIssued = Calendar.getInstance();
+        expectedIssued.clear();
+        expectedIssued.set(2016, Calendar.SEPTEMBER, 8, 00, 00);
+        expectedTripStart = Calendar.getInstance();
+        expectedTripStart.clear();
+        expectedTripStart.set(2016, Calendar.SEPTEMBER, 8, 11, 17);
+
+        ArrayList<String> content = new ArrayList<String>();
+        content.add("34c06d11");
+        content.add("4137f776");
+        content.add("f7e07008");
+        content.add("fffffffc");
+        content.add("45d9c96f");
+        content.add("ced8ea00");
+        content.add("0fc03840");
+        content.add("0054a001");
+        content.add("0008e940");
+        content.add("00000000");
+        content.add("b82de5ab");
+        content.add("0fc03840");
+        content.add("0054a001");
+        content.add("0008e940");
+        content.add("00000000");
+        content.add("b82de5ab");
+
+        NFCaDump.parseDump(dump, content);
+        ticket = new Ticket(dump);
+
+    }
+
     @Test
     public void testGetValidDays() throws Exception {
         assertEquals(expectedValidDays, ticket.getValidDays());
@@ -162,7 +217,14 @@ public class TicketTest extends TestCase {
 
     @Test
     public void testGetStartUseBefore() throws Exception {
-        assertEquals(expectedStartUseBefore, ticket.getStartUseBefore());
+        if (ticket.getStartUseBefore() != null) {
+            assertEquals(
+                    "Expected: " +
+                            Ticket.df.format(expectedStartUseBefore.getTime()) +
+                            " Result: " +
+                            Ticket.df.format(ticket.getStartUseBefore().getTime()),
+                    expectedStartUseBefore, ticket.getStartUseBefore());
+        }
     }
 
     @Test
@@ -207,12 +269,22 @@ public class TicketTest extends TestCase {
 
     @Test
     public void testGetIssued() throws Exception {
-        assertEquals(expectedIssued, ticket.getIssued());
+        assertEquals(
+                "Expected: " +
+                    Ticket.dtf.format(expectedIssued.getTime()) +
+                " Result: " +
+                    Ticket.dtf.format(ticket.getIssued().getTime()),
+                expectedIssued, ticket.getIssued());
     }
 
     @Test
     public void testGetTripStart() throws Exception {
-        assertEquals(expectedTripStart, ticket.getTripStart());
+        assertEquals(
+                "Expected: " +
+                        Ticket.dtf.format(expectedTripStart.getTime()) +
+                " Result: " +
+                        Ticket.dtf.format(ticket.getTripStart().getTime()),
+                expectedTripStart, ticket.getTripStart());
     }
 
     @Test
