@@ -26,7 +26,6 @@
 package net.basov.metro;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import net.basov.nfc.NFCaDump;
@@ -257,6 +256,7 @@ public class Ticket {
      * One underground station has several turnstiles (gates) in each entrance
      */
     private int GateEntered = 0;
+
     /**
      * Last entered station entrance id.
      * One station may have one or several entrance with different id
@@ -523,6 +523,7 @@ public class Ticket {
         cal.set(Calendar.HOUR, 0);
         return cal;
     }
+
     /**
      * Get ticket string representation
      * @param c context
@@ -546,7 +547,7 @@ public class Ticket {
         sb.append("\n- - - -\n");
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
-        sb.append(String.format("%010d", TicketNumber));
+        sb.append(String.format("%010d", getTicketNumber()));
         //TODO: TIME FORMAT CHANGE
         //if (StartUseBeforeInt != 0) {
         //    sb.append(" (till ");
@@ -558,9 +559,10 @@ public class Ticket {
             sb.append(")");
         }
         sb.append("\n");
-        if (ValidDays != 0) {
+        if (getValidDays() != 0) {
             sb.append(c.getString(R.string.best_in_days)).append(": ");
-            sb.append(ValidDays).append('\n');
+            sb.append(getValidDays());
+            sb.append('\n');
         }
         //TODO: TIME FORMAT CHANGE
         //if (IssuedInt != 0) {
@@ -583,14 +585,14 @@ public class Ticket {
         if (Issued != null) {
             sb.append("  from ");
             tmpCal = (Calendar)Issued.clone();
-            if (TicketClass == C_UNLIM_DAYS){
-                tmpCal.add(Calendar.DATE, ValidDays);
+            if (getTicketClass() == C_UNLIM_DAYS){
+                tmpCal.add(Calendar.DATE, getValidDays());
                 sb.append(String.format(" %s\n    to  %s",
                         this.dtf.format(Issued.getTime()),
                         this.dtf.format(tmpCal.getTime()))
                 );
             } else {
-                tmpCal.add(Calendar.DATE, ValidDays - 1);
+                tmpCal.add(Calendar.DATE, getValidDays() - 1);
                 sb.append(String.format(" %s to %s",
                         this.df.format(Issued.getTime()),
                         this.df.format(tmpCal.getTime()))
@@ -657,7 +659,7 @@ public class Ticket {
 //        }
         if (TicketClass == C_UNLIM_DAYS) {
             tmpCal = (Calendar)Issued.clone();
-            tmpCal.add(Calendar.HOUR, 24 * ValidDays);
+            tmpCal.add(Calendar.HOUR, 24 * getValidDays());
 
             if (DEBUG_TIME)
                 Log.d(TAG, String.format("Compare: %s\n", ddf.format(tmpCal.getTime())));
@@ -686,7 +688,7 @@ public class Ticket {
         
         switch (Layout) {
             case 8:
-                if ( GateEntered != 0) {
+                if ( getGateEntered() != 0) {
 					sb.append(c.getString(R.string.last_trip));
                     if (getTripSeqNumber() > 0) {
                         sb.append(" №");
@@ -695,13 +697,13 @@ public class Ticket {
                     sb.append(":\n  ");
            
                     sb.append(c.getString(R.string.station_last_enter)).append(": ");
-                    sb.append(getGateDesc(c, GateEntered)).append('\n');
+                    sb.append(getGateDesc(c, getGateEntered())).append('\n');
                 }
                 sb.append("\n- - - -\n");
                 sb.append("Layuot 8 (0x8).").append('\n');
                 break;
             case 13:
-                if (GateEntered != 0) {
+                if (getGateEntered() != 0) {
 
                     sb.append(c.getString(R.string.last_trip));
                     if (getTripSeqNumber() > 0) {
@@ -718,7 +720,7 @@ public class Ticket {
                     sb.append(this.tf.format(TripStart.getTime()));
                     sb.append(",\n  ");
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
-                    sb.append(getGateDesc(c, GateEntered));
+                    sb.append(getGateDesc(c, getGateEntered()));
                     sb.append('\n');
 
 // TODO: Translate messages
@@ -762,7 +764,7 @@ public class Ticket {
                 sb.append("Layuot 13 (0xd).").append('\n');
                 break;
             case 10:
-                if (EntranceEntered != 0) {
+                if (getEntranceEntered() != 0) {
                     sb.append(c.getString(R.string.last_trip));
                     if (getTripSeqNumber() > 0) {
                         sb.append(" №");
@@ -777,7 +779,7 @@ public class Ticket {
                     sb.append(c.getString(R.string.at)).append(" ");
                     sb.append(this.tf.format(TripStart.getTime()));
                     sb.append(",\n  ");
-                    sb.append(getStationDesc(c, EntranceEntered));
+                    sb.append(getStationDesc(c, getEntranceEntered()));
                     sb.append('\n');
 
                     if (TicketClass == C_90UNIVERSAL) {
@@ -854,13 +856,31 @@ public class Ticket {
 
     public int getTripSeqNumber() { return TripSeqNumber; }
 
+    /**
+     * This trip current entered gate
+     * @return gate id
+     */
+    public int getGateEntered() {
+        return GateEntered;
+    }
+
+    /**
+     * This trip current Station entrance id or Ground transport validator id
+     * @return entrance id
+     */
+    public int getEntranceEntered() {
+        return EntranceEntered;
+    }
+
+
+
     public int getTicketClass() { return TicketClass; }
 	
 	public int getLayout() { return Layout; }
 
     /**
-     * Get amount of passes
-      * @return
+     * How manu passes this ticket issued for.
+      * @return Amount of passes on the ticket
      */
     public int getPassesTotal() {
         if (PassesTotal == 0) getTypeRelatedInfo();
