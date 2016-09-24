@@ -1,279 +1,159 @@
 package net.basov.metro;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
-import net.basov.nfc.NFCaDump;
-
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.runners.Parameterized;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Junit 4 tests for net.basov.metro.Ticket class
  * Created by mvb on 9/23/16.
  */
-public class TicketTest extends TestCase {
+@RunWith(value = Parameterized.class)
+public class TicketTest {
 
-    NFCaDump dump = new NFCaDump();
-    Ticket ticket;
+    private Ticket ticket;
+    private String error;
+    private int expectedValidDays;
+    private long expectedTicketNumber;
+    private int expectedType;
+    private int expectedTripSeqNumber;
+    private int expectedGateEntered;
+    private int expectedTransportType;
+    private int expectedEntranceEntered;
+    private int expectedClass;
+    private int expectedLayout;
+    private int expectedPassesTotal;
+    private int expectedPassesLeft;
+    private int expectedApp;
+    private Calendar expectedStartUseBefore;
+    private Calendar expectedIssued;
+    private Calendar expectedTripStart;
 
-    int expectedValidDays;
-    long expectedTicketNumber;
-    int expectedType;
-    int expectedTripSeqNumber;
-    int expectedGateEntered;
-    int expectedTransportType;
-    int expectedEntranceEntered;
-    int expectedClass;
-    int expectedLayout;
-    int expectedPassesTotal;
-    int expectedPassesLeft;
-    int expectedApp;
-    Calendar expectedStartUseBefore;
-    Calendar expectedIssued;
-    Calendar expectedTripStart;
-
-    public void setUp() throws Exception {
-        super.setUp();
-
-        //TDS_0xd_U1();
-        //TDS_0xa_3D();
-        TDS_0xa_U2();
-// TODO: Make test data set for 90 minutes, new layout
-        //TDS_0xa_90M2();
-
+    @Parameters(name="{index}: {0}")
+    public static Iterable<? extends Object> data() {
+        return TicketTestData.getDataSets();
     }
 
-    /**
-     * 0083381452 (till 28.05.2017)<br/>
-     * Universal, 1 pass<br/>
-     * Valid 5 days (from 16.09.2016 to 20.09.2016)<br/>
-     * Trip N1 16.09.2016 at 00:32<br/>
-     * Gate 137 (Ground)<br/>
-     * Passes left 0<br/>
-     *<br/>
-     * Layout 13, AppId 279, Type 410<br/>
-     *
-     */
-    private void TDS_0xd_U1(){
-
-        expectedTicketNumber = 83381452L;
-        expectedClass = Ticket.C_UNIVERSAL;
-        expectedPassesTotal = 1;
-        expectedValidDays = 5;
-        expectedTripSeqNumber = 1;
-        expectedGateEntered = 137;
-        expectedTransportType = Ticket.TT_GROUND;
-        expectedPassesLeft = 0;
-        expectedLayout = 13;
-        expectedApp = 279;
-        expectedType = 410;
-        expectedIssued = Calendar.getInstance();
-        expectedIssued.clear();
-        expectedIssued.set(2016, Calendar.SEPTEMBER, 16, 0, 0);
-        expectedTripStart = Calendar.getInstance();
-        expectedTripStart.clear();
-        expectedTripStart.set(2016, Calendar.SEPTEMBER, 16, 0, 32);
-        expectedStartUseBefore = Calendar.getInstance();
-        expectedStartUseBefore.clear();
-        expectedStartUseBefore.set(2017, Calendar.MAY, 28, 0, 0);
-
-        ArrayList<String> content = new ArrayList<String>();
-        content.add("343d6ced");
-        content.add("9111ef86");
-        content.add("e900f000");
-        content.add("fffffffc");
-        content.add("45d9a04f");
-        content.add("84cccd00");
-        content.add("24400000");
-        content.add("24400000");
-        content.add("23420500");
-        content.add("80000089");
-        content.add("5862c95b");
-        content.add("23420400");
-        content.add("23420500");
-        content.add("80000089");
-        content.add("5862c95b");
-        content.add("23420400");
-        NFCaDump.parseDump(dump, content);
-        ticket = new Ticket(dump);
-
+    public TicketTest(TicketTestDataSet TDS) {
+        this.error = TDS.getError();
+        this.ticket = TDS.getTicket();
+        this.expectedValidDays = TDS.getExpectedValidDays();
+        this.expectedTicketNumber = TDS.getExpectedTicketNumber();
+        this.expectedType = TDS.getExpectedType();
+        this.expectedTripSeqNumber = TDS.getExpectedTripSeqNumber();
+        this.expectedGateEntered = TDS.getExpectedGateEntered();
+        this.expectedTransportType = TDS.getExpectedTransportType();
+        this.expectedEntranceEntered = TDS.getExpectedEntranceEntered();
+        this.expectedClass = TDS.getExpectedClass();
+        this.expectedLayout = TDS.getExpectedLayout();
+        this.expectedPassesTotal = TDS.getExpectedPassesTotal();
+        this.expectedPassesLeft = TDS.getExpectedPassesLeft();
+        this.expectedApp = TDS.getExpectedApp();
+        this.expectedStartUseBefore = TDS.getExpectedStartUseBefore();
+        this.expectedIssued = TDS.getExpectedIssued();
+        this.expectedTripStart = TDS.getExpectedTripStart();
     }
 
-    /**
-     * 0001983509<br/>
-     * Unlimited, 3 days<br/>
-     * Valid 3 days (from 09.09.2016 11:02 to 12.09.2016 11:02)<br/>
-     * Trip N15 12.09.2016 at 11:01<br/>
-     * Gate 2281 (Metro)<br/>
-     *<br/>
-     * Layout 10, AppId 279, Type 435<br/>
-     *
-     */
-    private void TDS_0xa_3D() {
-
-        expectedTicketNumber = 1983509L;
-        expectedClass = Ticket.C_UNLIM_DAYS;
-        expectedPassesTotal = -1;
-        expectedValidDays = 3;
-        expectedTripSeqNumber = 15;
-        expectedEntranceEntered = 2281;
-        expectedTransportType = Ticket.TT_METRO;
-        expectedPassesLeft = -1;
-        expectedLayout = 10;
-        expectedApp = 279;
-        expectedType = 435;
-        expectedIssued = Calendar.getInstance();
-        expectedIssued.clear();
-        expectedIssued.set(2016, Calendar.SEPTEMBER, 9, 11, 2, 0);
-        expectedTripStart = Calendar.getInstance();
-        expectedTripStart.clear();
-        expectedTripStart.set(2016, Calendar.SEPTEMBER, 12, 11, 1, 0);
-
-        ArrayList<String> content = new ArrayList<String>();
-        content.add("34e793c8");
-        content.add("817ff576");
-        content.add("7de07008");
-        content.add("00000000");
-        content.add("45db3001");
-        content.add("e4415a00");
-        content.add("0fd026ee");
-        content.add("026ea001");
-        content.add("0f08e940");
-        content.add("00000000");
-        content.add("5ef67e1b");
-        content.add("0fd026ee");
-        content.add("026ea001");
-        content.add("0f08e940");
-        content.add("00000000");
-        content.add("5ef67e1b");
-        NFCaDump.parseDump(dump, content);
-        ticket = new Ticket(dump);
+    @Test
+    public void testTestDataSet() throws Exception {
+        Assert.assertEquals(null, this.error);
     }
 
-    /**
-     * 2533158286<br/>
-     * Universal, 2 pass<br/>
-     * Valid 5 days (from 08.09.2016 to 12.09.2016)<br/>
-     * Trip N2 16.09.2016 at 00:32<br/>
-     * Gate 2281 (Metro)<br/>
-     * Passes left 0<br/>
-     *<br/>
-     * Layout 13, AppId 279, Type 410<br/>
-     *
-     */
-    private void TDS_0xa_U2(){
-
-        expectedTicketNumber = 2533158286L;
-        expectedClass = Ticket.C_UNIVERSAL;
-        expectedPassesTotal = 2;
-        expectedValidDays = 5;
-        expectedTripSeqNumber = 2;
-        expectedEntranceEntered = 2281;
-        expectedTransportType = Ticket.TT_METRO;
-        expectedPassesLeft = 0;
-        expectedLayout = 10;
-        expectedApp = 279;
-        expectedType = 412;
-        expectedIssued = Calendar.getInstance();
-        expectedIssued.clear();
-        expectedIssued.set(2016, Calendar.SEPTEMBER, 8, 0, 0);
-        expectedTripStart = Calendar.getInstance();
-        expectedTripStart.clear();
-        expectedTripStart.set(2016, Calendar.SEPTEMBER, 8, 11, 17);
-
-        ArrayList<String> content = new ArrayList<String>();
-        content.add("34c06d11");
-        content.add("4137f776");
-        content.add("f7e07008");
-        content.add("fffffffc");
-        content.add("45d9c96f");
-        content.add("ced8ea00");
-        content.add("0fc03840");
-        content.add("0054a001");
-        content.add("0008e940");
-        content.add("00000000");
-        content.add("b82de5ab");
-        content.add("0fc03840");
-        content.add("0054a001");
-        content.add("0008e940");
-        content.add("00000000");
-        content.add("b82de5ab");
-
-        NFCaDump.parseDump(dump, content);
-        ticket = new Ticket(dump);
-
-    }
-
+    @Test
     public void testGetValidDays() throws Exception {
-        assertEquals(expectedValidDays, ticket.getValidDays());
+        Assert.assertEquals(this.expectedValidDays, this.ticket.getValidDays());
     }
 
+    @Test
     public void testGetTicketNumber() throws Exception {
-        assertEquals(expectedTicketNumber, ticket.getTicketNumber());
+        Assert.assertEquals(this.expectedTicketNumber, this.ticket.getTicketNumber());
     }
 
+    @Test
     public void testGetStartUseBefore() throws Exception {
-        if (expectedStartUseBefore != null) {
-            assertEquals(
+        if (this.expectedStartUseBefore != null) {
+            Assert.assertEquals(
                     "Expected: " +
-                            Ticket.ddf.format(expectedStartUseBefore.getTime()) +
+                            Ticket.ddf.format(this.expectedStartUseBefore.getTime()) +
                             " Result: " +
-                            Ticket.ddf.format(ticket.getStartUseBefore().getTime()),
-                    expectedStartUseBefore, ticket.getStartUseBefore());
+                            Ticket.ddf.format(this.ticket.getStartUseBefore().getTime()),
+                    this.expectedStartUseBefore, this.ticket.getStartUseBefore());
+        } else {
+            Assert.assertEquals(null, this.ticket.getStartUseBefore());
         }
     }
 
+    @Test
     public void testGetType() throws Exception {
-        assertEquals(expectedType, ticket.getType());
+        Assert.assertEquals(this.expectedType, this.ticket.getType());
     }
 
+    @Test
     public void testGetTripSeqNumber() throws Exception {
-        assertEquals(expectedTripSeqNumber, ticket.getTripSeqNumber());
+        Assert.assertEquals(this.expectedTripSeqNumber, this.ticket.getTripSeqNumber());
     }
 
+    @Test
     public void testGetTicketClass() throws Exception {
-        assertEquals(expectedClass, ticket.getTicketClass());
+        Assert.assertEquals(this.expectedClass, this.ticket.getTicketClass());
     }
 
+    @Test
     public void testGetLayout() throws Exception {
-        assertEquals(expectedLayout, ticket.getLayout());
+        Assert.assertEquals(this.expectedLayout, this.ticket.getLayout());
     }
 
+    @Test
     public void testGetPassesTotal() throws Exception {
-        assertEquals(expectedPassesTotal, ticket.getPassesTotal());
+        Assert.assertEquals(this.expectedPassesTotal, this.ticket.getPassesTotal());
     }
 
+    @Test
     public void testGetPassesLeft() throws Exception {
-        assertEquals(expectedPassesLeft, ticket.getPassesLeft());
+        Assert.assertEquals(this.expectedPassesLeft, this.ticket.getPassesLeft());
     }
 
+    @Test
     public void testGetGateEntered() throws Exception {
-        assertEquals(expectedGateEntered, ticket.getGateEntered());
+        Assert.assertEquals(this.expectedGateEntered, this.ticket.getGateEntered());
     }
 
+    @Test
     public void testGetEntranceEntered() throws Exception {
-        assertEquals(expectedEntranceEntered, ticket.getEntranceEntered());
+        Assert.assertEquals(this.expectedEntranceEntered, this.ticket.getEntranceEntered());
     }
 
+    @Test
     public void testGetIssued() throws Exception {
-        assertEquals(
+        Assert.assertEquals(
                 "Expected: " +
-                    Ticket.ddf.format(expectedIssued.getTime()) +
+                    Ticket.ddf.format(this.expectedIssued.getTime()) +
                 " Result: " +
-                    Ticket.ddf.format(ticket.getIssued().getTime()),
-                expectedIssued, ticket.getIssued());
+                    Ticket.ddf.format(this.ticket.getIssued().getTime()),
+                this.expectedIssued, this.ticket.getIssued());
     }
 
+    @Test
     public void testGetTripStart() throws Exception {
-        assertEquals(
+        Assert.assertEquals(
                 "Expected: " +
-                        Ticket.ddf.format(expectedTripStart.getTime()) +
+                        Ticket.ddf.format(this.expectedTripStart.getTime()) +
                 " Result: " +
-                        Ticket.ddf.format(ticket.getTripStart().getTime()),
-                expectedTripStart, ticket.getTripStart());
+                        Ticket.ddf.format(this.ticket.getTripStart().getTime()),
+                this.expectedTripStart, this.ticket.getTripStart());
     }
 
+    @Test
     public void testGetTransportType() throws Exception {
-        assertEquals(expectedTransportType, ticket.getTransportType());
+        Assert.assertEquals(this.expectedTransportType, this.ticket.getTransportType());
+    }
+
+    @Test
+    public void testGetApp() throws Exception {
+        Assert.assertEquals(this.expectedApp, this.ticket.getApp());
     }
 }

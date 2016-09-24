@@ -30,6 +30,10 @@ import android.util.Log;
 
 import net.basov.nfc.NFCaDump;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import android.support.annotation.IntDef;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,12 +68,16 @@ public class Ticket {
     public static final int TT_METRO = 1;
     public static final int TT_GROUND = 2;
     /* Application */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({A_UNKNOWN, A_METRO, A_GROUND, A_SOCIAL, A_METRO_LIGHT, A_UNIVERSAL})
+    public @interface Application {}
     public static final int A_UNKNOWN = 0;
     public static final int A_METRO = 262;
     public static final int A_GROUND = 264;
     public static final int A_SOCIAL = 266;
     public static final int A_METRO_LIGHT = 270;
     public static final int A_UNIVERSAL = 279;
+
     /* Type */
     public static final int T_UNKNOWN = 0;
     /* Type old (layout 0x08) */
@@ -319,22 +327,40 @@ public class Ticket {
     private final static DateFormat tf = new SimpleDateFormat("HH:mm");;
     private final static DateFormat dtf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
-    /**
-     * Class to store and represent Moscow transportation system ticket
-     * @param dump {@link NFCaDump}
-     */
+    public Ticket() {
+        Dump = new ArrayList<Integer>();
+        DumpValid = true;
+    }
+
     public Ticket(NFCaDump dump) {
 
-        DumpValid = true;
+        this();
 
-        Dump = new ArrayList<Integer>();
+        ArrayList<Integer> tDump = new ArrayList<Integer>();
         if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
             DumpValid = false;
             return;
         }
-        for (int i = 0; i < 12; i++){
+        for (int i = 0; i < 12; i++) {
             Dump.add(dump.getPageAsInt(i));
         }
+    }
+    /**
+     * Class to store and represent Moscow transportation system ticket
+     * @param dump {@link NFCaDump}
+     */
+    public Ticket(ArrayList<Integer> dump) {
+
+
+//        Dump = new ArrayList<Integer>();
+//        if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
+//            DumpValid = false;
+//            return;
+//        }
+//        for (int i = 0; i < 12; i++){
+//            Dump.add(dump.getPageAsInt(i));
+//        }
+        Dump = dump;
 
         OTP = Dump.get(3);
 
@@ -855,6 +881,8 @@ public class Ticket {
      * @return {@link Ticket#TransportType}
      */
 	public int getType() { return Type; }
+
+    public int getApp() { return App; }
 
     public boolean isTicketFormatValid() { return DumpValid; }
 

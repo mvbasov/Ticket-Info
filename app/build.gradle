@@ -22,7 +22,7 @@ android {
         }
     }
     compileSdkVersion 15
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "ru.valle.tickets"
         minSdkVersion 11
@@ -54,5 +54,6 @@ android {
 }
 
 dependencies {
-testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:support-annotations:24.1.+'
 }
