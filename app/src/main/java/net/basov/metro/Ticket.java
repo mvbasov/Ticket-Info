@@ -203,7 +203,66 @@ public class Ticket {
      * Ticket layout
      */
     private int Layout = 0;
+    /**
+     * Application. Possible values:
+     * <ul>
+     *     <li>{@link Ticket#A_UNKNOWN}</li>
+     *     <li>{@link Ticket#A_UNIVERSAL}</li>
+     *     <li>{@link Ticket#A_GROUND}</li>
+     *     <li>{@link Ticket#A_METRO}</li>
+     *     <li>{@link Ticket#A_SOCIAL}</li>
+     *     <li>{@link Ticket#A_METRO_LIGHT}</li>
+     * </ul>
+     */
     private int App = A_UNKNOWN;
+    /**
+     * Type. Possible value:
+     * <ul>
+     *     <li>{@link Ticket#T_UNKNOWN}</li>
+     *     <li>{@link Ticket#TO_M1}</li>
+     *     <li>{@link Ticket#TO_M2}</li>
+     *     <li>{@link Ticket#TO_M3}</li>
+     *     <li>{@link Ticket#TO_M4}</li>
+     *     <li>{@link Ticket#TO_M5}</li>
+     *     <li>{@link Ticket#TO_M10}</li>
+     *     <li>{@link Ticket#TO_M20}</li>
+     *     <li>{@link Ticket#TO_M60}</li>
+     *     <li>{@link Ticket#TO_BAGGAGE}</li>
+     *     <li>{@link Ticket#TO_BAGGAGE_AND_PASS}</li>
+     *     <li>{@link Ticket#TO_UL70}</li>
+     *     <li>{@link Ticket#TO_VESB}</li>
+     *     <li>{@link Ticket#TN_90U1}</li>
+     *     <li>{@link Ticket#TN_90U1_G}</li>
+     *     <li>{@link Ticket#TN_90U2}</li>
+     *     <li>{@link Ticket#TN_90U2_G}</li>
+     *     <li>{@link Ticket#TN_90U5}</li>
+     *     <li>{@link Ticket#TN_90U11}</li>
+     *     <li>{@link Ticket#TN_90U20}</li>
+     *     <li>{@link Ticket#TN_90U40}</li>
+     *     <li>{@link Ticket#TN_90U60}</li>
+     *     <li>{@link Ticket#TN_G1}</li>
+     *     <li>{@link Ticket#TN_G2}</li>
+     *     <li>{@link Ticket#TN_G3_DRV}</li>
+     *     <li>{@link Ticket#TN_G5}</li>
+     *     <li>{@link Ticket#TN_G20}</li>
+     *     <li>{@link Ticket#TN_G40}</li>
+     *     <li>{@link Ticket#TN_G60}</li>
+     *     <li>{@link Ticket#TN_GAB1}</li>
+     *     <li>{@link Ticket#TN_GB1_DRV}</li>
+     *     <li>{@link Ticket#TN_GB2}</li>
+     *     <li>{@link Ticket#TN_U1}</li>
+     *     <li>{@link Ticket#TN_U1_DRV}</li>
+     *     <li>{@link Ticket#TN_U2}</li>
+     *     <li>{@link Ticket#TN_U5}</li>
+     *     <li>{@link Ticket#TN_U11}</li>
+     *     <li>{@link Ticket#TN_U20}</li>
+     *     <li>{@link Ticket#TN_U40}</li>
+     *     <li>{@link Ticket#TN_U60}</li>
+     *     <li>{@link Ticket#TN_UL1D}</li>
+     *     <li>{@link Ticket#TN_UL3D}</li>
+     *     <li>{@link Ticket#TN_UL7D}</li>
+     * </ul>
+     */
     private int Type = T_UNKNOWN;
     private int TicketClass = C_UNKNOWN;
     /**
@@ -332,6 +391,11 @@ public class Ticket {
         DumpValid = true;
     }
 
+    /**
+     * Class to store and represent Moscow transportation system ticket.
+     * Dump content filled from NFCaDump
+     * @param dump {@link NFCaDump}
+     */
     public Ticket(NFCaDump dump) {
 
         this();
@@ -344,23 +408,25 @@ public class Ticket {
         for (int i = 0; i < 12; i++) {
             Dump.add(dump.getPageAsInt(i));
         }
+
+        processTicket();
     }
+
     /**
      * Class to store and represent Moscow transportation system ticket
-     * @param dump {@link NFCaDump}
+     * Dump content filled from ArrayList&lt;Integer>
+     * @param dump ArrayList&lt;Integer>
      */
     public Ticket(ArrayList<Integer> dump) {
 
+        this();
 
-//        Dump = new ArrayList<Integer>();
-//        if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
-//            DumpValid = false;
-//            return;
-//        }
-//        for (int i = 0; i < 12; i++){
-//            Dump.add(dump.getPageAsInt(i));
-//        }
         Dump = dump;
+
+        processTicket();
+    }
+
+    private void processTicket() {
 
         OTP = Dump.get(3);
 
@@ -882,6 +948,10 @@ public class Ticket {
      */
 	public int getType() { return Type; }
 
+    /**
+     *
+     * @return {@link Ticket#App}
+     */
     public int getApp() { return App; }
 
     public boolean isTicketFormatValid() { return DumpValid; }

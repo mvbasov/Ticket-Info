@@ -78,8 +78,6 @@ public final class MainActivity extends Activity {
             Log.e(TAG, "get package info error", th);
         }
 		
-// TODO: Do I need get/set date format here?
-        //df = new SimpleDateFormat("dd.MM.yyyy");
         onNewIntent(getIntent());
 // TODO: Check NFC is switched on  
         adapter = NfcAdapter.getDefaultAdapter(this);
@@ -98,8 +96,6 @@ public final class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-// TODO: Do I need get/set date format here?
-        //df = new SimpleDateFormat("dd.MM.yyyy");
         adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
     }
 
@@ -179,6 +175,30 @@ public final class MainActivity extends Activity {
                                 sb.append("- - - -\n");
 
                             } else {
+                                if (FileIO.writeAutoDump(dump)) {
+                                    sb.append("Dump saved\n");
+                                    Toast toast = Toast.makeText(c, "Dump saved.", Toast.LENGTH_LONG);
+                                    toast.show();
+                                    sb.append("\n- - - -\n");
+                                } else {
+                                    try {
+                                        NFCaDump d_tmp = new NFCaDump();
+                                        String storage = MainActivity.getAppContext()
+                                                .getExternalFilesDir(null)
+                                                .getAbsolutePath();
+                                        String fName = storage +
+                                                "/AutoDumps/" +
+                                                NFCaDump.createDumpFileName(dump) +
+                                                ".txt";
+                                        if (FileIO.ReadDump(d_tmp, fName)) {
+                                            sb.append("Existing dump comment:\n");
+                                            sb.append(d_tmp.getRemark());
+                                            sb.append("\n- - - -\n");
+                                        };
+                                    } catch (NullPointerException e) {
+                                        sb.append("Dump exist but not readable\n");
+                                    }
+                                }
                                 sb.append(t.getTicketAsString(c));
                             }
 
@@ -187,13 +207,6 @@ public final class MainActivity extends Activity {
                             sb.append(dump.getIC_InfoAsString());
                             sb.append(dump.getDetectedICTypeAsString());
                             sb.append(dump.getDumpAsDetailedString());
-                            if (FileIO.writeAutoDump(dump)) {
-                                sb.append("\nDump saved\n");
-                                Toast toast = Toast.makeText(c, "Dump saved.", Toast.LENGTH_LONG);
-                                toast.show();
-                            } else {
-                                sb.append("\nDump already exists.\n");
-                            }
                             text.setText(sb.toString());
 
                         } else {
