@@ -73,11 +73,12 @@ public final class MainActivity extends Activity {
         text = (TextView) findViewById(R.id.body);
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            String git_describe = getResources().getString(R.string.git_describe);
-            if (git_describe.equals("-AIDE"))
-                this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName + git_describe);
-            else
+            if (getResources().getIdentifier("git_describe", "string", getPackageName()) == 0)
+                this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName + "-AIDE");
+            else {
+                String git_describe = getResources().getString(R.string.git_describe);
                 this.setTitle(getResources().getString(R.string.app_name) + " " + git_describe);
+            }
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
         }

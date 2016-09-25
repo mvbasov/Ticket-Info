@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="git_describe">-AIDE</string>
   <string name="app_name">Ticket info</string>
   <string name="ticket_is_reading">Ticket reading...</string>
   <string name="ticket_read_error">Unable to read the ticket</string>
