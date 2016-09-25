@@ -73,10 +73,11 @@ public final class MainActivity extends Activity {
         text = (TextView) findViewById(R.id.body);
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            if (getResources().getIdentifier("git_describe", "string", getPackageName()) == 0)
+            int git_describe_id = getResources().getIdentifier("git_describe", "string", getPackageName());
+            if (git_describe_id == 0)
                 this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName + "-AIDE");
             else {
-                String git_describe = getResources().getString(R.string.git_describe);
+                String git_describe = getResources().getString(git_describe_id);
                 this.setTitle(getResources().getString(R.string.app_name) + " " + git_describe);
             }
         } catch (Throwable th) {
