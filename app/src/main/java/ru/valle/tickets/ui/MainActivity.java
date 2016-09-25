@@ -74,8 +74,8 @@ public final class MainActivity extends Activity {
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             String git_describe = getResources().getString(R.string.git_describe);
-            if (git_describe.isEmpty())
-                this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName);
+            if (git_describe.equals("-AIDE"))
+                this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName + git_describe);
             else
                 this.setTitle(getResources().getString(R.string.app_name) + " " + git_describe);
         } catch (Throwable th) {
