@@ -106,7 +106,7 @@ public class TicketTestData {
         TDS.setExpectedPassesLeft(-1);
         TDS.setExpectedLayout(10);
         TDS.setExpectedApp(Ticket.A_UNIVERSAL);
-        TDS.setExpectedType(435);
+        TDS.setExpectedType(Ticket.TN_UL3D);
         Calendar expIssued = Calendar.getInstance();
         expIssued.clear();
         expIssued.set(2016, Calendar.SEPTEMBER, 9, 11, 2, 0);
@@ -146,7 +146,7 @@ public class TicketTestData {
      * Gate 2281 (Metro)<br/>
      * Passes left 0<br/>
      *<br/>
-     * Layout 10, AppId 279, Type 410<br/>
+     * Layout 10, AppId 279, Type 412<br/>
      *
      */
     public static TicketTestDataSet TDS_0xa_U2(){
@@ -164,7 +164,7 @@ public class TicketTestData {
         TDS.setExpectedPassesLeft(0);
         TDS.setExpectedLayout(10);
         TDS.setExpectedApp(Ticket.A_UNIVERSAL);
-        TDS.setExpectedType(412);
+        TDS.setExpectedType(Ticket.TN_U2);
         Calendar expIssued = Calendar.getInstance();
         expIssued.clear();
         expIssued.set(2016, Calendar.SEPTEMBER, 8, 0, 0);
@@ -174,24 +174,6 @@ public class TicketTestData {
         expTripStart.set(2016, Calendar.SEPTEMBER, 8, 11, 17);
         TDS.setExpectedTripStart(expTripStart);
 
-//        ArrayList<String> content = new ArrayList<String>();
-//        content.add("34c06d11");
-//        content.add("4137f776");
-//        content.add("f7e07008");
-//        content.add("fffffffc");
-//        content.add("45d9c96f");
-//        content.add("ced8ea00");
-//        content.add("0fc03840");
-//        content.add("0054a001");
-//        content.add("0008e940");
-//        content.add("00000000");
-//        content.add("b82de5ab");
-//        content.add("0fc03840");
-//        content.add("0054a001");
-//        content.add("0008e940");
-//        content.add("00000000");
-//        content.add("b82de5ab");
-//        TDS.setDumpContent(content);
         ArrayList<Integer> content = new ArrayList<Integer>();
         content.add(0x34c06d11);
         content.add(0x4137f776);
@@ -210,7 +192,7 @@ public class TicketTestData {
         content.add(0x00000000);
         content.add(0xb82de5ab);
         TDS.setDumpContent(content);
-        return TDS;
 
+        return TDS;
     }
 }

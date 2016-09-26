@@ -61,7 +61,6 @@ public final class MainActivity extends Activity {
     private IntentFilter[] filters;
 	private NFCaDump d;
     private String[][] techList;
-    //private DateFormat df;
     private static Context c;
 
     @Override

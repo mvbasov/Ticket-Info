@@ -754,13 +754,6 @@ public class NFCaDump {
 
         if (!isSIGNEmpty()) {
             sb.append("READ_SIG:\n  ");
-			//TODO: It is BIG mistake. Byte order is reverse!
-			//All dumps before 2016-05-15 has reverse byte order !!!
-            //for (int i = 0; i < getSIGN().length; i++) {
-            //    sb.append(String.format("%02x", getSIGN()[i]));
-            //    if ((i + 1) % 16 == 0 && (i + 1) != 32) sb.append("\n  ");
-            //}
-			//sb.append("\nnormal:\n  ");
 			for (int i = getSIGN().length; i > 0; i--) {
                 sb.append(String.format("%02x", getSIGN()[i-1]));
                 if (i == 16 + 1) sb.append("\n  ");

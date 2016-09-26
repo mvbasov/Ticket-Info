@@ -12,6 +12,7 @@ public class TicketTestDataSet {
     String mName;
     String mError;
 
+// TODO: Create common class to store production and test data.
     int expectedValidDays;
     long expectedTicketNumber;
     int expectedType;
@@ -106,7 +107,7 @@ public class TicketTestDataSet {
         return expectedTransportType;
     }
 
-    public void setExpectedTransportType(int expectedTransportType) {
+    public void setExpectedTransportType(@Ticket.PassTransportType int expectedTransportType) {
         switch (expectedTransportType) {
             case Ticket.TT_GROUND:
             case Ticket.TT_METRO:
@@ -130,12 +131,17 @@ public class TicketTestDataSet {
         return expectedClass;
     }
 
-    public void setExpectedClass(int expectedClass) {
+    public void setExpectedClass(@Ticket.TicketClass int expectedClass) {
         switch (expectedClass) {
-            case Ticket.C_90UNIVERSAL:
+            case Ticket.C_UNKNOWN:
+            case Ticket.C_OLD_METRO:
+            case Ticket.C_OLD_SPECIAL:
+            case Ticket.C_GROUND:
+            case Ticket.C_GROUND_B:
+            case Ticket.C_GROUND_AB:
             case Ticket.C_UNIVERSAL:
             case Ticket.C_UNLIM_DAYS:
-// TODO: Need to add all other classes
+            case Ticket.C_90UNIVERSAL:
                 break;
             default:
                 mError += " Vrong class";
@@ -181,7 +187,7 @@ public class TicketTestDataSet {
         return expectedApp;
     }
 
-    public void setExpectedApp(@Ticket.Application int expectedApp) {
+    public void setExpectedApp(@Ticket.TicketApp int expectedApp) {
 // TODO: Add parameter check
         this.expectedApp = expectedApp;
     }
