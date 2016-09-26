@@ -72,6 +72,11 @@ public final class MainActivity extends Activity {
         setContentView(R.layout.main);
         text = (TextView) findViewById(R.id.body);
         try {
+            /**
+             * AIDE has limited support of gradle.
+             * If program compiled by AndroidStudio R.string.git_describe is set by gradle.
+             * If program compiled by AIDE this resource doesn't exist.
+             */
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             int git_describe_id = getResources().getIdentifier("git_describe", "string", getPackageName());
             if (git_describe_id == 0)
