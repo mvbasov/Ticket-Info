@@ -121,6 +121,7 @@ public class Stations {
                 switch (entrance) {
                     case 1: //(0001983509-3d-015)
                         desc += " (первый)";
+                        break;
                     case 2: //(0001983509-3d-014)
                         desc += " (второй)";
                         break;
@@ -413,6 +414,7 @@ public class Stations {
                 switch (entrance) {
                     case 1: //(2580635469-60-02)
                         desc += " (северный)";
+                        break;
                     case 2: //(2580244002-20-18)
                         desc += " (южный)";
                         break;
@@ -452,6 +454,7 @@ public class Stations {
                 switch (entrance) {
                     case 1: //(2580244002-20-17)
                         desc += " (западный)";
+                        break;
                     case 2: //(new-2575358437-01-01)
                         desc += " (восточный)";
                         break;
