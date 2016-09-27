@@ -752,6 +752,10 @@ public class Ticket {
                     sb.append("\n\tW A I T\n");
                 }
             }
+            if (tmpCal.after(getNowCalendar())
+                    && getTripSeqNumber() == 0)
+                sb.append("\n\tN E V E R  U S E D");
+
         }
 
         sb.append("\n- - - -\n");
