@@ -34,7 +34,7 @@ public class TicketTest {
     private Calendar expectedTripStart;
 
     @Parameters(name="{index}: {0}")
-    public static Iterable<? extends Object> data() {
+    public static Iterable<?> data() {
         return TicketTestData.getDataSets();
     }
 
@@ -78,9 +78,9 @@ public class TicketTest {
         if (this.expectedStartUseBefore != null) {
             Assert.assertEquals(
                     "Expected: " +
-                            Ticket.ddf.format(this.expectedStartUseBefore.getTime()) +
+                            Ticket.DDF.format(this.expectedStartUseBefore.getTime()) +
                             " Result: " +
-                            Ticket.ddf.format(this.ticket.getStartUseBefore().getTime()),
+                            Ticket.DDF.format(this.ticket.getStartUseBefore().getTime()),
                     this.expectedStartUseBefore, this.ticket.getStartUseBefore());
         } else {
             Assert.assertEquals(null, this.ticket.getStartUseBefore());
@@ -89,7 +89,7 @@ public class TicketTest {
 
     @Test
     public void testGetType() throws Exception {
-        Assert.assertEquals(this.expectedType, this.ticket.getType());
+        Assert.assertEquals(this.expectedType, this.ticket.getTicketType());
     }
 
     @Test
@@ -131,9 +131,9 @@ public class TicketTest {
     public void testGetIssued() throws Exception {
         Assert.assertEquals(
                 "Expected: " +
-                    Ticket.ddf.format(this.expectedIssued.getTime()) +
+                    Ticket.DDF.format(this.expectedIssued.getTime()) +
                 " Result: " +
-                    Ticket.ddf.format(this.ticket.getIssued().getTime()),
+                    Ticket.DDF.format(this.ticket.getIssued().getTime()),
                 this.expectedIssued, this.ticket.getIssued());
     }
 
@@ -141,9 +141,9 @@ public class TicketTest {
     public void testGetTripStart() throws Exception {
         Assert.assertEquals(
                 "Expected: " +
-                        Ticket.ddf.format(this.expectedTripStart.getTime()) +
+                        Ticket.DDF.format(this.expectedTripStart.getTime()) +
                 " Result: " +
-                        Ticket.ddf.format(this.ticket.getTripStart().getTime()),
+                        Ticket.DDF.format(this.ticket.getTripStart().getTime()),
                 this.expectedTripStart, this.ticket.getTripStart());
     }
 

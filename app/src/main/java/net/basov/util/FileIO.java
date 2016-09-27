@@ -41,7 +41,7 @@ public class FileIO {
     static final String TAG = "tickets";
 
     public static boolean writeAutoDump(NFCaDump dump) {
-        File fileW = null;
+        File fileW;
         boolean rc = false;
 
  		String dumpFileName = NFCaDump.createDumpFileName(dump);
@@ -50,7 +50,7 @@ public class FileIO {
         FileOutputStream outputStream;
         File sdcard = MainActivity.getAppContext().getExternalFilesDir(null);
         String fNamePrefix = "AutoDumps/";
-        String fName = "";
+        String fName;
         try {
             fName = "/" + fNamePrefix + "/" + dumpFileName;
             fileW = new File(sdcard, fName + ".txt");
@@ -77,7 +77,7 @@ public class FileIO {
 				throw new IOException();
 			}
 			
-			String line = "";
+			String line;
 					
 			while ((line = input.readLine()) != null) {
 				file_content.add(line);
@@ -85,7 +85,7 @@ public class FileIO {
 			input.close();
 
 		} catch (IOException e) {
-			System.out.println(e);
+			e.printStackTrace();
 			return false;
         }
 		dump.setReadFrom(NFCaDump.READ_FROM_FILE);

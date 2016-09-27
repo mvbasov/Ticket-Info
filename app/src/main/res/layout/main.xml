@@ -32,10 +32,10 @@ THE SOFTWARE.
 
 	<TextView
 		android:scrollbars="vertical"
-		android:layout_height="fill_parent"
+		android:layout_height="wrap_content"
 		android:layout_width="fill_parent"
 		android:fillViewport="true"
-		android:textSize="14dip"
+		android:textSize="14sp"
 		android:typeface="monospace"
 		android:id="@+id/body"
 		android:textIsSelectable="true"

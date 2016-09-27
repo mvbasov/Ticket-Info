@@ -43,6 +43,16 @@ import ru.valle.tickets.R;
 import ru.valle.tickets.ui.Decode;
 import ru.valle.tickets.ui.Lang;
 
+/**
+ * Class to store and represent Moscow transportation system ticket.
+ * Constructors:
+ * <ul>
+ *   <li>{@link Ticket#Ticket()} doesn't automatically parse dump</li>
+ *   <li>{@link Ticket#Ticket(NFCaDump)} automatically parse provided dump</li>
+ *   <li>{@link Ticket#Ticket(ArrayList)} automatically parse provided dump</li>
+ * </ul>
+ */
+
 public class Ticket {
     // Debug facility
     static final String TAG = "tickets";
@@ -60,9 +70,10 @@ public class Ticket {
         return now;
     }
 
-    public static final DateFormat ddf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    public static final DateFormat DDF = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     // Constants definition
+
     /* Used transport types */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TT_UNKNOWN, TT_GROUND, TT_METRO})
@@ -82,25 +93,73 @@ public class Ticket {
     public static final int A_METRO_LIGHT = 270;
     public static final int A_UNIVERSAL = 279;
 
-    /* Type */
+    /* Ticket mTicketType */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            T_UNKNOWN,
+            TO_M1, TO_M2, TO_M3, TO_M4, TO_M5, TO_M10, TO_M20, TO_M20, TO_M60,
+            TO_BAGGAGE_AND_PASS, TO_BAGGAGE, TO_UL70,
+            TO_VESB,
+            TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_90U20, TN_U40, TN_U60,
+            TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U60,
+            TN_UL1D, TN_UL3D, TN_UL7D,
+            TN_G1, TN_GB1_DRV, TN_G2, TN_G3_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
+            TN_GB1_DRV, TN_GAB1
+
+    })
+    public @interface TicketType {}
     public static final int T_UNKNOWN = 0;
-/* Type old (layout 0x08) */
+/* Old tickets types (layout 0x8) */
+    /**
+     * Old metro ticket for 1 pass
+     */
     public static final int TO_M1 = 120;
+    /**
+     * Old metro ticket for 2 passes
+     */
     public static final int TO_M2 = 121;
+    /**
+     * Old metro ticket for 3 passes
+     */
     public static final int TO_M3 = 122;
+    /**
+     * Old metro ticket for 4 passes
+     */
     public static final int TO_M4 = 123;
+    /**
+     * Old metro ticket for 5 passes
+     */
     public static final int TO_M5 = 126;
+    /**
+     * Old metro ticket for 10 passes
+     */
     public static final int TO_M10 = 127;
+    /**
+     * Old metro ticket for 20 passes
+     */
     public static final int TO_M20 = 128;
+    /**
+     * Old metro ticket for 60 passes
+     */
     public static final int TO_M60 = 129;
+    /**
+     * Old metro ticket for baggage and pass
+     */
     public static final int TO_BAGGAGE_AND_PASS = 130;
+    /**
+     * Old metro ticket for baggage only
+     */
     public static final int TO_BAGGAGE = 131;
+    /**
+     * Old metro ticket for 70 (passes|days)?
+     */
     public static final int TO_UL70 = 149;
     /**
      * Temporary universal social ticket
      */
     public static final int TO_VESB = 150;
-/* Type new (layout 0x0d) */
+
+/* New ticket types (layout 0xd and 0xa) */
 
     public static final int TN_G1 = 601; // 1 passes, ground (0002277252)(0002550204, with paper check)
     public static final int TN_G2 = 602; // 2 passes ground (0001585643, with paper check)
@@ -122,11 +181,11 @@ public class Ticket {
     public static final int TN_U40 = 417; // 40 passes, universal (2516440644, with paper check)
     public static final int TN_U60 = 418; // 60 passes, universal (2478069296, confirmed lly)
     public static final int TN_90U1_G = 421; // 1 pass, 90 minutes, universal, sell on ground (1013862735, with paper check)
-    public static final int TN_90U1 = 437; // 1 passs, 90 minutes, universal, sell in metro (1016236236, with paper check)
+    public static final int TN_90U1 = 437; // 1 pass, 90 minutes, universal, sell in metro (1016236236, with paper check)
     public static final int TN_90U2_G = 438; // 2 passes, 90 minutes, universal, sell on ground (1014908560, with paper check)
     public static final int TN_90U2 = 422; // 2 passes, 90 minutes, universal, sell in metro (1016237832, with paper check)
     public static final int TN_90U5 = 423; // 5 passes, 90 minutes, universal (1016363888, with paper check)
-    public static final int TN_90U11 = 424; // 11 passes, 90 minutes, universal (1016235763, with paper sheck)
+    public static final int TN_90U11 = 424; // 11 passes, 90 minutes, universal (1016235763, with paper check)
     public static final int TN_90U20 = 425; // 20 passes, 90 minutes, universal (1016043594, with paper check)
     public static final int TN_90U40 = 426; // 40 passes, 90 minutes, universal (1016043595, with paper check)
     public static final int TN_90U60 = 427; // 60 passes, 90 minutes, universal (1015907198, confirmed Max)
@@ -175,11 +234,11 @@ public class Ticket {
     /**
      * Universal ticket for ground and underground Moscow transport
      * Limited by trips.
-     * Trip can include one undeground and unlmited amount ground passes during 90 minutes
+     * Trip can include one underground and unlimited amount ground passes during 90 minutes
      */
     public static final int C_90UNIVERSAL = C_UNKNOWN + 8;
 
-    /* Where selll */
+    /* Where sell */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({WS_UNKNOWN, WS_METRO, WS_GROUND, WS_DRIVER})
     public @interface WhereSell {}
@@ -206,19 +265,19 @@ public class Ticket {
      * ArrayList of pages.
      * Each page (4 bytes) represented as Integer
      */
-    private ArrayList<Integer> Dump;
+    private ArrayList<Integer> mDump;
     /**
      * Is dump valid
      */
-    private boolean DumpValid = false;
+    private boolean mDumpValid = false;
     /**
      * Number printed on ticket
      */
-    private long TicketNumber = 0L;
+    private long mTicketNumber = 0L;
     /**
      * Ticket layout
      */
-    private int Layout = 0;
+    private int mLayout = 0;
     /**
      * TicketApp. Possible values:
      * <ul>
@@ -230,9 +289,9 @@ public class Ticket {
      *     <li>{@link Ticket#A_METRO_LIGHT}</li>
      * </ul>
      */
-    private int App = A_UNKNOWN;
+    private int mApp = A_UNKNOWN;
     /**
-     * Type. Possible value:
+     * mTicketType. Possible value:
      * <ul>
      *     <li>{@link Ticket#T_UNKNOWN}</li>
      *     <li>{@link Ticket#TO_M1}</li>
@@ -279,8 +338,8 @@ public class Ticket {
      *     <li>{@link Ticket#TN_UL7D}</li>
      * </ul>
      */
-    private int Type = T_UNKNOWN;
-    private int TicketClass = C_UNKNOWN;
+    private int mTicketType = T_UNKNOWN;
+    private int mTicketClass = C_UNKNOWN;
     /**
      * Where ticket was sell. Possible values:
      * <ul>
@@ -289,65 +348,59 @@ public class Ticket {
      *     <li>{@link Ticket#WS_DRIVER}</li>
      * </ul>
      */
-    private int WhereSell = WS_UNKNOWN;
-    //private int IssuedInt = 0;
-    //private int StartUseBeforeInt = 0;
-    //private int StartUseTimeInt = 0;
+    private int mWhereSell = WS_UNKNOWN;
     /**
-     * Start use date time.
+     * Start use till date time.
      */
-    private Calendar StartUse = null;
+    private Calendar mStartUse = null;
 
     /**
      * Ticket issue date
      */
-    private Calendar Issued = null;
+    private Calendar mIssued = null;
 
     /**
      * Ticket blank "Use before" date
      */
-    private Calendar StartUseBefore = null;
-    //private Calendar StartUseDayTime = Calendar.getInstance();
+    private Calendar mStartUseBefore = null;
     /**
-     * Ticket valid days from the begin of {@link Ticket#Issued}
+     * Ticket valid days from the begin of {@link Ticket#mIssued}
      */
-    private int ValidDays = 0;
+    private int mValidDays = 0;
     /**
      * Number of allowed passes at the begin of ticket use.
-     * Set to -1 for tickets limeted by day of use.
+     * Set to -1 for tickets limited by day of use.
      */
-    private int PassesTotal = 0;
+    private int mPassesTotal = 0;
     /**
      * Passes left
      */
-    private int PassesLeft = 0;
+    private int mPassesLeft = 0;
     /**
      * Pass (or trip for 90 minutes tickets) sequence number
      */
     private int TripSeqNumber = 0;
-    //private int LastUsedDateInt = 0;
-    //private int LastUsedTimeInt = 0;
 
     /**
      * When current trip start
      */
-    private Calendar TripStart = null;
+    private Calendar mTripStart = null;
     /**
      * Time to next pass (in minutes) for day limited tickets
      */
-    private int TimeToNextTrip = 0;
+    private int mTimeToNextTrip = 0;
     /**
      * Last entered gate id.
      * This value valid only for 0x08 and 0x0d layouts.
      * One underground station has several turnstiles (gates) in each entrance
      */
-    private int GateEntered = 0;
+    private int mGateEntered = 0;
 
     /**
      * Last entered station entrance id.
      * One station may have one or several entrance with different id
      */
-    private int EntranceEntered = 0;
+    private int mEntranceEntered = 0;
     /**
      * Transport type. Possible values:
      * <li>
@@ -356,252 +409,254 @@ public class Ticket {
      *     <li>{@link Ticket#TT_GROUND}</li>
      * </li>
      */
-    private int TransportType = TT_UNKNOWN;
+    private int mTransportType = TT_UNKNOWN;
     /**
      * Metro pass counter during current trip.
      * Looks like a flag, because it can only be 0 or 1
      * Valid only for 90 minutes ticket.
      */
-    private int T90MCount = 0;
+    private int mT90MCount = 0;
     /**
      * Ground pass counter during current trip.
      * Counter from 1 to 7, then 1 again.
      * Valid only for 90 minutes ticket only with 0x0d layout.
      */
-    private int T90GCount = 0;
-    //private int T90RelChangeTime = 0;
-    //private int T90ChangeTimeInt = 0;
-    //private int T90TripTimeLeftInt = 0;
+    private int mT90GCount = 0;
     /**
      * Last transport change time during current 90 minutes trip.
      * In minutes from trip start.
      * Valid only for 90 minutes ticket.
      */
-    private int T90RelChangeTime = 0;
+    private int mT90RelChangeTime = 0;
     /**
      * Minutes left to end of 90 minutes trip.
      * Valid only for 90 minutes ticket.
      */
-    private int T90TripTimeLeft = 0;
+    private int mT90TripTimeLeft = 0;
     /**
      * Time of last transport change during 90 minutes trip
      * Valid only for 90 minutes ticket.
      */
-    private Calendar T90ChangeTime = null;
+    private Calendar mT90ChangeTime = null;
     /**
      * One time programming bit counter
      * Used for control number of passes.
      */
-    private int OTP = 0;
+    private int mOTP = 0;
     /**
-     * Hash (crypted checksum) of variable ticket block.
+     * mHash (encrypted checksum) of variable ticket block.
      */
-    private int Hash = 0;
+    private int mHash = 0;
 
-    private final static DateFormat df = new SimpleDateFormat("dd.MM.yyyy");;
-    private final static DateFormat tf = new SimpleDateFormat("HH:mm");;
-    private final static DateFormat dtf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    private final static DateFormat DF = new SimpleDateFormat("dd.MM.yyyy");
+    private final static DateFormat TF = new SimpleDateFormat("HH:mm");
+    private final static DateFormat DTF = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
-    public Ticket() {
-        Dump = new ArrayList<Integer>();
-        DumpValid = true;
-    }
-// TODO: add constructor to ArrayList<String>
     /**
-     * Class to store and represent Moscow transportation system ticket.
-     * Dump content filled from NFCaDump
+     * Only create object.
+     * Fields doesn't automatically filed.
+     */
+    public Ticket() {
+        mDump = new ArrayList<Integer>();
+        setDumpIsValid(true);
+    }
+
+    /**
+     * mDump content filled from NFCaDump
+     * Other fields automatically filled.
      * @param dump {@link NFCaDump}
      */
     public Ticket(NFCaDump dump) {
-
         this();
 
-        if (dump.getPagesNumber() - 4 + dump.getLastBlockValidPages() < 12) {
-            DumpValid = false;
-            return;
-        }
+        ArrayList<Integer> tmpDump = new ArrayList<Integer>();
+
         for (int i = 0; i < 12; i++) {
-            Dump.add(dump.getPageAsInt(i));
+            tmpDump.add(dump.getPageAsInt(i));
         }
+
+        setDump(tmpDump);
 
         processTicket();
     }
 
     /**
-     * Class to store and represent Moscow transportation system ticket
-     * Dump content filled from ArrayList&lt;Integer>
+     * mDump content filled from ArrayList&lt;Integer>
+     * Other fields automatically filled.
      * @param dump ArrayList&lt;Integer>
      */
     public Ticket(ArrayList<Integer> dump) {
 
         this();
 
-        Dump = dump;
+        setDump(dump);
 
         processTicket();
     }
 
+    /**
+     * Process mDump field and generate other fields content
+     */
     private void processTicket() {
 
-        OTP = Dump.get(3);
+        mOTP = mDump.get(3);
 
-        TicketNumber = (((Dump.get(4) & 0xfff) << 20) | (Dump.get(5) >>> 12)) & 0xffffffffL;
+        mTicketNumber = (((mDump.get(4) & 0xfff) << 20) | (mDump.get(5) >>> 12)) & 0xffffffffL;
 
-        Layout = ((Dump.get(5) >>> 8) & 0xf);
+        mLayout = ((mDump.get(5) >>> 8) & 0xf);
 
-        App = Dump.get(4) >>> 22;
+        mApp = mDump.get(4) >>> 22;
 
-        Type = (Dump.get(4) >>> 12) & 0x3ff;
+        mTicketType = (mDump.get(4) >>> 12) & 0x3ff;
 
         getTypeRelatedInfo();
 
         /**
          * Temporary variable to extract values from dump pages
          */
-        int tmp = 0;
+        int tmp;
 
-        switch (Layout) {
+        switch (mLayout) {
             case 0x08:
             case 0x0d:
-                ValidDays = (Dump.get(8) >>> 8) & 0xff;
-                PassesLeft = (Dump.get(9) >>> 16) & 0xff;
-                tmp = (Dump.get(8) >>> 16) & 0xffff;
+                mValidDays = (mDump.get(8) >>> 8) & 0xff;
+                mPassesLeft = (mDump.get(9) >>> 16) & 0xff;
+                tmp = (mDump.get(8) >>> 16) & 0xffff;
                 if ( tmp != 0) {
-                    Issued = Calendar.getInstance();
-                    Issued.clear();
-                    Issued.set(1991, Calendar.DECEMBER, 31);
-                    Issued.add(Calendar.DATE, tmp);
+                    mIssued = Calendar.getInstance();
+                    mIssued.clear();
+                    mIssued.set(1991, Calendar.DECEMBER, 31);
+                    mIssued.add(Calendar.DATE, tmp);
                 }
-                tmp = (Dump.get(6) >>> 16) & 0xffff;
+                tmp = (mDump.get(6) >>> 16) & 0xffff;
                 if (tmp != 0) {
-                    StartUseBefore = Calendar.getInstance();
-                    StartUseBefore.clear();
-                    StartUseBefore.set(1991, Calendar.DECEMBER, 31);
-                    StartUseBefore.add(Calendar.DATE, tmp);
+                    mStartUseBefore = Calendar.getInstance();
+                    mStartUseBefore.clear();
+                    mStartUseBefore.set(1991, Calendar.DECEMBER, 31);
+                    mStartUseBefore.add(Calendar.DATE, tmp);
                 }
-                tmp = (Dump.get(6) & 0xfff0) >>> 5;
+                tmp = (mDump.get(6) & 0xfff0) >>> 5;
                 if (tmp != 0 ) {
-                    StartUse = Calendar.getInstance();
-                    StartUse.clear();
-                    StartUse.set(1991, Calendar.DECEMBER, 31);
-                    StartUse.add(Calendar.MINUTE, tmp);
+                    mStartUse = Calendar.getInstance();
+                    mStartUse.clear();
+                    mStartUse.set(1991, Calendar.DECEMBER, 31);
+                    mStartUse.add(Calendar.MINUTE, tmp);
                 }
 
-                GateEntered = Dump.get(9) & 0xffff;
-                tmp = (Dump.get(11) >>> 16) & 0xffff;
+                mGateEntered = mDump.get(9) & 0xffff;
+                tmp = (mDump.get(11) >>> 16) & 0xffff;
                 if (tmp != 0) {
-                    TripStart = Calendar.getInstance();
-                    TripStart.clear();
-                    TripStart.set(1991, Calendar.DECEMBER, 31);
-                    TripStart.add(Calendar.DAY_OF_MONTH, tmp);
-                    TripStart.add(Calendar.MINUTE, (Dump.get(11) & 0xfff0) >>> 5);
-                    TransportType = (Dump.get(9) & 0xc0000000) >>> 30;
+                    mTripStart = Calendar.getInstance();
+                    mTripStart.clear();
+                    mTripStart.set(1991, Calendar.DECEMBER, 31);
+                    mTripStart.add(Calendar.DAY_OF_MONTH, tmp);
+                    mTripStart.add(Calendar.MINUTE, (mDump.get(11) & 0xfff0) >>> 5);
+                    mTransportType = (mDump.get(9) & 0xc0000000) >>> 30;
                 }
-                if (TicketClass == C_90UNIVERSAL) {
-                    if ((Dump.get(8) & 0xff) != 0 && (Dump.get(8) & 0xff) != 0x80) {
-                        T90RelChangeTime = (Dump.get(8) & 0xff) * 5;
-                        T90ChangeTime = (Calendar) TripStart.clone();
-                        T90ChangeTime.add(Calendar.MINUTE, T90RelChangeTime);
+                if (mTicketClass == C_90UNIVERSAL) {
+                    if ((mDump.get(8) & 0xff) != 0 && (mDump.get(8) & 0xff) != 0x80) {
+                        mT90RelChangeTime = (mDump.get(8) & 0xff) * 5;
+                        mT90ChangeTime = (Calendar) mTripStart.clone();
+                        mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
                     }
 
-                    T90MCount = (Dump.get(9) & 0x20000000) >>> 29;
-                    T90GCount = (Dump.get(9) & 0x1c000000) >>> 26;
-                    T90TripTimeLeft = 0;
-                    if (T90MCount != 0 || T90GCount != 0) {
-                        if (getNowCalendar().after(TripStart)){
-                            T90TripTimeLeft = (int)( 90 -
+                    mT90MCount = (mDump.get(9) & 0x20000000) >>> 29;
+                    mT90GCount = (mDump.get(9) & 0x1c000000) >>> 26;
+                    mT90TripTimeLeft = 0;
+                    if (mT90MCount != 0 || mT90GCount != 0) {
+                        if (getNowCalendar().after(mTripStart)){
+                            mT90TripTimeLeft = (int)( 90 -
                                     ((getNowCalendar().getTimeInMillis()
-                                            - TripStart.getTimeInMillis())
+                                            - mTripStart.getTimeInMillis())
                                     /(1000L * 60)));
                         }
-                        if (T90TripTimeLeft < 0) T90TripTimeLeft = 0;
+                        if (mT90TripTimeLeft < 0) mT90TripTimeLeft = 0;
                     }
                 }
 
                 break;
             case 0x0a:
-                ValidDays = ((Dump.get(6) >>> 1) & 0x7ffff) / (24 * 60);
-                PassesLeft = (Dump.get(8) >>> 24) & 0xff;
-                Issued = Calendar.getInstance();
-                Issued.clear();
-                Issued.set(2015, Calendar.DECEMBER, 31);
-                Issued.add(Calendar.DAY_OF_MONTH, (Dump.get(6) >>> 20) & 0xfff);
-                Issued.add(Calendar.MINUTE,((Dump.get(6) >>> 1) & 0x7ffff) % (24 * 60));
-                EntranceEntered = (Dump.get(8) >>> 8) & 0xffff;
+                mValidDays = ((mDump.get(6) >>> 1) & 0x7ffff) / (24 * 60);
+                mPassesLeft = (mDump.get(8) >>> 24) & 0xff;
+                mIssued = Calendar.getInstance();
+                mIssued.clear();
+                mIssued.set(2015, Calendar.DECEMBER, 31);
+                mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) >>> 20) & 0xfff);
+                mIssued.add(Calendar.MINUTE,((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60));
+                mEntranceEntered = (mDump.get(8) >>> 8) & 0xffff;
 
-                // Base date (Issued) used with zerro time. Set it.
-                TripStart = getBaseDate((Calendar) Issued.clone());
-                TripStart.add(Calendar.MINUTE, (Dump.get(7) >>> 13) & 0x7ffff);
-                TransportType = Dump.get(7) & 0x3;
-                if (TicketClass == C_90UNIVERSAL) {
-                    T90MCount = (Dump.get(8) >>> 6) & 0x01;
-                    T90RelChangeTime = (Dump.get(7) >>> 2) & 0x3ff;
-                    T90ChangeTime = (Calendar) TripStart.clone();
-                    T90ChangeTime.add(Calendar.MINUTE, T90RelChangeTime);
+                // Base date (mIssued) used with zero time. Set it.
+                mTripStart = getBaseDate((Calendar) mIssued.clone());
+                mTripStart.add(Calendar.MINUTE, (mDump.get(7) >>> 13) & 0x7ffff);
+                mTransportType = mDump.get(7) & 0x3;
+                if (mTicketClass == C_90UNIVERSAL) {
+                    mT90MCount = (mDump.get(8) >>> 6) & 0x01;
+                    mT90RelChangeTime = (mDump.get(7) >>> 2) & 0x3ff;
+                    mT90ChangeTime = (Calendar) mTripStart.clone();
+                    mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
 
-                    if (getNowCalendar().after(TripStart)){
-                        T90TripTimeLeft = (int)( 90 -
+                    if (getNowCalendar().after(mTripStart)){
+                        mT90TripTimeLeft = (int)( 90 -
                                 ((getNowCalendar().getTimeInMillis()
-                                        - TripStart.getTimeInMillis())
+                                        - mTripStart.getTimeInMillis())
                                         /(1000L * 60)));
                     }
-                    if (T90TripTimeLeft < 0) T90TripTimeLeft = 0;
+                    if (mT90TripTimeLeft < 0) mT90TripTimeLeft = 0;
                 }
 
 // TODO: Check. Is it right place to to make day limited tickets time correct.
 // TODO: May be better way to do this at display time
-                if (getTicketClass() == C_UNLIM_DAYS) Issued.add(Calendar.MINUTE, -1);
+                if (getTicketClass() == C_UNLIM_DAYS) mIssued.add(Calendar.MINUTE, -1);
 
                 break;
         }
 
-        if ((Layout != 0x08 && Layout != 0x0d && Layout != 0x0a) ||
-                App == A_UNKNOWN ||
-                Type == T_UNKNOWN ||
-                PassesTotal == 0 ||
-                PassesTotal < -1 ||
-                PassesTotal > 70 ||
+        if ((mLayout != 0x08 && mLayout != 0x0d && mLayout != 0x0a) ||
+                mApp == A_UNKNOWN ||
+                mTicketType == T_UNKNOWN ||
+                mPassesTotal == 0 ||
+                mPassesTotal < -1 ||
+                mPassesTotal > 70 ||
                 getPassesLeft() < -1
                 ) {
-            DumpValid = false;
+            mDumpValid = false;
         }
 
-        TripSeqNumber = PassesTotal - getPassesLeft();
+        TripSeqNumber = mPassesTotal - getPassesLeft();
 
-        if (TicketClass == C_UNLIM_DAYS){
+        if (mTicketClass == C_UNLIM_DAYS){
             TripSeqNumber = getPassesLeft();
-            PassesLeft = -1;
-            Calendar NextTrip = (Calendar) TripStart.clone();
+            mPassesLeft = -1;
+            Calendar NextTrip = (Calendar) mTripStart.clone();
             NextTrip.add(Calendar.MINUTE, 21);
             long NextTripInSeconds = NextTrip.getTimeInMillis() / 1000L;
             long NowInSeconds = getNowCalendar().getTimeInMillis() / 1000L;
             if (NextTripInSeconds > NowInSeconds ) {
-                TimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
+                mTimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
             } else {
-                TimeToNextTrip = 0;
+                mTimeToNextTrip = 0;
             }
         }
 
-		if (Type == TO_VESB) {
-			TripSeqNumber = (Dump.get(9) >>> 16) & 0xfff;
-			PassesLeft = -1;
+		if (mTicketType == TO_VESB) {
+			TripSeqNumber = (mDump.get(9) >>> 16) & 0xfff;
+			mPassesLeft = -1;
 		}
 
-        Hash = Dump.get(10);
+        mHash = mDump.get(10);
 
     }
 
-    /**
-     * Get Calendar object which set to start of the day.
-     * @param cal calendar object
-     * @return calendar object
-     */
-    public Calendar getBaseDate(Calendar cal) {
-        cal.set(Calendar.MILLISECOND, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MINUTE,0);
-        cal.set(Calendar.HOUR, 0);
-        return cal;
+    public void setDump(ArrayList<Integer> dump) {
+        if ( dump.size() < 12 ) {
+            setDumpIsValid(false);
+            return;
+        }
+        this.mDump = dump;
+    }
+
+    public void setDumpIsValid(boolean isValid) {
+        this.mDumpValid = isValid;
     }
 
     /**
@@ -614,23 +669,22 @@ public class Ticket {
         Calendar tmpCal = null;
 
         if (DEBUG_TIME)
-            sb.append(String.format("! ! ! App time set to %s\n\n",
-                    ddf.format(getNowCalendar().getTime())));
+            sb.append(String.format("! ! ! mApp time set to %s\n\n",
+                    DDF.format(getNowCalendar().getTime())));
 
-        if (!DumpValid) {
+        if (!mDumpValid) {
 // TODO: Translate message
-            sb.append("! ! ! Dump not valid or ticket type unknown\n\n");
+            sb.append("! ! ! mDump not valid or ticket type unknown\n\n");
         }
 
-        //sb.append(Decode.getAppIdDesc(c, App)).append('\n');
-        sb.append(Decode.descCardType(c, Type)).append('\n');
+        sb.append(Decode.descCardType(c, mTicketType)).append('\n');
         sb.append("\n- - - -\n");
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
         sb.append(String.format("%010d", getTicketNumber()));
-        if (StartUseBefore != null) {
+        if (mStartUseBefore != null) {
             sb.append(" (till ");
-            sb.append(this.df.format(StartUseBefore.getTime()));
+            sb.append(DF.format(mStartUseBefore.getTime()));
             sb.append(")");
         }
         sb.append("\n");
@@ -639,63 +693,62 @@ public class Ticket {
             sb.append(getValidDays());
             sb.append('\n');
         }
-        if (Issued != null) {
+        if (mIssued != null) {
             sb.append("  from ");
-            tmpCal = (Calendar)Issued.clone();
+            tmpCal = (Calendar) mIssued.clone();
             if (getTicketClass() == C_UNLIM_DAYS){
                 tmpCal.add(Calendar.DATE, getValidDays());
                 sb.append(String.format(" %s\n    to  %s",
-                        this.dtf.format(Issued.getTime()),
-                        this.dtf.format(tmpCal.getTime()))
+                        DTF.format(mIssued.getTime()),
+                        DTF.format(tmpCal.getTime()))
                 );
             } else {
                 tmpCal.add(Calendar.DATE, getValidDays() - 1);
                 sb.append(String.format(" %s to %s",
-                        this.df.format(Issued.getTime()),
-                        this.df.format(tmpCal.getTime()))
+                        DF.format(mIssued.getTime()),
+                        DF.format(tmpCal.getTime()))
                 );
             }
-        } else if (StartUseBefore != null) {
+        } else if (mStartUseBefore != null) {
             sb.append(c.getString(R.string.start_use_before)).append(": ");
             sb.append(String.format("%s",
-                    this.df.format(StartUseBefore.getTime()))
+                    DF.format(mStartUseBefore.getTime()))
             );
         }
-
 
         sb.append('\n');
 
 // TODO: Translate messages
         if (getPassesLeft() == 0) {
             sb.append("\n\tE M P T Y\n");
-        } else if (Issued == null ) {
-            if (StartUseBefore.before(getNowCalendar())) {
+        } else if (mIssued == null ) {
+            if (mStartUseBefore.before(getNowCalendar())) {
                 sb.append("\n\tE X P I R E D\n");
             }
         } else {
-            tmpCal = (Calendar)Issued.clone();
-            tmpCal.add(Calendar.DATE, ValidDays);
+            tmpCal = (Calendar) mIssued.clone();
+            tmpCal.add(Calendar.DATE, mValidDays);
             if (tmpCal.before(getNowCalendar()) &&
-                    TicketClass != C_UNLIM_DAYS) {
+                    mTicketClass != C_UNLIM_DAYS) {
                 sb.append("\n\tE X P I R E D\n");
             }
         }
 
-        if (TicketClass == C_UNLIM_DAYS) {
-            tmpCal = (Calendar)Issued.clone();
+        if (mTicketClass == C_UNLIM_DAYS) {
+            tmpCal = (Calendar) mIssued.clone();
             tmpCal.add(Calendar.HOUR, 24 * getValidDays());
 
             if (DEBUG_TIME)
-                Log.d(TAG, String.format("Compare: %s\n", ddf.format(tmpCal.getTime())));
+                Log.d(TAG, String.format("Compare: %s\n", DDF.format(tmpCal.getTime())));
 
-            if (Issued == null ) {
-                if (StartUseBefore.after(tmpCal)) {
+            if (mIssued == null ) {
+                if (mStartUseBefore.after(tmpCal)) {
                     sb.append("\n\tE X P I R E D\n");
                 }
             } else {
                 if (tmpCal.compareTo(getNowCalendar()) < 0) {
                     sb.append("\n\tE X P I R E D\n");
-                } else if (TimeToNextTrip > 0) {
+                } else if (mTimeToNextTrip > 0) {
                     sb.append("\n\tW A I T\n");
                 }
             }
@@ -708,7 +761,7 @@ public class Ticket {
             sb.append(getPassesLeft()).append("\n\n");
         }
         
-        switch (Layout) {
+        switch (mLayout) {
             case 8:
                 if ( getGateEntered() != 0) {
 					sb.append(c.getString(R.string.last_trip));
@@ -722,7 +775,7 @@ public class Ticket {
                     sb.append(getGateDesc(c, getGateEntered())).append('\n');
                 }
                 sb.append("\n- - - -\n");
-                sb.append("Layuot 8 (0x8).").append('\n');
+                sb.append("Layout 8 (0x8).").append('\n');
                 break;
             case 13:
                 if (getGateEntered() != 0) {
@@ -733,44 +786,44 @@ public class Ticket {
                         sb.append(getTripSeqNumber());
                     }
                     sb.append(": ");
-                    sb.append(this.df.format(TripStart.getTime())).append(" ");
+                    sb.append(DF.format(mTripStart.getTime())).append(" ");
                     sb.append(c.getString(R.string.at)).append(" ");
-                    sb.append(this.tf.format(TripStart.getTime()));
+                    sb.append(TF.format(mTripStart.getTime()));
                     sb.append(",\n  ");
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
                     sb.append(getGateDesc(c, getGateEntered()));
                     sb.append('\n');
 
 // TODO: Translate messages
-                    if (TicketClass == C_90UNIVERSAL) {
+                    if (mTicketClass == C_90UNIVERSAL) {
                        sb.append("90 minutes trip details:\n");
-                       if (T90TripTimeLeft > 0) {
+                       if (mT90TripTimeLeft > 0) {
                             sb.append("  Time left: ");
-                            sb.append(getReadableTime(T90TripTimeLeft)).append('\n');
+                            sb.append(getReadableTime(mT90TripTimeLeft)).append('\n');
                         } else {
                             sb.append("  Trip time ended\n");
                         }
                         sb.append("  Metro  count: ");
-                        sb.append(T90MCount);
-                        if (T90MCount > 0) {
+                        sb.append(mT90MCount);
+                        if (mT90MCount > 0) {
                             sb.append(" (no more allowed)");
                         }
                         sb.append('\n');
                         sb.append("  Ground count: ");
-                        sb.append(T90GCount).append('\n');
+                        sb.append(mT90GCount).append('\n');
                         sb.append("  Change  time: ");
-                        sb.append(this.tf.format(T90ChangeTime.getTime())).append('\n');
+                        sb.append(TF.format(mT90ChangeTime.getTime())).append('\n');
                     }
                     
-                    if (TicketClass == Ticket.C_UNLIM_DAYS &&
-                            TimeToNextTrip > 0) {
-                        sb.append(String.format("  %d minutes to next trip", TimeToNextTrip));
+                    if (mTicketClass == Ticket.C_UNLIM_DAYS &&
+                            mTimeToNextTrip > 0) {
+                        sb.append(String.format("  %d minutes to next trip", mTimeToNextTrip));
                         sb.append('\n');
                     }
 
                 }
                 sb.append("\n- - - -\n");
-                sb.append("Layuot 13 (0xd).").append('\n');
+                sb.append("Layout 13 (0xd).").append('\n');
                 break;
             case 10:
                 if (getEntranceEntered() != 0) {
@@ -780,24 +833,24 @@ public class Ticket {
                         sb.append(getTripSeqNumber());
                     }
                     sb.append(": ");
-                    sb.append(this.df.format(TripStart.getTime())).append(" ");
+                    sb.append(DF.format(mTripStart.getTime())).append(" ");
                     sb.append(c.getString(R.string.at)).append(" ");
-                    sb.append(this.tf.format(TripStart.getTime()));
+                    sb.append(TF.format(mTripStart.getTime()));
                     sb.append(",\n  ");
                     sb.append(getStationDesc(c, getEntranceEntered()));
                     sb.append('\n');
 
-                    if (TicketClass == C_90UNIVERSAL) {
+                    if (mTicketClass == C_90UNIVERSAL) {
                         sb.append("90 minutes trip details:\n");
-                        if (T90TripTimeLeft > 0) {
+                        if (mT90TripTimeLeft > 0) {
                             sb.append("  Time left: ");
-                            sb.append(getReadableTime(T90TripTimeLeft)).append('\n');
+                            sb.append(getReadableTime(mT90TripTimeLeft)).append('\n');
                         } else {
                             sb.append("  Trip time ended\n");
                         }
                         sb.append("  Metro trip");
-                        sb.append(T90MCount);
-                        if (T90MCount > 0) {
+                        sb.append(mT90MCount);
+                        if (mT90MCount > 0) {
                             sb.append(" is already done");
                         } else {
                             sb.append(" available");
@@ -805,28 +858,28 @@ public class Ticket {
 
                         sb.append('\n');
                         sb.append("  Change  time: ");
-                        sb.append(this.tf.format(T90ChangeTime.getTime()));
-						sb.append(String.format(" (%02d min)", T90RelChangeTime));
+                        sb.append(TF.format(mT90ChangeTime.getTime()));
+						sb.append(String.format(" (%02d min)", mT90RelChangeTime));
 						sb.append('\n');
                     }
 
-                    if (TicketClass == Ticket.C_UNLIM_DAYS &&
-                            TimeToNextTrip > 0) {
-                        sb.append(String.format("  %d minutes to next trip", TimeToNextTrip));
+                    if (mTicketClass == Ticket.C_UNLIM_DAYS &&
+                            mTimeToNextTrip > 0) {
+                        sb.append(String.format("  %d minutes to next trip", mTimeToNextTrip));
                         sb.append('\n');
                     }
                 }
                 sb.append("\n- - - -\n");
-                sb.append("Layuot 10 (0xa).").append('\n');
+                sb.append("Layout 10 (0xa).").append('\n');
                 break;
             default:
                 sb.append(c.getString(R.string.unknown_layout)).append(": ");
-                sb.append(Layout).append('\n');
+                sb.append(mLayout).append('\n');
                 break;
         }
 
-        sb.append(String.format("App ID: %d (0x%03x), ", App, App));
-        sb.append(String.format("Type: %d (0x%03x)\n", Type, Type));
+        sb.append(String.format("mApp ID: %d (0x%03x), ", mApp, mApp));
+        sb.append(String.format("mTicketType: %d (0x%03x)\n", mTicketType, mTicketType));
 
         sb.append(c.getString(R.string.ticket_hash)).append(": ");
         sb.append(getHashAsHexString()).append('\n');
@@ -837,45 +890,43 @@ public class Ticket {
     }
 
     /**
-     *
-     * @return {@link Ticket#TransportType}
+     * @return {@link Ticket#mTransportType}
      */
-	public int getType() { return Type; }
+	public int getTicketType() { return mTicketType; }
 
     /**
-     *
-     * @return {@link Ticket#App}
+     * @return {@link Ticket#mApp}
      */
-    public int getApp() { return App; }
+    public int getApp() { return mApp; }
 
-    public boolean isTicketFormatValid() { return DumpValid; }
+    public boolean isTicketFormatValid() { return mDumpValid; }
 
-    public long getTicketNumber() { return TicketNumber; }
+    public long getTicketNumber() { return mTicketNumber; }
 
     /**
      * Ticket blank must be start used before this date.
      * Usually printed at the right of ticket number
-     * @return {@link Ticket#StartUseBefore} calendar object
+     * @return {@link Ticket#mStartUseBefore} calendar object
      */
     public Calendar getStartUseBefore() {
-        return StartUseBefore;
+        return mStartUseBefore;
     }
 
     /**
      * Date when ticket was issued.
      * For day limited tickets also has time.
-     * @return {@link Ticket#Issued} calendar object represent issue date/time
+     * @return {@link Ticket#mIssued} calendar object represent issue date/time
      */
     public Calendar getIssued() {
-        return Issued;
+        return mIssued;
     }
 
     /**
      * When current trip start
-     * @return {@link Ticket#TripStart}
+     * @return {@link Ticket#mTripStart}
      */
     public Calendar getTripStart() {
-        return TripStart;
+        return mTripStart;
     }
 
 
@@ -883,65 +934,65 @@ public class Ticket {
 
     /**
      * This trip current entered gate
-     * @return {@link Ticket#GateEntered} gate id
+     * @return {@link Ticket#mGateEntered} gate id
      */
     public int getGateEntered() {
-        return GateEntered;
+        return mGateEntered;
     }
 
     /**
      * This trip current Station entrance id or Ground transport validator id
-     * @return {@link Ticket#EntranceEntered} entrance id
+     * @return {@link Ticket#mEntranceEntered} entrance id
      */
     public int getEntranceEntered() {
-        return EntranceEntered;
+        return mEntranceEntered;
     }
 
     /**
      * Get transport type. Possible values:
      *
-     * @return {@link Ticket#TransportType} transport type
+     * @return {@link Ticket#mTransportType} transport type
      */
     public int getTransportType() {
-        return TransportType;
+        return mTransportType;
     }
 
-    public int getTicketClass() { return TicketClass; }
+    public int getTicketClass() { return mTicketClass; }
 	
-	public int getLayout() { return Layout; }
+	public int getLayout() { return mLayout; }
 
     /**
-     * How manu passes this ticket issued for.
+     * How many passes this ticket issued for.
       * @return Amount of passes on the ticket
      */
     public int getPassesTotal() {
-        if (PassesTotal == 0) getTypeRelatedInfo();
-        return PassesTotal;
+        if (mPassesTotal == 0) getTypeRelatedInfo();
+        return mPassesTotal;
     }
 
     /**
      *
      * @return how many passes left
      */
-    public int getPassesLeft() { return PassesLeft; }
+    public int getPassesLeft() { return mPassesLeft; }
 
     /**
      *
      * @return Last change time in minutes related to trip start
      */
-    public int getRelTransportChangeTimeMinutes() { return T90RelChangeTime; }
+    public int getRelTransportChangeTimeMinutes() { return mT90RelChangeTime; }
 
     /**
      *
      * @return for 90 minutes ticket type return amount of transport changes during current trip
      */
-    public int getT90ChangeCount() { return T90GCount + T90MCount; }
+    public int getT90ChangeCount() { return mT90GCount + mT90MCount; }
 
     /**
      *
      * @return How many days ticket valid from issue date
      */
-    public int getValidDays() { return ValidDays; }
+    public int getValidDays() { return mValidDays; }
 
 /* Internal functions */
 
@@ -950,15 +1001,15 @@ public class Ticket {
      * @return One Time Programming bitwise field as string
      */
     private String getOTPasBinaryString() {
-        return Integer.toBinaryString(OTP);
+        return Integer.toBinaryString(mOTP);
     }
 
     /**
      *
-     * @return get hash (crypted checksum) as hex string
+     * @return get hash (encrypted checksum) as hex string
      */
     private String getHashAsHexString() {
-        return Integer.toHexString(Hash);
+        return Integer.toHexString(mHash);
     }
 
     /**
@@ -969,7 +1020,7 @@ public class Ticket {
      */
     private String getGateDesc(Context c, int id) {
         String trType ="";
-        switch (TransportType) {
+        switch (this.mTransportType) {
             case TT_METRO:
                 trType +=c.getString(R.string.tt_metro);
                 break;
@@ -983,7 +1034,7 @@ public class Ticket {
                 trType += "!!! Internal error !!!";
                 break;
         }
-        String SN = Lang.tarnliterate(Turnstiles.getStationByTurnstile(id));
+        String SN = Lang.transliterate(Turnstiles.getStationByTurnstile(id));
         String gateNumType = "№" + id + " (" + trType + ")";
         if (SN.length() != 0) {
             return gateNumType + '\n' +
@@ -1003,7 +1054,7 @@ public class Ticket {
     private String getStationDesc(Context c, int id) {
         StringBuilder sb = new StringBuilder();
         String TransportType ="";
-        switch (this.TransportType) {
+        switch (this.mTransportType) {
             case TT_METRO:
                 TransportType +=c.getString(R.string.tt_metro);
                 break;
@@ -1018,10 +1069,14 @@ public class Ticket {
                 break;
         }
         
-        String StationName = Lang.tarnliterate(Stations.getStationByStationId(id));
+        String StationName = Lang.transliterate(Stations.getStationByStationId(id));
 
         if (StationName.length() != 0) {
-            sb.append("  " + c.getString(R.string.station) + " " + StationName + '\n');
+            sb.append("  ");
+            sb.append(c.getString(R.string.station));
+            sb.append(" ");
+            sb.append(StationName);
+            sb.append('\n');
         }
         
         sb.append(String.format("    id: %1$d [0x%1$04x] (%2$s)", id, TransportType));
@@ -1033,225 +1088,225 @@ public class Ticket {
     /**
      * Set ticket type related class data:
      * <ul>
-     *      <li>{@link Ticket#TicketClass}</li>
-     *      <li>{@link Ticket#PassesTotal}</li>
-     *      <li>{@link Ticket#WhereSell} (for several types)</li>
-     *      <li>{@link Ticket#ValidDays} (for day limited tickets)</li>
+     *      <li>{@link Ticket#mTicketClass}</li>
+     *      <li>{@link Ticket#mPassesTotal}</li>
+     *      <li>{@link Ticket#mWhereSell} (for several types)</li>
+     *      <li>{@link Ticket#mValidDays} (for day limited tickets)</li>
      * </ul>
      */
     private void getTypeRelatedInfo() {
-        switch (Type) {
+        switch (this.mTicketType) {
             case TO_M1:
-                PassesTotal = 1;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 1;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M2:
-                PassesTotal = 2;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 2;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M3:
-                PassesTotal = 3;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 3;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M4:
-                PassesTotal = 4;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 4;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M5:
-                PassesTotal = 5;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 5;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M10:
-                PassesTotal = 10;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 10;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M20:
-                PassesTotal = 20;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 20;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_M60:
-                PassesTotal = 60;
-                TicketClass = C_OLD_METRO;
+                mPassesTotal = 60;
+                mTicketClass = C_OLD_METRO;
                 break;
             case TO_BAGGAGE_AND_PASS:
-                PassesTotal = 1;
-                TicketClass = C_OLD_SPECIAL;
+                mPassesTotal = 1;
+                mTicketClass = C_OLD_SPECIAL;
                 break;
             case TO_BAGGAGE:
-                PassesTotal = 1;
-                TicketClass = C_OLD_SPECIAL;
+                mPassesTotal = 1;
+                mTicketClass = C_OLD_SPECIAL;
                 break;
             case TO_UL70:
-                PassesTotal = -1;
-                TicketClass = C_OLD_SPECIAL;
+                mPassesTotal = -1;
+                mTicketClass = C_OLD_SPECIAL;
                 break;
             case TO_VESB:
-                PassesTotal = -1;
-                TicketClass = C_OLD_SPECIAL;
+                mPassesTotal = -1;
+                mTicketClass = C_OLD_SPECIAL;
                 break;
             
             case TN_G1:
-                PassesTotal = 1;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 1;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_G2:
-                PassesTotal = 2;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;            
+                mPassesTotal = 2;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_G3_DRV:
-                PassesTotal = 3;
-                TicketClass = C_GROUND;
-                WhereSell = WS_DRIVER;
+                mPassesTotal = 3;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_DRIVER;
                 break;
             case TN_G5:
-                PassesTotal = 5;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 5;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_G11:
-                PassesTotal = 11;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 11;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_G20:
-                PassesTotal = 20;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 20;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_G40:
-                PassesTotal = 40;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 40;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_G60:
-                PassesTotal = 60;
-                TicketClass = C_GROUND;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 60;
+                mTicketClass = C_GROUND;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_GB1_DRV:
-                PassesTotal = 1;
-                TicketClass = C_GROUND_B;
-                WhereSell = WS_DRIVER;
+                mPassesTotal = 1;
+                mTicketClass = C_GROUND_B;
+                mWhereSell = WS_DRIVER;
                 break;
             case TN_GB2:
-                PassesTotal = 2;
-                TicketClass = C_GROUND_B;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 2;
+                mTicketClass = C_GROUND_B;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_GAB1:
-                PassesTotal = 1;
-                TicketClass = C_GROUND_AB;
-                WhereSell = WS_DRIVER;
+                mPassesTotal = 1;
+                mTicketClass = C_GROUND_AB;
+                mWhereSell = WS_DRIVER;
                 break;
             case TN_U1_DRV:
-                PassesTotal = 1;
-                TicketClass = C_UNIVERSAL;
-                WhereSell = WS_DRIVER;
+                mPassesTotal = 1;
+                mTicketClass = C_UNIVERSAL;
+                mWhereSell = WS_DRIVER;
                 break;
             case TN_U1:
-                TicketClass = C_UNIVERSAL;
-                PassesTotal = 1;
-                WhereSell = WS_METRO;
+                mTicketClass = C_UNIVERSAL;
+                mPassesTotal = 1;
+                mWhereSell = WS_METRO;
                 break;
             case TN_U2:
-                PassesTotal = 2;
-                TicketClass = C_UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 2;
+                mTicketClass = C_UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_U5:
-                PassesTotal = 5;
-                TicketClass = C_UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 5;
+                mTicketClass = C_UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_U11:
-                PassesTotal = 11;
-                TicketClass = C_UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 11;
+                mTicketClass = C_UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_U20:
-                PassesTotal = 20;
-                TicketClass = C_UNIVERSAL;
+                mPassesTotal = 20;
+                mTicketClass = C_UNIVERSAL;
 // TODO: As code example. Need to check.     
-                WhereSell = WS_GROUND;
-                WhereSell |= WS_METRO;
+                mWhereSell = WS_GROUND;
+                mWhereSell |= WS_METRO;
                 break;
             case TN_U40:
-                PassesTotal = 40;
-                TicketClass = C_UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 40;
+                mTicketClass = C_UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_U60:
-                PassesTotal = 60;
-                TicketClass = C_UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 60;
+                mTicketClass = C_UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_UL1D:
-                PassesTotal = -1;
-                TicketClass = C_UNLIM_DAYS;
-                if (ValidDays == 0) ValidDays = 1;
-                WhereSell = WS_METRO;
+                mPassesTotal = -1;
+                mTicketClass = C_UNLIM_DAYS;
+                if (mValidDays == 0) mValidDays = 1;
+                mWhereSell = WS_METRO;
                 break;
             case TN_UL3D:
-                PassesTotal = -1;
-                TicketClass = C_UNLIM_DAYS;
-                if (ValidDays == 0) ValidDays = 3;
-                WhereSell = WS_METRO;
+                mPassesTotal = -1;
+                mTicketClass = C_UNLIM_DAYS;
+                if (mValidDays == 0) mValidDays = 3;
+                mWhereSell = WS_METRO;
                 break;
             case TN_UL7D:
-                PassesTotal = -1;
-                TicketClass = C_UNLIM_DAYS;
-                if (ValidDays == 0) ValidDays = 7;
-                WhereSell = WS_METRO;
+                mPassesTotal = -1;
+                mTicketClass = C_UNLIM_DAYS;
+                if (mValidDays == 0) mValidDays = 7;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U1_G:
-                PassesTotal = 1;
-                TicketClass = C_90UNIVERSAL;            
-                WhereSell = WS_GROUND;
+                mPassesTotal = 1;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_90U1:
-                PassesTotal = 1;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 1;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U2_G:
-                PassesTotal = 2;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_GROUND;
+                mPassesTotal = 2;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_GROUND;
                 break;
             case TN_90U2:
-                PassesTotal = 2;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 2;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U5:
-                PassesTotal = 5;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 5;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U11:
-                PassesTotal = 11;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 11;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U20:
-                PassesTotal = 20;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 20;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U40:
-                PassesTotal = 40;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 40;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             case TN_90U60:
-                PassesTotal = 60;
-                TicketClass = C_90UNIVERSAL;
-                WhereSell = WS_METRO;
+                mPassesTotal = 60;
+                mTicketClass = C_90UNIVERSAL;
+                mWhereSell = WS_METRO;
                 break;
             default:
-                PassesTotal = 0;
+                mPassesTotal = 0;
                 break;
         }
     }
@@ -1259,20 +1314,19 @@ public class Ticket {
 /* Time related internal functions */
 
     /**
-     *
-     * @param days days from base date
-     * @return date string representation
+     * Get Calendar object which set to start of the day.
+     * @param cal calendar object
+     * @return calendar object
      */
-//    private String getReadableDate(int days) {
-//        Calendar c = Calendar.getInstance();
-//        c.clear();
-//        c.set(1991, Calendar.DECEMBER, 31);
-//        c.add(Calendar.DATE, days);
-//        return this.df.format(c.getTime());
-//    }
+    public Calendar getBaseDate(Calendar cal) {
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE,0);
+        cal.set(Calendar.HOUR, 0);
+        return cal;
+    }
 
     /**
-     *
      * @param time minutes from midnight
      * @return Hours and minutes in readable form
      */
@@ -1282,42 +1336,4 @@ public class Ticket {
                 time % 60);
     }
 
-    /**
-     *
-     * @return minutes since current day midnight
-     */
-//    private int getCurrentTimeInt() {
-//        Calendar now = getNowCalendar();
-//        return now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
-//    }
-
-    /**
-     * Is date in past related to now
-     * @param dateInt date provided as number of days from base date
-     * @return
-     */
-//    private boolean isDateInPast(int dateInt) {
-//        Calendar date = Calendar.getInstance();
-//        date.clear();
-//        date.set(1991, Calendar.DECEMBER, 31);
-//        date.add(Calendar.DATE, dateInt);
-//        if (date.compareTo(getNowCalendar()) <= 0){
-//            return true;
-//        }
-//        return false;
-//    }
-
-    /**
-     * Set Calendar object StartUseDayTime from provided parameters
-     * @param date date provided as number of days from base date
-     * @param time time in minutes ftom date day start
-     */
-//    private void setStartUseDaytime(int date, int time){
-//        StartUseDayTime.clear();
-//        StartUseDayTime.set(1991, Calendar.DECEMBER, 31);
-//        StartUseDayTime.add(Calendar.DATE, date);
-//        StartUseDayTime.add(Calendar.MINUTE, time);
-//        if (DEBUG_TIME)
-//            Log.d(TAG,String.format("Set: %s\n",ddf.format(StartUseDayTime.getTime())));
-//    }
 }

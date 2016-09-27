@@ -37,7 +37,6 @@ import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -126,7 +125,7 @@ public final class MainActivity extends Activity {
 
                 final NfcA nfca = NfcA.get(tag);
                 text.setText(getString(R.string.ticket_is_reading));
-                AsyncTask<NfcA, Void, NFCaDump> execute = new AsyncTask<NfcA, Void, NFCaDump>() {
+                new AsyncTask<NfcA, Void, NFCaDump>() {
 
                     @Override
                     protected NFCaDump doInBackground(NfcA... paramss) {
@@ -162,8 +161,8 @@ public final class MainActivity extends Activity {
                                 nfca.close();
                             }
 
-                            for (int i = 0; i < techList.length; i++) {
-                                d.addAndTechList(techList[i]);
+                            for (String aTechList : techList) {
+                                d.addAndTechList(aTechList);
                             }
                             return d;
                         } catch (IOException ie) {
@@ -204,7 +203,7 @@ public final class MainActivity extends Activity {
                                             sb.append("Existing dump comment:\n");
                                             sb.append(d_tmp.getRemark());
                                             sb.append("\n- - - -\n");
-                                        };
+                                        }
                                     } catch (NullPointerException e) {
                                         sb.append("Dump exist but not readable\n");
                                     }
@@ -230,7 +229,7 @@ public final class MainActivity extends Activity {
                 Log.e(TAG, "read err", th);
             }
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
-				|| intent.getAction().equals(intent.ACTION_VIEW))
+				|| intent.getAction().equals(Intent.ACTION_VIEW))
 				&& intent.getType().startsWith("text/")){
 					
 			Uri rcvUri = null;
@@ -248,7 +247,9 @@ public final class MainActivity extends Activity {
 					d.setReadFrom(NFCaDump.READ_FROM_FILE);
 					Ticket t = new Ticket(d);
 					if (d.getRemark().length() != 0){
-						sb.append("File: " + rcvUri.getPath() + "\n");
+						sb.append("File: ");
+                        sb.append(rcvUri.getPath());
+                        sb.append("\n");
 						sb.append(d.getRemark());
 						sb.append("\n- - - -\n");
 					}

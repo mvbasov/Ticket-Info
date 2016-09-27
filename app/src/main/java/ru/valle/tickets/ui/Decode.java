@@ -109,7 +109,7 @@ public class Decode {
                 return "Universal, 7 days, unlimited passes, 20 minutes between passes";
             case Ticket.TN_90U1_G: // 1 pass, 90 minutes, universal, sell on ground (1013862735, with paper check)
                 return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c) + " (sell on ground)";
-            case Ticket.TN_90U1: // 1 pass, 90 minutes, universal, seĺl in metro (1016236236, with paper check)
+            case Ticket.TN_90U1: // 1 pass, 90 minutes, universal, sell in metro (1016236236, with paper check)
                 return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c) + " (sell in metro)";
             case Ticket.TN_90U2: // 2 passes, 90 minutes, universal, sell in metro (1016237832, with paper check)
                 return "90 minutes, " + "2 " + Lang.getNounCase(1, R.array.trip_cases, c) + " (sell in metro)";
@@ -117,7 +117,7 @@ public class Decode {
                 return "90 minutes, " + "2 " + Lang.getNounCase(1, R.array.trip_cases, c) + " (sell on ground)";              
             case Ticket.TN_90U5: // 5 passes, 90 minutes, universal (1016363888, with paper check)
                 return "90 minutes, " + "5 " + Lang.getNounCase(1, R.array.trip_cases, c);
-            case Ticket.TN_90U11: // 11 passes, 90 minutes, universal (1016235763, with paper sheck)
+            case Ticket.TN_90U11: // 11 passes, 90 minutes, universal (1016235763, with paper check)
                 return "90 minutes, " + "11 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_90U20: // 20 passes, 90 minutes, universal (1016043594, with paper check)
                 return "90 minutes, " + "20 " + Lang.getNounCase(1, R.array.trip_cases, c);

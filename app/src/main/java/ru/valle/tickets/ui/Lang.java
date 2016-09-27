@@ -49,7 +49,7 @@ public class Lang {
         return cases[form];
     }
 
-    public static String tarnliterate(String string) {
+    public static String transliterate(String string) {
         String lang = Locale.getDefault().getLanguage();
         if ("ru".equals(lang) || "ua".equals(lang) || "be".equals(lang)) {
             return string;

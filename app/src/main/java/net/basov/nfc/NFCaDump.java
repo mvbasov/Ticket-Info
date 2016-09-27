@@ -89,7 +89,7 @@ public class NFCaDump {
 	private byte ReadFrom;
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
-    private boolean LastBlockVerifyed;
+    private boolean LastBlockVerified;
     private byte[] ATQA;
     private byte SAK;
     private byte[] VersionInfo;
@@ -114,7 +114,7 @@ public class NFCaDump {
         VERSIONisEmpty = true;
 		SIGNHisEmpty = true;
 		SAKisEmpty = true;
-        LastBlockVerifyed = false;
+        LastBlockVerified = false;
         //VersionInfo = new byte[8];
         //SIGN = new byte[32];
         IC_Type = IC_UNKNOWN;
@@ -180,7 +180,7 @@ public class NFCaDump {
                 i.e. exactly 16 bytes in any case.
                 But, on some devices (Sony Xperia Z1 with Android 5.1.1, for example)
                 last block with only one byte generated.
-                Other devices (Samsung Galaxy S IV with Andpoid 5.0.1, for example)
+                Other devices (Samsung Galaxy S IV with Android 5.0.1, for example)
                 lead manufacturer description.
 */
                 byte[] answer = nfca.transceive(cmd);
@@ -204,7 +204,7 @@ public class NFCaDump {
     i.e. exactly 16 bytes in any case.
     But, on some devices (Sony Xperia Z1 with Android 5.1.1, for example)
     last block with only one byte generated.
-    Other devices (Samsung Galaxy S IV with Andpoid 5.0.1, for example)
+    Other devices (Samsung Galaxy S IV with Android 5.0.1, for example)
     lead manufacturer description.
     */
         if (block.length == 16) {
@@ -223,10 +223,7 @@ public class NFCaDump {
     }
 
     public boolean isPagesEmpty(){
-        if (this.Pages.size() == 0) {
-            return true;
-        }
-        return false;
+        return this.Pages.size() == 0;
     }
 
     public byte[] getPage(int n) {
@@ -265,11 +262,11 @@ public class NFCaDump {
         } else {
             LastBlockValidPages = 4;
         }
-        LastBlockVerifyed = true;
+        LastBlockVerified = true;
     }
 
     public int getLastBlockValidPages() {
-        if (!LastBlockVerifyed) validateLastBlockPages();
+        if (!LastBlockVerified) validateLastBlockPages();
         return this.LastBlockValidPages;
     }
 
@@ -391,16 +388,16 @@ public class NFCaDump {
 
     private void detectIC_Type() {
         /*
-        This algorithm operate only with full accesable cards
+        This algorithm operate only with full accessible cards
         If authentication required to read some pages it doesn't operate
-        beacuse based on number of sucessfuly read pages.
+        because based on number of successfully read pages.
         I don't want to read VERSION and SIGN on every card because it slow
         card reading.
          */
         switch (getPage(0)[0]) {
             case 0x04:
                 if (getPagesNumber() == 20 &&
-                        !isVERSIONEmpty()) {
+                        isVERSIONNotEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
@@ -418,7 +415,7 @@ public class NFCaDump {
                         IC_Type = IC_MF0UL11;
                     }
                 } else if (getPagesNumber() == 44 &&
-                        !isVERSIONEmpty()) {
+                        isVERSIONNotEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
@@ -435,7 +432,7 @@ public class NFCaDump {
                 break;
             case 0x34:
                 if (getPagesNumber() == 44 &&
-                        !isVERSIONEmpty()) {
+                        isVERSIONNotEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x34 &&
                             getVersionInfo()[2] == (byte) 0x21 &&
@@ -497,10 +494,7 @@ public class NFCaDump {
         UID_BCC1_CRC ^= getPage(1)[3];
         UID_BCC1_CRC ^= getPage(2)[0]; //The BCC1 itself, if ok result is 0
 
-        if (UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0) {
-            return true;
-        }
-        return false;
+        return UID_BCC0_CRC == 0 && UID_BCC1_CRC == 0;
     }
 
 /* Display manufacturer name */
@@ -534,10 +528,6 @@ public class NFCaDump {
 
     }
 
-    public void setSIGNisEmpty(boolean SIGNisEmpty) {
-        this.SIGNisEmpty = SIGNisEmpty;
-    }
-
     public void setSIGNisEmpty() {
         this.SIGNisEmpty = true;
     }
@@ -557,7 +547,7 @@ public class NFCaDump {
 				reverseByteArray(aSIGN);
 				System.arraycopy(aSIGN, 0, SIGNnewHi, 16, aSIGN.length);
 				this.SIGN = SIGNnewHi;
-				setSIGNHisEmpty(false);
+				setSIGNisEmpty(false);
 			} else {
 				// low 16 bytes of sign
 				reverseByteArray(aSIGN);
@@ -590,7 +580,7 @@ public class NFCaDump {
         this.VERSIONisEmpty = VERSIONisEmpty;
     }
 	
-	public void setSIGNHisEmpty(boolean state) {
+	public void setSIGNisEmpty(boolean state) {
         this.SIGNHisEmpty = state;
     }
 
@@ -599,8 +589,8 @@ public class NFCaDump {
         this.VERSIONisEmpty = true;
     }
 
-    public boolean isVERSIONEmpty() {
-        return VERSIONisEmpty;
+    public boolean isVERSIONNotEmpty() {
+        return !VERSIONisEmpty;
     }
 	
 	public boolean isSIGNHEmpty() {
@@ -712,12 +702,10 @@ public class NFCaDump {
     }
 
     public String getMemoryInfoAsString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("4 bytes pages read: %d (total %d bytes)\n",
-                getPagesNumber() - 4 + getLastBlockValidPages(),
-                (getPagesNumber() - 4 + getLastBlockValidPages()) * 4));
 
-        return sb.toString();
+        return String.format("4 bytes pages read: %d (total %d bytes)\n",
+                getPagesNumber() - 4 + getLastBlockValidPages(),
+                (getPagesNumber() - 4 + getLastBlockValidPages()) * 4);
     }
 
     public String getIC_InfoAsString() {
@@ -731,7 +719,7 @@ public class NFCaDump {
 		if (!SAKisEmpty){
         	sb.append(String.format("SAK: %02x\n", getSAK()));
 		}
-        if (!isVERSIONEmpty()) {
+        if (isVERSIONNotEmpty()) {
             sb.append("GET_VERSION:\n");
             sb.append("  ");
             for (int i = 0; i < getVersionInfo().length; i++) {
@@ -775,13 +763,11 @@ public class NFCaDump {
     }
 
     public String getDetectedICTypeAsString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Chip manufacturer: ");
-        sb.append(getManufName()).append("\n");
-        sb.append("Chip: ");
-        sb.append(getIC_TypeAsString()).append("\n");
 
-        return sb.toString();
+        return "Chip manufacturer: " +
+                getManufName() + "\n" +
+                "Chip: " +
+                getIC_TypeAsString() + "\n";
     }
 
     public String getDumpAsDetailedString() {
@@ -834,7 +820,7 @@ public class NFCaDump {
     final static int PS_IC_INFO = PS_UNKNOWN + 3;
     final static int PS_IC_DECODE = PS_UNKNOWN + 4;
     final static int PS_REMARK = PS_UNKNOWN + 5;
-    // Parser substates when read IC info
+    // Parser substate when read IC info
     final static int PS_IC_INFO_UNKNOWN = 20;
     final static int PS_IC_INFO_VERSION = PS_IC_INFO_UNKNOWN + 1;
     final static int PS_IC_INFO_COUNTERS = PS_IC_INFO_UNKNOWN + 2;
@@ -852,8 +838,8 @@ public class NFCaDump {
                 dName.append(String.format("-%dd",ticket.getValidDays()));
                 dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
             } else {
-                if (ticket.getType() == ticket.TO_VESB) {
-                    dName.append(String.format("-su"));
+                if (ticket.getTicketType() == Ticket.TO_VESB) {
+                    dName.append("-su");
                     dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
                 } else {
                     dName.append(String.format("-%02d", ticket.getPassesTotal()));
@@ -994,7 +980,7 @@ public class NFCaDump {
     }
 
     private static Boolean readVerifyStoreDumpPage(NFCaDump dump, String line){
-        Boolean rc = false;
+        Boolean rc;
         if (line.matches("-?[0-9a-fA-F]+") && line.length() == 8){
             dump.addPage(hexStringToByteArray(line));
             rc = true;
@@ -1026,7 +1012,7 @@ public class NFCaDump {
 	}
 
     public static byte[] hexStringToByteArray(String s) {
-        // Grabed from http://stackoverflow.com/a/18714790
+        // Grabbed from http://stackoverflow.com/a/18714790
         s = s.trim();
         s = s.replaceAll(" ", "");
         int len = s.length();

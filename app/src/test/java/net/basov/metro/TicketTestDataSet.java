@@ -32,6 +32,7 @@ public class TicketTestDataSet {
     ArrayList<Integer> dumpContent = new ArrayList<Integer>();
     Ticket mTicket;
 
+    @Override
     public String toString() {
         return mName;
     }
@@ -78,7 +79,7 @@ public class TicketTestDataSet {
 
                 break;
             default:
-                mError += " Vrong type";
+                mError += " Wrong type";
                 break;
         }
         this.expectedType = expectedType;
@@ -115,6 +116,8 @@ public class TicketTestDataSet {
             default:
                 mError += " Transport type";
                 break;
+            case Ticket.TT_UNKNOWN:
+                break;
         }
         this.expectedTransportType = expectedTransportType;
     }
@@ -144,7 +147,7 @@ public class TicketTestDataSet {
             case Ticket.C_90UNIVERSAL:
                 break;
             default:
-                mError += " Vrong class";
+                mError += " Wrong class";
                 break;
         }
         this.expectedClass = expectedClass;
@@ -161,7 +164,7 @@ public class TicketTestDataSet {
             case 0x0a:
                 break;
             default:
-                mError += " Vrong layout";
+                mError += " Wrong layout";
         }
         this.expectedLayout = expectedLayout;
     }
@@ -225,7 +228,6 @@ public class TicketTestDataSet {
 
     public void setDumpContent(ArrayList<Integer> dumpContent) {
         this.dumpContent = dumpContent;
-//        NFCaDump.parseDump(dump, this.dumpContent);
         mTicket = new Ticket(dumpContent);
     }
 

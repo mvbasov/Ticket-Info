@@ -1,7 +1,5 @@
 package net.basov.metro;
 
-import android.content.res.Resources;
-
 /**
  * The MIT License (MIT)
 
@@ -148,7 +146,7 @@ public class Stations {
                 desc += "Каширская (Замоскворецкая)";
                 break;
 
-//TODO: Need to check ststions codes
+//TODO: Need to check stations codes
 //            desc += "Каширская (Замоскворецкая)";
 //            desc += "Каширская (Каховская)";
 /*
@@ -626,7 +624,7 @@ public class Stations {
             case 165:
                 desc += "Парк Победы (Арбатско-Покровская)";
                 break;
-//TODO: Need to check ststions codes
+//TODO: Need to check stations codes
 //            desc += "Парк Победы (Арбатско-Покровская)";
 //            desc += "Парк Победы (Калининская)";
 /*
