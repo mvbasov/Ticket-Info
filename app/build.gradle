@@ -43,6 +43,7 @@ android {
             applicationIdSuffix '.b'
             versionNameSuffix 'b'
             debuggable true
+            resValue "string", "git_describe", ""
             signingConfig signingConfigs.debug
         }
         debug {

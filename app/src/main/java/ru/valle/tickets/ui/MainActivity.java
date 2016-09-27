@@ -70,6 +70,7 @@ public final class MainActivity extends Activity {
         setContentView(R.layout.main);
         text = (TextView) findViewById(R.id.body);
         try {
+
             /**
              * AIDE has limited support of gradle.
              * If program compiled by AndroidStudio R.string.git_describe is set by gradle.
@@ -77,12 +78,25 @@ public final class MainActivity extends Activity {
              */
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             int git_describe_id = getResources().getIdentifier("git_describe", "string", getPackageName());
+            String title;
             if (git_describe_id == 0)
-                this.setTitle(getResources().getString(R.string.app_name) + " " + pInfo.versionName + "-AIDE");
+                title = getResources().getString(R.string.app_name)
+                        + " "
+                        + pInfo.versionName
+                        + "-AIDE";
             else {
                 String git_describe = getResources().getString(git_describe_id);
-                this.setTitle(getResources().getString(R.string.app_name) + " " + git_describe);
+                if (!git_describe.isEmpty())
+                    title = getResources().getString(R.string.app_name)
+                            + " "
+                            + git_describe;
+                else
+                    title = getResources().getString(R.string.app_name)
+                            + " "
+                            + pInfo.versionName;
             }
+            this.setTitle(title);
+
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
         }
