@@ -37,7 +37,11 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- 
+- New tickets layout (since 2016-09-01) almost completely supported.
+- If dump already exists it's comment field displayed.
+- Make text on screen selectable.
+- Code provided with JUnit tests.
+- Source code little bit more documented and logicaly reorganized.
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
