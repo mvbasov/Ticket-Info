@@ -1,5 +1,14 @@
 ### Change log.
 
+#### Version 2.08b
+##### Date:   Wed Sep 28 20:34:59 2016 +0300, commit b5e4018f80ed2f43be6ee2e9c0d6314fe67ecd05
+
+- New tickets layout (since 2016-09-01) almost completely supported.
+- If dump already exists it's comment field displayed.
+- Make text on screen selectable.
+- Code provided with JUnit tests.
+- Source code little bit more documented and logicaly reorganized.
+
 #### Version 2.07b
 ##### Date:   Wed May 25 21:44:21 2016 +0300, commit 5b319f941bc0f5e653fdf5ff5cbb28f454ac62e7
 
