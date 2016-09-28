@@ -26,8 +26,6 @@ package net.basov.nfc;
 
 import android.nfc.tech.NfcA;
 
-import net.basov.metro.Ticket;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -66,7 +64,7 @@ public class NFCaDump {
     public static final byte AC_WRITE = AC_UNKNOWN + 4;
     public static final byte AC_OTP = AC_UNKNOWN + 5;
     public static final byte AC_AUTH_REQUIRE = AC_UNKNOWN + 6;
-    public static final byte AC_INTERAL_USE = AC_UNKNOWN + 7;
+    public static final byte AC_INTERNAL_USE = AC_UNKNOWN + 7;
     public static final byte AC_SPECIAL = AC_UNKNOWN + 8;
 
     public static final byte IC_UNKNOWN = 0;
@@ -312,7 +310,7 @@ public class NFCaDump {
                 PagesAccess[16] = AC_OTP;
                 PagesAccess[17] = AC_OTP;
                 PagesAccess[18] = AC_OTP;
-                PagesAccess[19] = AC_INTERAL_USE;
+                PagesAccess[19] = AC_INTERNAL_USE;
                 break;
             case IC_MIK1312ED:
             case IC_MF0UL21:
@@ -375,7 +373,7 @@ public class NFCaDump {
                 return "o";
             case AC_SPECIAL:
                 return "s";
-            case AC_INTERAL_USE:
+            case AC_INTERNAL_USE:
                 return "i";
             case AC_AUTH_REQUIRE:
                 return "a";
@@ -397,7 +395,7 @@ public class NFCaDump {
         switch (getPage(0)[0]) {
             case 0x04:
                 if (getPagesNumber() == 20 &&
-                        isVERSIONNotEmpty()) {
+                        !isVERSIONEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
@@ -415,7 +413,7 @@ public class NFCaDump {
                         IC_Type = IC_MF0UL11;
                     }
                 } else if (getPagesNumber() == 44 &&
-                        isVERSIONNotEmpty()) {
+                        !isVERSIONEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
@@ -432,7 +430,7 @@ public class NFCaDump {
                 break;
             case 0x34:
                 if (getPagesNumber() == 44 &&
-                        isVERSIONNotEmpty()) {
+                        !isVERSIONEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x34 &&
                             getVersionInfo()[2] == (byte) 0x21 &&
@@ -528,6 +526,10 @@ public class NFCaDump {
 
     }
 
+    public void setSIGNisEmpty(boolean SIGNisEmpty) {
+        this.SIGNisEmpty = SIGNisEmpty;
+    }
+
     public void setSIGNisEmpty() {
         this.SIGNisEmpty = true;
     }
@@ -547,7 +549,7 @@ public class NFCaDump {
 				reverseByteArray(aSIGN);
 				System.arraycopy(aSIGN, 0, SIGNnewHi, 16, aSIGN.length);
 				this.SIGN = SIGNnewHi;
-				setSIGNisEmpty(false);
+				setSIGNHisEmpty(false);
 			} else {
 				// low 16 bytes of sign
 				reverseByteArray(aSIGN);
@@ -580,7 +582,7 @@ public class NFCaDump {
         this.VERSIONisEmpty = VERSIONisEmpty;
     }
 	
-	public void setSIGNisEmpty(boolean state) {
+	public void setSIGNHisEmpty(boolean state) {
         this.SIGNHisEmpty = state;
     }
 
@@ -589,8 +591,8 @@ public class NFCaDump {
         this.VERSIONisEmpty = true;
     }
 
-    public boolean isVERSIONNotEmpty() {
-        return !VERSIONisEmpty;
+    public boolean isVERSIONEmpty() {
+        return VERSIONisEmpty;
     }
 	
 	public boolean isSIGNHEmpty() {
@@ -719,7 +721,7 @@ public class NFCaDump {
 		if (!SAKisEmpty){
         	sb.append(String.format("SAK: %02x\n", getSAK()));
 		}
-        if (isVERSIONNotEmpty()) {
+        if (!isVERSIONEmpty()) {
             sb.append("GET_VERSION:\n");
             sb.append("  ");
             for (int i = 0; i < getVersionInfo().length; i++) {
@@ -827,41 +829,7 @@ public class NFCaDump {
     final static int PS_IC_INFO_SIG = PS_IC_INFO_UNKNOWN + 3;
     final static int PS_IC_INFO_TECH = PS_IC_INFO_UNKNOWN + 4;
 
-    public static String createDumpFileName(NFCaDump dump) {
-
-        Ticket ticket = new Ticket(dump);
-        StringBuilder dName = new StringBuilder();
-
-        dName.append(String.format("%010d", ticket.getTicketNumber()));
-        if (ticket.isTicketFormatValid()) {
-            if (ticket.getTicketClass() == Ticket.C_UNLIM_DAYS){
-                dName.append(String.format("-%dd",ticket.getValidDays()));
-                dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
-            } else {
-                if (ticket.getTicketType() == Ticket.TO_VESB) {
-                    dName.append("-su");
-                    dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
-                } else {
-                    dName.append(String.format("-%02d", ticket.getPassesTotal()));
-                    dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
-                    if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
-						if (ticket.getLayout() == 0x0d) {
-                        	dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
-                        	dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
-						} else if (ticket.getLayout() == 0x0a) {
-							dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
-						}
-                    }
-                }
-            }
-        } else {
-            dName.append("-xx-xx");
-        }
-
-        return dName.toString();
-    }
-
-    public static String createDumpContent(NFCaDump dump) {
+    public static String getDumpAsString(NFCaDump dump) {
 
         StringBuilder dText = new StringBuilder();
 

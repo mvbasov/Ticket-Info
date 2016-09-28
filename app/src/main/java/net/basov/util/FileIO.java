@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import ru.valle.tickets.ui.MainActivity;
+
+import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
 
 public class FileIO {
@@ -43,9 +45,9 @@ public class FileIO {
     public static boolean writeAutoDump(NFCaDump dump) {
         File fileW;
         boolean rc = false;
-
- 		String dumpFileName = NFCaDump.createDumpFileName(dump);
-		String dumpContent = NFCaDump.createDumpContent(dump);
+        Ticket ticket = new Ticket(dump);
+ 		String dumpFileName = Ticket.createDumpFileName(ticket);
+		String dumpContent = NFCaDump.getDumpAsString(dump);
 
         FileOutputStream outputStream;
         File sdcard = MainActivity.getAppContext().getExternalFilesDir(null);

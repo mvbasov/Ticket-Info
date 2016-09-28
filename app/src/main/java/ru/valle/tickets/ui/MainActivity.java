@@ -211,7 +211,7 @@ public final class MainActivity extends Activity {
                                                 .getAbsolutePath();
                                         String fName = storage +
                                                 "/AutoDumps/" +
-                                                NFCaDump.createDumpFileName(dump) +
+                                                Ticket.createDumpFileName(t) +
                                                 ".txt";
                                         if (FileIO.ReadDump(d_tmp, fName)) {
                                             sb.append("Existing dump comment:\n");

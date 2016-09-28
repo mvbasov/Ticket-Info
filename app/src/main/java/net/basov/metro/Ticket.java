@@ -494,6 +494,41 @@ public class Ticket {
         processTicket();
     }
 
+    public static String createDumpFileName(Ticket ticket) {
+
+        StringBuilder dName = new StringBuilder();
+
+        dName.append(String.format("%010d", ticket.getTicketNumber()));
+        if (ticket.isTicketFormatValid()) {
+            if (ticket.getTicketClass() == Ticket.C_UNLIM_DAYS){
+                dName.append(String.format("-%dd",ticket.getValidDays()));
+                dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
+            } else {
+                if (ticket.getTicketType() == Ticket.TO_VESB) {
+                    dName.append("-su");
+                    dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
+                } else {
+                    dName.append(String.format("-%02d", ticket.getPassesTotal()));
+                    dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
+                    if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
+                        if (ticket.getLayout() == 0x0d) {
+                            dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
+                            dName.append(String.format(".%1d",ticket.getT90ChangeCount()));
+                        } else if (ticket.getLayout() == 0x0a) {
+                            dName.append(String.format(".%02d",ticket.getRelTransportChangeTimeMinutes()));
+                        }
+                    }
+                }
+            }
+        } else {
+            dName.append("-xx-xx");
+        }
+
+        return dName.toString();
+    }
+
+
+
     /**
      * Process mDump field and generate other fields content
      */
