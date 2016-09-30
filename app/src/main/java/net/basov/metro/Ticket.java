@@ -339,6 +339,21 @@ public class Ticket {
      * </ul>
      */
     private int mTicketType = T_UNKNOWN;
+
+    /**
+     * Ticket Class. Possible values:
+     * <ul>
+     *     <li>{@link Ticket#C_UNKNOWN}</li>
+     *     <li>{@link Ticket#C_OLD_SPECIAL}</li>
+     *     <li>{@link Ticket#C_OLD_SPECIAL}</li>
+     *     <li>{@link Ticket#C_GROUND}</li>
+     *     <li>{@link Ticket#C_GROUND_B}</li>
+     *     <li>{@link Ticket#C_GROUND_AB}</li>
+     *     <li>{@link Ticket#C_UNIVERSAL}</li>
+     *     <li>{@link Ticket#C_90UNIVERSAL}</li>
+     *     <li>{@link Ticket#C_UNLIM_DAYS}</li>
+     * </ul>
+     */
     private int mTicketClass = C_UNKNOWN;
     /**
      * Where ticket was sell. Possible values:
@@ -351,6 +366,7 @@ public class Ticket {
     private int mWhereSell = WS_UNKNOWN;
     /**
      * Start use till date time.
+     * Used for day limited tickets
      */
     private Calendar mStartUse = null;
 
@@ -636,11 +652,15 @@ public class Ticket {
                                         /(1000L * 60)));
                     }
                     if (mT90TripTimeLeft < 0) mT90TripTimeLeft = 0;
-                }
+                } else if (mTicketClass == C_UNLIM_DAYS) {
+                    mStartUse = (Calendar) mIssued.clone();
+                    mStartUse.add(Calendar.MINUTE, mValidDays * 24 * 60);
+                    setTypeRelatedInfo();
 
 // TODO: Check. Is it right place to to make day limited tickets time correct.
 // TODO: May be better way to do this at display time
-                if (getTicketClass() == C_UNLIM_DAYS) mIssued.add(Calendar.MINUTE, -1);
+                    mIssued.add(Calendar.MINUTE, -1);
+                }
 
                 break;
         }
@@ -790,6 +810,10 @@ public class Ticket {
             if (tmpCal.after(getNowCalendar())
                     && getTripSeqNumber() == 0)
                 sb.append("\n\tN E V E R  U S E D");
+            if (mStartUse != null) {
+                sb.append(String.format("\n\tStart use up to: %s",
+                        DTF.format(mStartUse.getTime())));
+            }
 
         }
 
