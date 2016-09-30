@@ -38,6 +38,8 @@ import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -126,6 +128,30 @@ public final class MainActivity extends Activity {
     public void onPause() {
         super.onPause();
         adapter.disableForegroundDispatch(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_ic_info:
+                Toast.makeText(this, "IC info", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_dump:
+                Toast.makeText(this, "Dump", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_debug:
+                Toast.makeText(this, "Debug", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

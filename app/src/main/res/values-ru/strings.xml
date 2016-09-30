@@ -33,4 +33,5 @@
   <string name="tt_metro">Метро</string>
   <string name="tt_ground">Наземный</string>
   <string name="tt_unknown">Тип неизвестен</string>
+  <string name="menu_settings">menu_settings</string>
 </resources>
