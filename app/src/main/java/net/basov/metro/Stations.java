@@ -563,7 +563,7 @@ public class Stations {
             case 122:
                 desc += "Беговая";
                 switch (entrance) {
-                    case 1: //?(2577096376-60-25)
+                    case 1: //(2577096376-60-25)
                         desc += " (вход со стороны платформы)";
                         break;
                     default:
