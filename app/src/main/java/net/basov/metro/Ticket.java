@@ -57,18 +57,14 @@ public class Ticket {
     // Debug facility
     static final String TAG = "tickets";
     private static final boolean DEBUG_TIME = false;
-    private Calendar getNowCalendar() {
-        Calendar now = Calendar.getInstance();
-        /*
-        For debug set now to time
-         */
-        if (DEBUG_TIME) {
-            now.clear();
-            //now.set(2016, Calendar.JANUARY, 12, 12, 20);
-            now.set(2015, Calendar.DECEMBER, 29, 12, 45);
-        }
-        return now;
-    }
+
+	public void setMTimeToCompare(Calendar mTimeToCompare) {
+		this.mTimeToCompare = mTimeToCompare;
+	}
+
+	public Calendar getMTimeToCompare() {
+		return mTimeToCompare;
+	}
 
     public static final DateFormat DDF = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
@@ -266,6 +262,12 @@ public class Ticket {
      * Each page (4 bytes) represented as Integer
      */
     private ArrayList<Integer> mDump;
+	/**
+	 * Date and time to calculate time difference related values.
+	 * To process real ticket in normal circumstance set to now time.
+	 * For test and debug can be set to any point of time.
+	 */
+	private Calendar mTimeToCompare = null;
     /**
      * Is dump valid
      */
@@ -474,6 +476,7 @@ public class Ticket {
      */
     public Ticket() {
         mDump = new ArrayList<Integer>();
+		mTimeToCompare = Calendar.getInstance();
         setDumpIsValid(true);
     }
 
@@ -614,9 +617,9 @@ public class Ticket {
                     mT90GCount = (mDump.get(9) & 0x1c000000) >>> 26;
                     mT90TripTimeLeft = 0;
                     if (mT90MCount != 0 || mT90GCount != 0) {
-                        if (getNowCalendar().after(mTripStart)){
+                        if (getMTimeToCompare().after(mTripStart)){
                             mT90TripTimeLeft = (int)( 90 -
-                                    ((getNowCalendar().getTimeInMillis()
+								((getMTimeToCompare().getTimeInMillis()
                                             - mTripStart.getTimeInMillis())
                                     /(1000L * 60)));
                         }
@@ -645,9 +648,9 @@ public class Ticket {
                     mT90ChangeTime = (Calendar) mTripStart.clone();
                     mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
 
-                    if (getNowCalendar().after(mTripStart)){
+                    if (getMTimeToCompare().after(mTripStart)){
                         mT90TripTimeLeft = (int)( 90 -
-                                ((getNowCalendar().getTimeInMillis()
+							((getMTimeToCompare().getTimeInMillis()
                                         - mTripStart.getTimeInMillis())
                                         /(1000L * 60)));
                     }
@@ -685,7 +688,7 @@ public class Ticket {
             Calendar NextTrip = (Calendar) mTripStart.clone();
             NextTrip.add(Calendar.MINUTE, 21);
             long NextTripInSeconds = NextTrip.getTimeInMillis() / 1000L;
-            long NowInSeconds = getNowCalendar().getTimeInMillis() / 1000L;
+            long NowInSeconds = getMTimeToCompare().getTimeInMillis() / 1000L;
             if (NextTripInSeconds > NowInSeconds ) {
                 mTimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
             } else {
@@ -725,7 +728,7 @@ public class Ticket {
 
         if (DEBUG_TIME)
             sb.append(String.format("! ! ! mApp time set to %s\n\n",
-                    DDF.format(getNowCalendar().getTime())));
+									DDF.format(getMTimeToCompare().getTime())));
 
         if (!mDumpValid) {
 // TODO: Translate message
@@ -777,13 +780,13 @@ public class Ticket {
         if (getPassesLeft() == 0) {
             sb.append("\n\tE M P T Y\n");
         } else if (mIssued == null ) {
-            if (mStartUseBefore.before(getNowCalendar())) {
+            if (mStartUseBefore.before(getMTimeToCompare())) {
                 sb.append("\n\tE X P I R E D\n");
             }
         } else {
             tmpCal = (Calendar) mIssued.clone();
             tmpCal.add(Calendar.DATE, mValidDays);
-            if (tmpCal.before(getNowCalendar()) &&
+            if (tmpCal.before(getMTimeToCompare()) &&
                     mTicketClass != C_UNLIM_DAYS) {
                 sb.append("\n\tE X P I R E D\n");
             }
@@ -801,13 +804,13 @@ public class Ticket {
                     sb.append("\n\tE X P I R E D\n");
                 }
             } else {
-                if (tmpCal.compareTo(getNowCalendar()) < 0) {
+                if (tmpCal.compareTo(getMTimeToCompare()) < 0) {
                     sb.append("\n\tE X P I R E D\n");
                 } else if (mTimeToNextTrip > 0) {
                     sb.append("\n\tW A I T\n");
                 }
             }
-            if (tmpCal.after(getNowCalendar())
+            if (tmpCal.after(getMTimeToCompare())
                     && getTripSeqNumber() == 0)
                 sb.append("\n\tN E V E R  U S E D");
             if (mStartUse != null) {
