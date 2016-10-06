@@ -1,7 +1,5 @@
 package net.basov.metro;
 
-import java.util.Calendar;
-
 import org.junit.Assert;
 import org.junit.runners.Parameterized;
 import org.junit.Test;
@@ -15,149 +13,174 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value = Parameterized.class)
 public class TicketTest {
 
-    private Ticket ticket;
-    private String error;
-    private int expectedValidDays;
-    private long expectedTicketNumber;
-    private int expectedType;
-    private int expectedTripSeqNumber;
-    private int expectedGateEntered;
-    private int expectedTransportType;
-    private int expectedEntranceEntered;
-    private int expectedClass;
-    private int expectedLayout;
-    private int expectedPassesTotal;
-    private int expectedPassesLeft;
-    private int expectedApp;
-    private Calendar expectedStartUseBefore;
-    private Calendar expectedIssued;
-    private Calendar expectedTripStart;
+    private Ticket expectedTicket;
+    private Ticket realTicket;
 
     @Parameters(name="{index}: {0}")
     public static Iterable<?> data() {
         return TicketTestData.getDataSets();
     }
 
-    public TicketTest(TicketTestDataSet TDS) {
-        this.error = TDS.getError();
-        this.ticket = TDS.getTicket();
-        this.expectedValidDays = TDS.getExpectedValidDays();
-        this.expectedTicketNumber = TDS.getExpectedTicketNumber();
-        this.expectedType = TDS.getExpectedType();
-        this.expectedTripSeqNumber = TDS.getExpectedTripSeqNumber();
-        this.expectedGateEntered = TDS.getExpectedGateEntered();
-        this.expectedTransportType = TDS.getExpectedTransportType();
-        this.expectedEntranceEntered = TDS.getExpectedEntranceEntered();
-        this.expectedClass = TDS.getExpectedClass();
-        this.expectedLayout = TDS.getExpectedLayout();
-        this.expectedPassesTotal = TDS.getExpectedPassesTotal();
-        this.expectedPassesLeft = TDS.getExpectedPassesLeft();
-        this.expectedApp = TDS.getExpectedApp();
-        this.expectedStartUseBefore = TDS.getExpectedStartUseBefore();
-        this.expectedIssued = TDS.getExpectedIssued();
-        this.expectedTripStart = TDS.getExpectedTripStart();
+    public TicketTest(Ticket TDS) {
+        this.expectedTicket = TDS;
+        this.realTicket = new Ticket(TDS.getDump());
     }
 
     @Test
     public void testTestDataSet() throws Exception {
-        Assert.assertEquals(null, this.error);
+        if (!expectedTicket.isTicketFormatValid())
+            Assert.assertEquals(
+                    expectedTicket.getParserError(),
+                    true,
+                    expectedTicket.isTicketFormatValid()
+            );
+        Assert.assertEquals(null, realTicket.getParserError());
     }
 
     @Test
     public void testGetValidDays() throws Exception {
-        Assert.assertEquals(this.expectedValidDays, this.ticket.getValidDays());
+        Assert.assertEquals(
+                this.expectedTicket.getValidDays(),
+                this.realTicket.getValidDays()
+        );
     }
 
     @Test
     public void testGetTicketNumber() throws Exception {
-        Assert.assertEquals(this.expectedTicketNumber, this.ticket.getTicketNumber());
+        Assert.assertEquals(
+                this.expectedTicket.getTicketNumber(),
+                this.realTicket.getTicketNumber()
+        );
     }
 
     @Test
     public void testGetStartUseBefore() throws Exception {
-        if (this.expectedStartUseBefore != null) {
+        if (this.expectedTicket.getStartUseBefore() != null) {
             Assert.assertEquals(
                     "Expected: " +
-                            Ticket.DDF.format(this.expectedStartUseBefore.getTime()) +
+                            Ticket.DDF.format(this.expectedTicket.getStartUseBefore().getTime()) +
                             " Result: " +
-                            Ticket.DDF.format(this.ticket.getStartUseBefore().getTime()),
-                    this.expectedStartUseBefore, this.ticket.getStartUseBefore());
+                            Ticket.DDF.format(this.realTicket.getStartUseBefore().getTime()),
+                    this.expectedTicket.getStartUseBefore(),
+                    this.realTicket.getStartUseBefore()
+            );
         } else {
-            Assert.assertEquals(null, this.ticket.getStartUseBefore());
+            Assert.assertEquals(null, this.realTicket.getStartUseBefore());
         }
     }
 
     @Test
     public void testGetType() throws Exception {
-        Assert.assertEquals(this.expectedType, this.ticket.getTicketType());
+        Assert.assertEquals(
+                this.expectedTicket.getTicketType(),
+                this.realTicket.getTicketType()
+        );
     }
 
     @Test
     public void testGetTripSeqNumber() throws Exception {
-        Assert.assertEquals(this.expectedTripSeqNumber, this.ticket.getTripSeqNumber());
+        Assert.assertEquals(
+                this.expectedTicket.getTripSeqNumber(),
+                this.realTicket.getTripSeqNumber()
+        );
     }
 
     @Test
     public void testGetTicketClass() throws Exception {
-        Assert.assertEquals(this.expectedClass, this.ticket.getTicketClass());
+        Assert.assertEquals(
+                this.expectedTicket.getTicketClass(),
+                this.realTicket.getTicketClass()
+        );
     }
 
     @Test
     public void testGetLayout() throws Exception {
-        Assert.assertEquals(this.expectedLayout, this.ticket.getLayout());
+        Assert.assertEquals(
+                this.expectedTicket.getLayout(),
+                this.realTicket.getLayout()
+        );
     }
 
     @Test
     public void testGetPassesTotal() throws Exception {
-        Assert.assertEquals(this.expectedPassesTotal, this.ticket.getPassesTotal());
+        Assert.assertEquals(
+                this.expectedTicket.getPassesTotal(),
+                this.realTicket.getPassesTotal()
+        );
     }
 
     @Test
     public void testGetPassesLeft() throws Exception {
-        Assert.assertEquals(this.expectedPassesLeft, this.ticket.getPassesLeft());
+        Assert.assertEquals(
+                this.expectedTicket.getPassesLeft(),
+                this.realTicket.getPassesLeft()
+        );
     }
 
     @Test
     public void testGetGateEntered() throws Exception {
-        Assert.assertEquals(this.expectedGateEntered, this.ticket.getGateEntered());
+        Assert.assertEquals(
+                this.expectedTicket.getGateEntered(),
+                this.realTicket.getGateEntered()
+        );
     }
 
     @Test
     public void testGetEntranceEntered() throws Exception {
-        Assert.assertEquals(this.expectedEntranceEntered, this.ticket.getEntranceEntered());
+        Assert.assertEquals(
+                this.expectedTicket.getEntranceEntered(),
+                this.realTicket.getEntranceEntered()
+        );
     }
 
     @Test
     public void testGetIssued() throws Exception {
         Assert.assertEquals(
                 "Expected: " +
-                    Ticket.DDF.format(this.expectedIssued.getTime()) +
+                    Ticket.DDF.format(this.expectedTicket.getIssued().getTime()) +
                 " Result: " +
-                    Ticket.DDF.format(this.ticket.getIssued().getTime()),
-                this.expectedIssued, this.ticket.getIssued());
+                    Ticket.DDF.format(this.realTicket.getIssued().getTime()),
+                this.expectedTicket.getIssued(),
+                this.realTicket.getIssued()
+        );
     }
 
     @Test
     public void testGetTripStart() throws Exception {
-        if (expectedTripStart != null) {
+        if (expectedTicket.getTripStart() != null) {
             Assert.assertEquals(
                     "Expected: " +
-                            Ticket.DDF.format(this.expectedTripStart.getTime()) +
+                            Ticket.DDF.format(this.expectedTicket.getTripStart().getTime()) +
                             " Result: " +
-                            Ticket.DDF.format(this.ticket.getTripStart().getTime()),
-                    this.expectedTripStart, this.ticket.getTripStart());
+                            Ticket.DDF.format(this.realTicket.getTripStart().getTime()),
+                    this.expectedTicket.getTripStart(),
+                    this.realTicket.getTripStart()
+            );
         } else {
-            Assert.assertEquals(null, this.ticket.getTripStart());
+            if (realTicket.getTripStart() != null) {
+                Assert.assertEquals(
+                        "Expected: null" +
+                                " Result: " +
+                                Ticket.DDF.format(this.realTicket.getTripStart().getTime()),
+                        null,
+                        this.realTicket.getTripStart());
+            }
         }
     }
 
     @Test
     public void testGetTransportType() throws Exception {
-        Assert.assertEquals(this.expectedTransportType, this.ticket.getPassTransportType());
+        Assert.assertEquals(
+                this.expectedTicket.getPassTransportType(),
+                this.realTicket.getPassTransportType()
+        );
     }
 
     @Test
     public void testGetApp() throws Exception {
-        Assert.assertEquals(this.expectedApp, this.ticket.getApp());
+        Assert.assertEquals(
+                this.expectedTicket.getApp(),
+                this.realTicket.getApp()
+        );
     }
 }

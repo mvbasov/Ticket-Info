@@ -70,7 +70,7 @@ public class Ticket {
     public static final int TT_METRO = 1;
     public static final int TT_GROUND = 2;
 
-    /* TicketApp */
+    /* Ticket Application */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({A_UNKNOWN, A_METRO, A_GROUND, A_SOCIAL, A_METRO_LIGHT, A_UNIVERSAL})
     public @interface TicketApp {}
@@ -274,7 +274,7 @@ public class Ticket {
     /**
      * Is dump valid
      */
-    private boolean mDumpValid = false;
+    private boolean mTicketFormatValid = false;
     /**
      * Number printed on ticket
      */
@@ -480,7 +480,7 @@ public class Ticket {
     public Ticket() {
         mDump = new ArrayList<Integer>();
 		mTimeToCompare = Calendar.getInstance();
-        setDumpIsValid(true);
+        setTicketFormatIsValid(true);
     }
 
     /**
@@ -641,11 +641,14 @@ public class Ticket {
                 mIssued.add(Calendar.MINUTE,((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60));
                 mEntranceEntered = (mDump.get(8) >>> 8) & 0xffff;
 
-                // Base date (mIssued) used with zero time. Set it.
-                mTripStart = getBaseDate((Calendar) mIssued.clone());
-                mTripStart.add(Calendar.MINUTE, (mDump.get(7) >>> 13) & 0x7ffff);
-                //noinspection WrongConstant
-                setPassTransportType(mDump.get(7) & 0x3);
+                tmp = (mDump.get(7) >>> 13) & 0x7ffff;
+                if (tmp != 0) {
+                    // Base date (mIssued) used with zero time. Set it.
+                    mTripStart = getBaseDate((Calendar) mIssued.clone());
+                    mTripStart.add(Calendar.MINUTE, tmp);
+                    //noinspection WrongConstant
+                    setPassTransportType(mDump.get(7) & 0x3);
+                }
                 if (getTicketClass() == C_90UNIVERSAL) {
                     mT90MCount = (mDump.get(8) >>> 6) & 0x01;
                     mT90RelChangeTime = (mDump.get(7) >>> 2) & 0x3ff;
@@ -672,21 +675,23 @@ public class Ticket {
                 break;
         }
 
-        setTripSeqNumber(mPassesTotal - getPassesLeft());
-
         if (getTicketClass() == C_UNLIM_DAYS){
             setTripSeqNumber(getPassesLeft());
             mPassesLeft = -1;
             if(getTripSeqNumber() == 0) setTypeRelatedInfo();
-            Calendar NextTrip = (Calendar) mTripStart.clone();
-            NextTrip.add(Calendar.MINUTE, 21);
-            long NextTripInSeconds = NextTrip.getTimeInMillis() / 1000L;
-            long NowInSeconds = getTimeToCompare().getTimeInMillis() / 1000L;
-            if (NextTripInSeconds > NowInSeconds ) {
-                mTimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
-            } else {
-                mTimeToNextTrip = 0;
+            if (mTripStart != null) {
+                Calendar NextTrip = (Calendar) mTripStart.clone();
+                NextTrip.add(Calendar.MINUTE, 21);
+                long NextTripInSeconds = NextTrip.getTimeInMillis() / 1000L;
+                long NowInSeconds = getTimeToCompare().getTimeInMillis() / 1000L;
+                if (NextTripInSeconds > NowInSeconds) {
+                    mTimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
+                } else {
+                    mTimeToNextTrip = 0;
+                }
             }
+        } else {
+            setTripSeqNumber(mPassesTotal - getPassesLeft());
         }
 
 		if (getTicketType() == TO_VESB) {
@@ -705,7 +710,7 @@ public class Ticket {
      */
     public void setDump(ArrayList<Integer> dump) {
         if ( dump.size() < 12 ) {
-            setDumpIsValid(false);
+            setTicketFormatIsValid(false);
             mParserError += " Dump too short";
             return;
         }
@@ -720,8 +725,8 @@ public class Ticket {
         return mDump;
     }
 
-    public void setDumpIsValid(boolean isValid) {
-        this.mDumpValid = isValid;
+    public void setTicketFormatIsValid(boolean isValid) {
+        this.mTicketFormatValid = isValid;
     }
 
     /**
@@ -732,6 +737,10 @@ public class Ticket {
         return mName;
     }
 
+    @Override
+    public String toString() {
+        return mName;
+    }
     /**
      * Set ticket name {@link Ticket#mName}
      * @param name
@@ -750,10 +759,10 @@ public class Ticket {
         Calendar tmpCal = null;
 
         if (DEBUG_TIME)
-            sb.append(String.format("! ! ! mApp time set to %s\n\n",
+            sb.append(String.format("! ! ! Application time set to %s\n\n",
 									DDF.format(getTimeToCompare().getTime())));
 
-        if (!mDumpValid) {
+        if (!mTicketFormatValid) {
 // TODO: Translate message
             sb.append("! ! ! mDump not valid or ticket type unknown\n\n");
         }
@@ -967,7 +976,7 @@ public class Ticket {
                 break;
         }
 
-        sb.append(String.format("App ID: %d (0x%03x), ", mApp, mApp));
+        sb.append(String.format("App ID: %$1d (0x%$103x), ", mApp));
         sb.append(String.format("Ticket type: %$1d (0x%$103x)\n", getTicketType()));
 
         sb.append(c.getString(R.string.ticket_hash)).append(": ");
@@ -978,19 +987,28 @@ public class Ticket {
         return sb.toString();
     }
 
+    private void addParserError(String errorString) {
+        if (mParserError != null)
+            mParserError += ", ";
+        else
+            mParserError = "";
+        mParserError += errorString;
+        setTicketFormatIsValid(false);
+    }
+
+    public String getParserError() {return this.mParserError; }
+
     /**
      * Set number printed on ticket
      * @param ticketNumber
      */
     public void setTicketNumber(long ticketNumber) {
-        if (ticketNumber <= 0L || ticketNumber > 0xffffffffL) {
-            mParserError += " Ticket number wrong,";
-            setDumpIsValid(false);
-        }
+        if (ticketNumber <= 0L || ticketNumber > 0xffffffffL)
+                addParserError("Ticket number wrong");
         mTicketNumber = ticketNumber;
     }
 
-    private void setTicketType(@TicketType int ticketType) {
+    public void setTicketType(@TicketType int ticketType) {
         switch (ticketType) {
             case TO_M1:
             case TN_U1_DRV:
@@ -1000,7 +1018,7 @@ public class Ticket {
 
                 break;
             default:
-                mParserError += " Wrong type,";
+                addParserError("Wrong type");
                 break;
         }
         this.mTicketType = ticketType;
@@ -1011,14 +1029,22 @@ public class Ticket {
      */
 	public int getTicketType() { return mTicketType; }
 
+    public void setApp(int app) {
+        mApp = app;
+    }
+
     /**
      * @return {@link Ticket#mApp}
      */
     public int getApp() { return mApp; }
 
-    public boolean isTicketFormatValid() { return mDumpValid; }
+    public boolean isTicketFormatValid() { return mTicketFormatValid; }
 
     public long getTicketNumber() { return mTicketNumber; }
+
+    public void setStartUseBefore(Calendar startUseBefore) {
+        mStartUseBefore = startUseBefore;
+    }
 
     /**
      * Ticket blank must be start used before this date.
@@ -1029,6 +1055,10 @@ public class Ticket {
         return mStartUseBefore;
     }
 
+    public void setIssued(Calendar issued) {
+        mIssued = issued;
+    }
+
     /**
      * Date when ticket was issued.
      * For day limited tickets also has time.
@@ -1036,6 +1066,10 @@ public class Ticket {
      */
     public Calendar getIssued() {
         return mIssued;
+    }
+
+    public void setTripStart(Calendar tripStart) {
+        mTripStart = tripStart;
     }
 
     /**
@@ -1048,14 +1082,16 @@ public class Ticket {
 
 
     public void setTripSeqNumber(int tripSeqNumber) {
-        if (tripSeqNumber < -2 && tripSeqNumber > 255) {
-            mParserError += " Wrong trip seq number";
-            setDumpIsValid(false);
-        }
+        if (tripSeqNumber < 0 || tripSeqNumber > 255)
+            addParserError("Wrong trip seq number");
         mTripSeqNumber = tripSeqNumber;
     }
 
     public int getTripSeqNumber() { return mTripSeqNumber; }
+
+    public void setGateEntered(int gateEntered) {
+        mGateEntered = gateEntered;
+    }
 
     /**
      * This trip current entered gate
@@ -1063,6 +1099,10 @@ public class Ticket {
      */
     public int getGateEntered() {
         return mGateEntered;
+    }
+
+    public void setEntranceEntered(int entranceEntered) {
+        mEntranceEntered = entranceEntered;
     }
 
     /**
@@ -1080,8 +1120,7 @@ public class Ticket {
             case Ticket.TT_UNKNOWN:
                 break;
             default:
-                mParserError += " Wrong transport type,";
-                setDumpIsValid(false);
+                addParserError("Wrong transport type");
                 break;
         }
         this.mPassTransportType = passTransportType;
@@ -1108,8 +1147,7 @@ public class Ticket {
             case Ticket.C_90UNIVERSAL:
                 break;
             default:
-                setDumpIsValid(false);
-                mParserError += " Wrong ticket class,";
+                addParserError(" Wrong ticket class,");
                 break;
         }
 
@@ -1125,21 +1163,28 @@ public class Ticket {
             case 0x0a:
                 break;
             default:
-                setDumpIsValid(false);
-                mParserError += " Wrong layout,";
+                addParserError("Wrong layout");
         }
 
         this.mLayout = layout;
     }
 	public int getLayout() { return mLayout; }
 
+
+    public void setPassesTotal(int passesTotal) {
+        mPassesTotal = passesTotal;
+    }
+
     /**
      * How many passes this ticket issued for.
       * @return Amount of passes on the ticket
      */
     public int getPassesTotal() {
-        if (mPassesTotal == 0) setTypeRelatedInfo();
         return mPassesTotal;
+    }
+
+    public void setPassesLeft(int passesLeft) {
+        mPassesLeft = passesLeft;
     }
 
     /**
@@ -1162,7 +1207,8 @@ public class Ticket {
 
     public void setValidDays(int validDays) {
         if (validDays < 0 || validDays > 120) {
-            mParserError += " Valid days number wrong,";
+            setTicketFormatIsValid(false);
+            addParserError("Valid days number wrong");
         }
         this.mValidDays = validDays;
     }
