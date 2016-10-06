@@ -373,13 +373,22 @@ public class Ticket {
      * Start use till date time.
      * Used for day limited tickets
      */
-    private Calendar mStartUse = null;
-
+    private Calendar mStartUseTill = null;
     /**
      * Ticket issue date
      */
     private Calendar mIssued = null;
-
+    /**
+     * Time in minutes when ticket was sell
+     * related to {@link Ticket#mIssued} day start.
+     * Actual for day limited tickets.
+     */
+    private int mSellTime;
+    /**
+     * Time of the day in minutes when ticket 1-st time used.
+     * Actual for day limited tickets
+     */
+    private int mFirstUseTime;
     /**
      * Ticket blank "Use before" date
      */
@@ -592,10 +601,10 @@ public class Ticket {
                 }
                 tmp = (mDump.get(6) & 0xfff0) >>> 5;
                 if (tmp != 0 ) {
-                    mStartUse = Calendar.getInstance();
-                    mStartUse.clear();
-                    mStartUse.set(1991, Calendar.DECEMBER, 31);
-                    mStartUse.add(Calendar.MINUTE, tmp);
+                    mStartUseTill = Calendar.getInstance();
+                    mStartUseTill.clear();
+                    mStartUseTill.set(1991, Calendar.DECEMBER, 31);
+                    mStartUseTill.add(Calendar.MINUTE, tmp);
                 }
 
                 mGateEntered = mDump.get(9) & 0xffff;
@@ -639,6 +648,11 @@ public class Ticket {
                 mIssued.set(2015, Calendar.DECEMBER, 31);
                 mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) >>> 20) & 0xfff);
                 mIssued.add(Calendar.MINUTE,((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60));
+                if (mTicketClass == C_UNLIM_DAYS)
+                    if (mPassesLeft == 0)
+                        mSellTime = ((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60);
+                    else
+                        mFirstUseTime = ((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60);
                 mEntranceEntered = (mDump.get(8) >>> 8) & 0xffff;
 
                 tmp = (mDump.get(7) >>> 13) & 0x7ffff;
@@ -655,21 +669,20 @@ public class Ticket {
                     mT90ChangeTime = (Calendar) mTripStart.clone();
                     mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
 
-                    if (getTimeToCompare().after(mTripStart)){
-                        mT90TripTimeLeft = (int)( 90 -
-							((getTimeToCompare().getTimeInMillis()
+                    if (getTimeToCompare().after(mTripStart)) {
+                        mT90TripTimeLeft = (int) (90 -
+                                ((getTimeToCompare().getTimeInMillis()
                                         - mTripStart.getTimeInMillis())
-                                        /(1000L * 60)));
+                                        / (1000L * 60)));
                     }
                     if (mT90TripTimeLeft < 0) mT90TripTimeLeft = 0;
                 } else if (getTicketClass() == C_UNLIM_DAYS) {
-                    mStartUse = (Calendar) mIssued.clone();
-                    mStartUse.add(Calendar.MINUTE, getValidDays() * 24 * 60);
-                    setTypeRelatedInfo();
-
+                    mStartUseTill = (Calendar) mIssued.clone();
+                    mStartUseTill.add(Calendar.MINUTE, getValidDays() * 24 * 60);
+                    if(getTripSeqNumber() == 0) setTypeRelatedInfo();
 // TODO: Check. Is it right place to to make day limited tickets time correct.
 // TODO: May be better way to do this at display time
-                    mIssued.add(Calendar.MINUTE, -1);
+                    //mIssued.add(Calendar.MINUTE, -1);
                 }
 
                 break;
@@ -678,7 +691,6 @@ public class Ticket {
         if (getTicketClass() == C_UNLIM_DAYS){
             setTripSeqNumber(getPassesLeft());
             mPassesLeft = -1;
-            if(getTripSeqNumber() == 0) setTypeRelatedInfo();
             if (mTripStart != null) {
                 Calendar NextTrip = (Calendar) mTripStart.clone();
                 NextTrip.add(Calendar.MINUTE, 21);
@@ -845,9 +857,9 @@ public class Ticket {
             if (tmpCal.after(getTimeToCompare())
                     && getTripSeqNumber() == 0)
                 sb.append("\n\tN E V E R  U S E D");
-            if (mStartUse != null) {
+            if (mStartUseTill != null) {
                 sb.append(String.format("\n\tStart use up to: %s",
-                        DTF.format(mStartUse.getTime())));
+                        DTF.format(mStartUseTill.getTime())));
             }
 
         }
@@ -1014,6 +1026,7 @@ public class Ticket {
             case TN_U1_DRV:
             case TN_UL3D:
             case TN_U2:
+            case TN_90U2_G:
 // TODO: Need to add all other types
 
                 break;
@@ -1066,6 +1079,22 @@ public class Ticket {
      */
     public Calendar getIssued() {
         return mIssued;
+    }
+
+    public int getSellTime() {
+        return mSellTime;
+    }
+
+    public void setSellTime(int sellTime) {
+        mSellTime = sellTime;
+    }
+
+    public int getFirstUseTime() {
+        return mFirstUseTime;
+    }
+
+    public void setFirstUseTime(int firstUseTime) {
+        mFirstUseTime = firstUseTime;
     }
 
     public void setTripStart(Calendar tripStart) {
@@ -1199,11 +1228,21 @@ public class Ticket {
      */
     public int getRelTransportChangeTimeMinutes() { return mT90RelChangeTime; }
 
+    public int getT90MCount() {
+        return mT90MCount;
+    }
+
+    public void setT90MCount(int t90MCount) {
+        mT90MCount = t90MCount;
+    }
+
     /**
      *
      * @return for 90 minutes ticket type return amount of transport changes during current trip
      */
     public int getT90ChangeCount() { return mT90GCount + mT90MCount; }
+
+
 
     public void setValidDays(int validDays) {
         if (validDays < 0 || validDays > 120) {
@@ -1211,6 +1250,14 @@ public class Ticket {
             addParserError("Valid days number wrong");
         }
         this.mValidDays = validDays;
+    }
+
+    public Calendar getT90ChangeTime() {
+        return mT90ChangeTime;
+    }
+
+    public void setT90ChangeTime(Calendar t90ChangeTime) {
+        mT90ChangeTime = t90ChangeTime;
     }
 
     /**
@@ -1476,7 +1523,8 @@ public class Ticket {
             case TN_UL3D:
                 mPassesTotal = -1;
                 setTicketClass(C_UNLIM_DAYS);
-                if (getValidDays() == 0) setValidDays(3);
+//                if ((getValidDays() == 0) || (getValidDays() == 10)) setValidDays(3);
+                setValidDays(3);
                 mWhereSell = WS_METRO;
                 break;
             case TN_UL7D:

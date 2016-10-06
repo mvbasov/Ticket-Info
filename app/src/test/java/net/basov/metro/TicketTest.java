@@ -183,4 +183,37 @@ public class TicketTest {
                 this.realTicket.getApp()
         );
     }
+
+    @Test
+    public void testGetT90ChangeTime() throws Exception {
+        Assert.assertEquals(
+                this.expectedTicket.getT90ChangeTime(),
+                this.realTicket.getT90ChangeTime()
+        );
+
+    }
+
+    @Test
+    public void testGetT90MCount() throws Exception {
+        Assert.assertEquals(
+                this.expectedTicket.getT90MCount(),
+                this.realTicket.getT90MCount()
+        );
+    }
+
+    @Test
+    public void testGetSellTime() throws Exception {
+        Assert.assertEquals(
+                this.expectedTicket.getSellTime(),
+                this.realTicket.getSellTime()
+        );
+    }
+
+    @Test
+    public void testGetFirstUseTime() throws Exception {
+        Assert.assertEquals(
+                this.expectedTicket.getFirstUseTime(),
+                this.realTicket.getFirstUseTime()
+        );
+    }
 }

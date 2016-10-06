@@ -16,8 +16,7 @@ public class TicketTestData {
         TDSArray.add(TDS_0xa_U2());
         TDSArray.add(TDS_0xa_3D_unused());
         TDSArray.add(TDS_0xa_3D_trip_3());
-// TODO: Make test data set for 90 minutes, new layout
-//        TDSArray.add(TDS_0xa_90M2());
+        TDSArray.add(TDS_0xa_90M2());
         return TDSArray;
     }
 
@@ -107,7 +106,8 @@ public class TicketTestData {
         TDS.setLayout(10);
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
-        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 9, 11, 2));
+        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 9, 11, 3));
+        TDS.setFirstUseTime(11 * 60 + 3);
         TDS.setTripStart(getCldr(2016, Calendar.SEPTEMBER, 12, 11, 1));
         ArrayList<Integer> content = new ArrayList<Integer>();
         content.add(0x34e793c8);
@@ -206,29 +206,31 @@ public class TicketTestData {
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
         // TODO: Check this ticket issue date
-        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 0, 0));
+        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 11, 25));
+        TDS.setSellTime(11 * 60 + 25);
 
         ArrayList<Integer> content = new ArrayList<Integer>();
-        content.add(0x34e780db);
-        content.add(0x592b1276);
-        content.add(0x16e03000);
-        content.add(0x00000000);
-        content.add(0x45db3001);
-        content.add(0xdf9bfa00);
-        content.add(0x10e07081);
-        content.add(0x00000000);
-        content.add(0x00000000);
-        content.add(0x00000000);
-        content.add(0x401541dd);
-        content.add(0x10e07081);
-        content.add(0x00000000);
-        content.add(0x00000000);
-        content.add(0x00000000);
-        content.add(0x401541dd);
+        content.add(0x34e780db); //P0
+        content.add(0x592b1276); //P1
+        content.add(0x16e03000); //P2
+        content.add(0x00000000); //P3
+        content.add(0x45db3001); //P4
+        content.add(0xdf9bfa00); //P5
+        content.add(0x10e07081); //P6
+        content.add(0x00000000); //P7
+        content.add(0x00000000); //P8
+        content.add(0x00000000); //P9
+        content.add(0x401541dd); //P10
+        content.add(0x10e07081); //P11
+        content.add(0x00000000); //P12
+        content.add(0x00000000); //P13
+        content.add(0x00000000); //P14
+        content.add(0x401541dd); //P15
         TDS.setDump(content);
 
         return TDS;
     }
+
     /**
      * 0001964479<br/>
      * Unlimited, 3 days<br/>
@@ -256,7 +258,8 @@ public class TicketTestData {
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
         // TODO: Check this ticket issue date
-        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 25, 0, 0));
+        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 12, 42));
+        TDS.setFirstUseTime(12 * 60 + 42);
         TDS.setTripStart(getCldr(2016, Calendar.OCTOBER, 4, 23, 25));
 
         ArrayList<Integer> content = new ArrayList<Integer>();
@@ -276,6 +279,59 @@ public class TicketTestData {
         content.add(0x03049d40); //P13
         content.add(0x00000000); //P14
         content.add(0xb5087400); //P15
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+    /**
+     * 1017786847<br/>
+     * Universal, 30 minutes, 2 passes<br/>
+     * Valid 5 days (from 02.10.2016 00:00 to 07.10.2016 23:59)<br/>
+     * Trip N2 02.10.2016 at 14:05<br/>
+     * Station entrance ID 991 (Metro)<br/>
+     *<br/>
+     * Layout 10, AppId 279, Type 438<br/>
+     *
+     */
+    public static Ticket TDS_0xa_90M2(){
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0xa, Universal 90 minutes, trip 2");
+        TDS.setTicketNumber(1017786847L);
+        TDS.setTicketClass(Ticket.C_90UNIVERSAL);
+        TDS.setPassesTotal(2);
+        TDS.setValidDays(5);
+        TDS.setTripSeqNumber(2);
+        TDS.setT90MCount(1);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setEntranceEntered(991);
+        TDS.setPassesLeft(0);
+        TDS.setLayout(10);
+        TDS.setApp(Ticket.A_UNIVERSAL);
+        TDS.setTicketType(Ticket.TN_90U2_G);
+        TDS.setIssued(getCldr(2016, Calendar.OCTOBER, 2, 0, 0));
+        TDS.setTripStart(getCldr(2016, Calendar.OCTOBER, 2, 14, 5));
+        TDS.setT90ChangeTime(getCldr(2016, Calendar.OCTOBER, 2, 14, 16));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04084ace); //P0
+        content.add(0x3a773f85); //P1
+        content.add(0xf7487008); //P2
+        content.add(0xfffffffc); //P3
+        content.add(0x45db63ca); //P4
+        content.add(0xa31dfa00); //P5
+        content.add(0x11403840); //P6
+        content.add(0x0069a02d); //P7
+        content.add(0x0003df40); //P8
+        content.add(0x00000000); //P9
+        content.add(0xee8922e9); //P10
+        content.add(0x11403840); //P11
+        content.add(0x0069a02d); //P12
+        content.add(0x0003df40); //P13
+        content.add(0x00000000); //P14
+        content.add(0xee8922e9); //P15
         TDS.setDump(content);
 
         return TDS;
