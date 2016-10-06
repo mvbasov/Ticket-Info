@@ -288,7 +288,7 @@ public final class MainActivity extends Activity {
 					Ticket t = new Ticket(d);
 					if (d.getRemark().length() != 0){
 						sb.append("File: ");
-                        sb.append(rcvUri.getPath());
+                        sb.append(rcvUri.getLastPathSegment());
                         sb.append("\n");
 						sb.append(d.getRemark());
 						sb.append("\n- - - -\n");

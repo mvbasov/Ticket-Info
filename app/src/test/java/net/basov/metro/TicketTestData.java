@@ -106,7 +106,7 @@ public class TicketTestData {
         TDS.setLayout(10);
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
-        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 9, 11, 3));
+        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 9, 0, 0));
         TDS.setFirstUseTime(11 * 60 + 3);
         TDS.setTripStart(getCldr(2016, Calendar.SEPTEMBER, 12, 11, 1));
         ArrayList<Integer> content = new ArrayList<Integer>();
@@ -206,8 +206,7 @@ public class TicketTestData {
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
         // TODO: Check this ticket issue date
-        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 11, 25));
-        TDS.setSellTime(11 * 60 + 25);
+        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 0, 0));
 
         ArrayList<Integer> content = new ArrayList<Integer>();
         content.add(0x34e780db); //P0
@@ -245,7 +244,7 @@ public class TicketTestData {
 
         Ticket TDS = new Ticket();
 
-        TDS.setName("Layout 0xa, 3 days limited, trip 4");
+        TDS.setName("Layout 0xa, 3 days limited, trip 3");
         TDS.setTicketNumber(1964479L);
         TDS.setTicketClass(Ticket.C_UNLIM_DAYS);
         TDS.setPassesTotal(-1);
@@ -258,7 +257,7 @@ public class TicketTestData {
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
         // TODO: Check this ticket issue date
-        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 12, 42));
+        TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 0, 0));
         TDS.setFirstUseTime(12 * 60 + 42);
         TDS.setTripStart(getCldr(2016, Calendar.OCTOBER, 4, 23, 25));
 

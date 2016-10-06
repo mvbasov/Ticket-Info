@@ -202,14 +202,6 @@ public class TicketTest {
     }
 
     @Test
-    public void testGetSellTime() throws Exception {
-        Assert.assertEquals(
-                this.expectedTicket.getSellTime(),
-                this.realTicket.getSellTime()
-        );
-    }
-
-    @Test
     public void testGetFirstUseTime() throws Exception {
         Assert.assertEquals(
                 this.expectedTicket.getFirstUseTime(),

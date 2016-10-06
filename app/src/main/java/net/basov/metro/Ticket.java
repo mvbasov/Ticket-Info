@@ -376,14 +376,9 @@ public class Ticket {
     private Calendar mStartUseTill = null;
     /**
      * Ticket issue date
+     * !!! Only date, without time !!!
      */
     private Calendar mIssued = null;
-    /**
-     * Time in minutes when ticket was sell
-     * related to {@link Ticket#mIssued} day start.
-     * Actual for day limited tickets.
-     */
-    private int mSellTime;
     /**
      * Time of the day in minutes when ticket 1-st time used.
      * Actual for day limited tickets
@@ -647,12 +642,10 @@ public class Ticket {
                 mIssued.clear();
                 mIssued.set(2015, Calendar.DECEMBER, 31);
                 mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) >>> 20) & 0xfff);
-                mIssued.add(Calendar.MINUTE,((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60));
-                if (mTicketClass == C_UNLIM_DAYS)
-                    if (mPassesLeft == 0)
-                        mSellTime = ((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60);
-                    else
-                        mFirstUseTime = ((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60);
+                if (mTicketClass == C_UNLIM_DAYS && mPassesLeft != 0)
+                     // mPassesLeft == 0 is unused flag for day limited tickets
+                    mFirstUseTime = ((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60);;
+
                 mEntranceEntered = (mDump.get(8) >>> 8) & 0xffff;
 
                 tmp = (mDump.get(7) >>> 13) & 0x7ffff;
@@ -988,8 +981,8 @@ public class Ticket {
                 break;
         }
 
-        sb.append(String.format("App ID: %$1d (0x%$103x), ", mApp));
-        sb.append(String.format("Ticket type: %$1d (0x%$103x)\n", getTicketType()));
+        sb.append(String.format("App ID: %1$d (0x%1$03x), ", mApp));
+        sb.append(String.format("Ticket type: %1$d (0x%1$03x)\n", getTicketType()));
 
         sb.append(c.getString(R.string.ticket_hash)).append(": ");
         sb.append(getHashAsHexString()).append('\n');
@@ -1022,13 +1015,49 @@ public class Ticket {
 
     public void setTicketType(@TicketType int ticketType) {
         switch (ticketType) {
+            case TO_BAGGAGE:
+            case TO_BAGGAGE_AND_PASS:
             case TO_M1:
-            case TN_U1_DRV:
-            case TN_UL3D:
-            case TN_U2:
+            case TO_M2:
+            case TO_M3:
+            case TO_M4:
+            case TO_M5:
+            case TO_M10:
+            case TO_M20:
+            case TO_M60:
+            case TO_UL70:
+            case TO_VESB:
+            case TN_90U1:
+            case TN_90U1_G:
+            case TN_90U2:
             case TN_90U2_G:
-// TODO: Need to add all other types
-
+            case TN_90U5:
+            case TN_90U11:
+            case TN_90U20:
+            case TN_90U40:
+            case TN_90U60:
+            case TN_G1:
+            case TN_G2:
+            case TN_G3_DRV:
+            case TN_G5:
+            case TN_G11:
+            case TN_G20:
+            case TN_G40:
+            case TN_G60:
+            case TN_GAB1:
+            case TN_GB1_DRV:
+            case TN_GB2:
+            case TN_U1:
+            case TN_U1_DRV:
+            case TN_U2:
+            case TN_U5:
+            case TN_U11:
+            case TN_U20:
+            case TN_U40:
+            case TN_U60:
+            case TN_UL1D:
+            case TN_UL3D:
+            case TN_UL7D:
                 break;
             default:
                 addParserError("Wrong type");
@@ -1079,14 +1108,6 @@ public class Ticket {
      */
     public Calendar getIssued() {
         return mIssued;
-    }
-
-    public int getSellTime() {
-        return mSellTime;
-    }
-
-    public void setSellTime(int sellTime) {
-        mSellTime = sellTime;
     }
 
     public int getFirstUseTime() {
