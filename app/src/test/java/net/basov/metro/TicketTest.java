@@ -139,17 +139,21 @@ public class TicketTest {
 
     @Test
     public void testGetTripStart() throws Exception {
-        Assert.assertEquals(
-                "Expected: " +
-                        Ticket.DDF.format(this.expectedTripStart.getTime()) +
-                " Result: " +
-                        Ticket.DDF.format(this.ticket.getTripStart().getTime()),
-                this.expectedTripStart, this.ticket.getTripStart());
+        if (expectedTripStart != null) {
+            Assert.assertEquals(
+                    "Expected: " +
+                            Ticket.DDF.format(this.expectedTripStart.getTime()) +
+                            " Result: " +
+                            Ticket.DDF.format(this.ticket.getTripStart().getTime()),
+                    this.expectedTripStart, this.ticket.getTripStart());
+        } else {
+            Assert.assertEquals(null, this.ticket.getTripStart());
+        }
     }
 
     @Test
     public void testGetTransportType() throws Exception {
-        Assert.assertEquals(this.expectedTransportType, this.ticket.getTransportType());
+        Assert.assertEquals(this.expectedTransportType, this.ticket.getPassTransportType());
     }
 
     @Test

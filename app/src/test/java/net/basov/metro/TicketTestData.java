@@ -14,6 +14,8 @@ public class TicketTestData {
         TDSArray.add(TDS_0xd_U1());
         TDSArray.add(TDS_0xa_3D());
         TDSArray.add(TDS_0xa_U2());
+        TDSArray.add(TDS_0xa_3D_unused());
+        TDSArray.add(TDS_0xa_3D_trip_3());
 // TODO: Make test data set for 90 minutes, new layout
 //        TDSArray.add(TDS_0xa_90M2());
         return TDSArray;
@@ -86,7 +88,7 @@ public class TicketTestData {
      * Unlimited, 3 days<br/>
      * Valid 3 days (from 09.09.2016 11:02 to 12.09.2016 11:02)<br/>
      * Trip N15 12.09.2016 at 11:01<br/>
-     * Gate 2281 (Metro)<br/>
+     * Station entrance ID 2281 (Metro)<br/>
      *<br/>
      * Layout 10, AppId 279, Type 435<br/>
      *
@@ -142,7 +144,7 @@ public class TicketTestData {
      * 2533158286<br/>
      * Universal, 2 pass<br/>
      * Valid 5 days (from 08.09.2016 to 12.09.2016)<br/>
-     * Trip N2 16.09.2016 at 00:32<br/>
+     * Trip N2 08.09.2016 at 11:17<br/>
      * Gate 2281 (Metro)<br/>
      * Passes left 0<br/>
      *<br/>
@@ -191,6 +193,115 @@ public class TicketTestData {
         content.add(0x0008e940);
         content.add(0x00000000);
         content.add(0xb82de5ab);
+        TDS.setDumpContent(content);
+
+        return TDS;
+    }
+
+    /**
+     * 0001964479<br/>
+     * Unlimited, 3 days<br/>
+     * Valid 3 days (from 26.09.2016 00:00 to 05.10.2016 23:59)<br/>
+     * Never used<br/>
+     *<br/>
+     * Layout 10, AppId 279, Type 435<br/>
+     *
+     */
+    public static TicketTestDataSet TDS_0xa_3D_unused(){
+
+        TicketTestDataSet TDS = new TicketTestDataSet();
+
+        TDS.setName("Layout 0xa, 3 days limited, never used");
+        TDS.setExpectedTicketNumber(1964479L);
+        TDS.setExpectedClass(Ticket.C_UNLIM_DAYS);
+        TDS.setExpectedPassesTotal(-1);
+        TDS.setExpectedValidDays(3);
+        TDS.setExpectedPassesLeft(-1);
+        TDS.setExpectedLayout(10);
+        TDS.setExpectedApp(Ticket.A_UNIVERSAL);
+        TDS.setExpectedType(Ticket.TN_UL3D);
+        Calendar expIssued = Calendar.getInstance();
+        expIssued.clear();
+        // TODO: Check this ticket issue date
+        expIssued.set(2016, Calendar.SEPTEMBER, 9, 26, 0, 0);
+        TDS.setExpectedIssued(expIssued);
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x34e780db);
+        content.add(0x592b1276);
+        content.add(0x16e03000);
+        content.add(0x00000000);
+        content.add(0x45db3001);
+        content.add(0xdf9bfa00);
+        content.add(0x10e07081);
+        content.add(0x00000000);
+        content.add(0x00000000);
+        content.add(0x00000000);
+        content.add(0x401541dd);
+        content.add(0x10e07081);
+        content.add(0x00000000);
+        content.add(0x00000000);
+        content.add(0x00000000);
+        content.add(0x401541dd);
+
+        TDS.setDumpContent(content);
+
+        return TDS;
+    }
+    /**
+     * 0001964479<br/>
+     * Unlimited, 3 days<br/>
+     * Valid 3 days (from 26.09.2016 00:00 to 05.10.2016 23:59)<br/>
+     * Trip N3 04.10.2016 at 23:25<br/>
+     * Station entrance ID 1181 (Metro)<br/>
+     *<br/>
+     * Layout 10, AppId 279, Type 435<br/>
+     *
+     */
+    public static TicketTestDataSet TDS_0xa_3D_trip_3(){
+
+        TicketTestDataSet TDS = new TicketTestDataSet();
+
+        TDS.setName("Layout 0xa, 3 days limited, trip 4");
+        TDS.setExpectedTicketNumber(1964479L);
+        TDS.setExpectedClass(Ticket.C_UNLIM_DAYS);
+        TDS.setExpectedPassesTotal(-1);
+        TDS.setExpectedValidDays(3);
+        TDS.setExpectedTripSeqNumber(3);
+        TDS.setExpectedTransportType(Ticket.TT_METRO);
+        TDS.setExpectedEntranceEntered(1181);
+        TDS.setExpectedPassesLeft(-1);
+        TDS.setExpectedLayout(10);
+        TDS.setExpectedApp(Ticket.A_UNIVERSAL);
+        TDS.setExpectedType(Ticket.TN_UL3D);
+        Calendar expIssued = Calendar.getInstance();
+        expIssued.clear();
+        // TODO: Check this ticket issue date
+        expIssued.set(2016, Calendar.SEPTEMBER, 9, 25, 0, 0);
+        TDS.setExpectedIssued(expIssued);
+        Calendar expTripStart = Calendar.getInstance();
+        expTripStart.clear();
+        expTripStart.set(2016, Calendar.OCTOBER, 4, 23, 25);
+        TDS.setExpectedTripStart(expTripStart);
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x34e780db);
+        content.add(0x592b1276);
+        content.add(0x16e07008);
+        content.add(0x00000000);
+        content.add(0x45db3001);
+        content.add(0xdf9bfa00);
+        content.add(0x10e081b4);
+        content.add(0x064fa001);
+        content.add(0x03049d40);
+        content.add(0x00000000);
+        content.add(0xb5087400);
+        content.add(0x10e081b4);
+        content.add(0x064fa001);
+        content.add(0x03049d40);
+        content.add(0x00000000);
+        content.add(0xb5087400);
+
         TDS.setDumpContent(content);
 
         return TDS;

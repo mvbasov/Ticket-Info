@@ -25,9 +25,9 @@ public class TicketTestDataSet {
     int expectedPassesTotal;
     int expectedPassesLeft;
     int expectedApp;
-    Calendar expectedStartUseBefore;
-    Calendar expectedIssued;
-    Calendar expectedTripStart;
+    Calendar expectedStartUseBefore = null;
+    Calendar expectedIssued = null;
+    Calendar expectedTripStart = null;
 
     ArrayList<Integer> dumpContent = new ArrayList<Integer>();
     Ticket mTicket;

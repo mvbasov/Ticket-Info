@@ -58,14 +58,6 @@ public class Ticket {
     static final String TAG = "tickets";
     private static final boolean DEBUG_TIME = false;
 
-	public void setMTimeToCompare(Calendar mTimeToCompare) {
-		this.mTimeToCompare = mTimeToCompare;
-	}
-
-	public Calendar getMTimeToCompare() {
-		return mTimeToCompare;
-	}
-
     public static final DateFormat DDF = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     // Constants definition
@@ -89,7 +81,7 @@ public class Ticket {
     public static final int A_METRO_LIGHT = 270;
     public static final int A_UNIVERSAL = 279;
 
-    /* Ticket mTicketType */
+    /* Ticket type */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             T_UNKNOWN,
@@ -256,12 +248,23 @@ public class Ticket {
     public static final int WS_DRIVER = WS_METRO >>> 2;
     
     // Data fields definition
+
     /**
      * Ticket chip content.
      * ArrayList of pages.
      * Each page (4 bytes) represented as Integer
      */
     private ArrayList<Integer> mDump;
+
+    /**
+     * Name of the ticket.
+     * Usefull for test datatsets.
+     */
+    private String mName;
+    /**
+     * Describe parser error if exists
+     */
+    private String mParserError;
 	/**
 	 * Date and time to calculate time difference related values.
 	 * To process real ticket in normal circumstance set to now time.
@@ -293,7 +296,7 @@ public class Ticket {
      */
     private int mApp = A_UNKNOWN;
     /**
-     * mTicketType. Possible value:
+     * Ticket type. Possible value:
      * <ul>
      *     <li>{@link Ticket#T_UNKNOWN}</li>
      *     <li>{@link Ticket#TO_M1}</li>
@@ -397,7 +400,7 @@ public class Ticket {
     /**
      * Pass (or trip for 90 minutes tickets) sequence number
      */
-    private int TripSeqNumber = 0;
+    private int mTripSeqNumber = 0;
 
     /**
      * When current trip start
@@ -427,7 +430,7 @@ public class Ticket {
      *     <li>{@link Ticket#TT_GROUND}</li>
      * </li>
      */
-    private int mTransportType = TT_UNKNOWN;
+    private int mPassTransportType = TT_UNKNOWN;
     /**
      * Metro pass counter during current trip.
      * Looks like a flag, because it can only be 0 or 1
@@ -545,8 +548,6 @@ public class Ticket {
         return dName.toString();
     }
 
-
-
     /**
      * Process mDump field and generate other fields content
      */
@@ -554,13 +555,14 @@ public class Ticket {
 
         mOTP = mDump.get(3);
 
-        mTicketNumber = (((mDump.get(4) & 0xfff) << 20) | (mDump.get(5) >>> 12)) & 0xffffffffL;
+        setTicketNumber((((mDump.get(4) & 0xfff) << 20) | (mDump.get(5) >>> 12)) & 0xffffffffL);
 
-        mLayout = ((mDump.get(5) >>> 8) & 0xf);
+        setLayout(((mDump.get(5) >>> 8) & 0xf));
 
         mApp = mDump.get(4) >>> 22;
 
-        mTicketType = (mDump.get(4) >>> 12) & 0x3ff;
+        //noinspection WrongConstant
+        setTicketType((mDump.get(4) >>> 12) & 0x3ff);
 
         setTypeRelatedInfo();
 
@@ -569,10 +571,10 @@ public class Ticket {
          */
         int tmp;
 
-        switch (mLayout) {
+        switch (getLayout()) {
             case 0x08:
             case 0x0d:
-                mValidDays = (mDump.get(8) >>> 8) & 0xff;
+                setValidDays((mDump.get(8) >>> 8) & 0xff);
                 mPassesLeft = (mDump.get(9) >>> 16) & 0xff;
                 tmp = (mDump.get(8) >>> 16) & 0xffff;
                 if ( tmp != 0) {
@@ -604,9 +606,10 @@ public class Ticket {
                     mTripStart.set(1991, Calendar.DECEMBER, 31);
                     mTripStart.add(Calendar.DAY_OF_MONTH, tmp);
                     mTripStart.add(Calendar.MINUTE, (mDump.get(11) & 0xfff0) >>> 5);
-                    mTransportType = (mDump.get(9) & 0xc0000000) >>> 30;
+                    //noinspection WrongConstant
+                    setPassTransportType((mDump.get(9) & 0xc0000000) >>> 30);
                 }
-                if (mTicketClass == C_90UNIVERSAL) {
+                if (getTicketClass() == C_90UNIVERSAL) {
                     if ((mDump.get(8) & 0xff) != 0 && (mDump.get(8) & 0xff) != 0x80) {
                         mT90RelChangeTime = (mDump.get(8) & 0xff) * 5;
                         mT90ChangeTime = (Calendar) mTripStart.clone();
@@ -617,9 +620,9 @@ public class Ticket {
                     mT90GCount = (mDump.get(9) & 0x1c000000) >>> 26;
                     mT90TripTimeLeft = 0;
                     if (mT90MCount != 0 || mT90GCount != 0) {
-                        if (getMTimeToCompare().after(mTripStart)){
+                        if (getTimeToCompare().after(mTripStart)){
                             mT90TripTimeLeft = (int)( 90 -
-								((getMTimeToCompare().getTimeInMillis()
+								((getTimeToCompare().getTimeInMillis()
                                             - mTripStart.getTimeInMillis())
                                     /(1000L * 60)));
                         }
@@ -629,7 +632,7 @@ public class Ticket {
 
                 break;
             case 0x0a:
-                mValidDays = ((mDump.get(6) >>> 1) & 0x7ffff) / (24 * 60);
+                setValidDays(((mDump.get(6) >>> 1) & 0x7ffff) / (24 * 60));
                 mPassesLeft = (mDump.get(8) >>> 24) & 0xff;
                 mIssued = Calendar.getInstance();
                 mIssued.clear();
@@ -641,23 +644,24 @@ public class Ticket {
                 // Base date (mIssued) used with zero time. Set it.
                 mTripStart = getBaseDate((Calendar) mIssued.clone());
                 mTripStart.add(Calendar.MINUTE, (mDump.get(7) >>> 13) & 0x7ffff);
-                mTransportType = mDump.get(7) & 0x3;
-                if (mTicketClass == C_90UNIVERSAL) {
+                //noinspection WrongConstant
+                setPassTransportType(mDump.get(7) & 0x3);
+                if (getTicketClass() == C_90UNIVERSAL) {
                     mT90MCount = (mDump.get(8) >>> 6) & 0x01;
                     mT90RelChangeTime = (mDump.get(7) >>> 2) & 0x3ff;
                     mT90ChangeTime = (Calendar) mTripStart.clone();
                     mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
 
-                    if (getMTimeToCompare().after(mTripStart)){
+                    if (getTimeToCompare().after(mTripStart)){
                         mT90TripTimeLeft = (int)( 90 -
-							((getMTimeToCompare().getTimeInMillis()
+							((getTimeToCompare().getTimeInMillis()
                                         - mTripStart.getTimeInMillis())
                                         /(1000L * 60)));
                     }
                     if (mT90TripTimeLeft < 0) mT90TripTimeLeft = 0;
-                } else if (mTicketClass == C_UNLIM_DAYS) {
+                } else if (getTicketClass() == C_UNLIM_DAYS) {
                     mStartUse = (Calendar) mIssued.clone();
-                    mStartUse.add(Calendar.MINUTE, mValidDays * 24 * 60);
+                    mStartUse.add(Calendar.MINUTE, getValidDays() * 24 * 60);
                     setTypeRelatedInfo();
 
 // TODO: Check. Is it right place to to make day limited tickets time correct.
@@ -668,27 +672,16 @@ public class Ticket {
                 break;
         }
 
-        if ((mLayout != 0x08 && mLayout != 0x0d && mLayout != 0x0a) ||
-                mApp == A_UNKNOWN ||
-                mTicketType == T_UNKNOWN ||
-                mPassesTotal == 0 ||
-                mPassesTotal < -1 ||
-                mPassesTotal > 70 ||
-                getPassesLeft() < -1
-                ) {
-            mDumpValid = false;
-        }
+        setTripSeqNumber(mPassesTotal - getPassesLeft());
 
-        TripSeqNumber = mPassesTotal - getPassesLeft();
-
-        if (mTicketClass == C_UNLIM_DAYS){
-            TripSeqNumber = getPassesLeft();
+        if (getTicketClass() == C_UNLIM_DAYS){
+            setTripSeqNumber(getPassesLeft());
             mPassesLeft = -1;
-            if(TripSeqNumber == 0) setTypeRelatedInfo();
+            if(getTripSeqNumber() == 0) setTypeRelatedInfo();
             Calendar NextTrip = (Calendar) mTripStart.clone();
             NextTrip.add(Calendar.MINUTE, 21);
             long NextTripInSeconds = NextTrip.getTimeInMillis() / 1000L;
-            long NowInSeconds = getMTimeToCompare().getTimeInMillis() / 1000L;
+            long NowInSeconds = getTimeToCompare().getTimeInMillis() / 1000L;
             if (NextTripInSeconds > NowInSeconds ) {
                 mTimeToNextTrip = (int) (NextTripInSeconds - NowInSeconds) / 60;
             } else {
@@ -696,8 +689,8 @@ public class Ticket {
             }
         }
 
-		if (mTicketType == TO_VESB) {
-			TripSeqNumber = (mDump.get(9) >>> 16) & 0xfff;
+		if (getTicketType() == TO_VESB) {
+			setTripSeqNumber((mDump.get(9) >>> 16) & 0xfff);
 			mPassesLeft = -1;
 		}
 
@@ -705,16 +698,46 @@ public class Ticket {
 
     }
 
+    /**
+     * Set IC dump which ticket based on
+     * Not automaticaly parsed
+     * @param dump
+     */
     public void setDump(ArrayList<Integer> dump) {
         if ( dump.size() < 12 ) {
             setDumpIsValid(false);
+            mParserError += " Dump too short";
             return;
         }
         this.mDump = dump;
     }
 
+    /**
+     * Get IC dump which ticket based on
+     * @return
+     */
+    public ArrayList<Integer> getDump() {
+        return mDump;
+    }
+
     public void setDumpIsValid(boolean isValid) {
         this.mDumpValid = isValid;
+    }
+
+    /**
+     * Get ticket name {@link Ticket#mName}
+     * @return
+     */
+    public String getName() {
+        return mName;
+    }
+
+    /**
+     * Set ticket name {@link Ticket#mName}
+     * @param name
+     */
+    public void setName(String name) {
+        mName = name;
     }
 
     /**
@@ -728,14 +751,14 @@ public class Ticket {
 
         if (DEBUG_TIME)
             sb.append(String.format("! ! ! mApp time set to %s\n\n",
-									DDF.format(getMTimeToCompare().getTime())));
+									DDF.format(getTimeToCompare().getTime())));
 
         if (!mDumpValid) {
 // TODO: Translate message
             sb.append("! ! ! mDump not valid or ticket type unknown\n\n");
         }
 
-        sb.append(Decode.descCardType(c, mTicketType)).append('\n');
+        sb.append(Decode.descCardType(c, getTicketType())).append('\n');
         sb.append("\n- - - -\n");
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
@@ -780,19 +803,19 @@ public class Ticket {
         if (getPassesLeft() == 0) {
             sb.append("\n\tE M P T Y\n");
         } else if (mIssued == null ) {
-            if (mStartUseBefore.before(getMTimeToCompare())) {
+            if (mStartUseBefore.before(getTimeToCompare())) {
                 sb.append("\n\tE X P I R E D\n");
             }
         } else {
             tmpCal = (Calendar) mIssued.clone();
-            tmpCal.add(Calendar.DATE, mValidDays);
-            if (tmpCal.before(getMTimeToCompare()) &&
-                    mTicketClass != C_UNLIM_DAYS) {
+            tmpCal.add(Calendar.DATE, getValidDays());
+            if (tmpCal.before(getTimeToCompare()) &&
+                    getTicketClass() != C_UNLIM_DAYS) {
                 sb.append("\n\tE X P I R E D\n");
             }
         }
 
-        if (mTicketClass == C_UNLIM_DAYS) {
+        if (getTicketClass() == C_UNLIM_DAYS) {
             tmpCal = (Calendar) mIssued.clone();
             tmpCal.add(Calendar.HOUR, 24 * getValidDays());
 
@@ -804,13 +827,13 @@ public class Ticket {
                     sb.append("\n\tE X P I R E D\n");
                 }
             } else {
-                if (tmpCal.compareTo(getMTimeToCompare()) < 0) {
+                if (tmpCal.compareTo(getTimeToCompare()) < 0) {
                     sb.append("\n\tE X P I R E D\n");
                 } else if (mTimeToNextTrip > 0) {
                     sb.append("\n\tW A I T\n");
                 }
             }
-            if (tmpCal.after(getMTimeToCompare())
+            if (tmpCal.after(getTimeToCompare())
                     && getTripSeqNumber() == 0)
                 sb.append("\n\tN E V E R  U S E D");
             if (mStartUse != null) {
@@ -827,7 +850,7 @@ public class Ticket {
             sb.append(getPassesLeft()).append("\n\n");
         }
         
-        switch (mLayout) {
+        switch (getLayout()) {
             case 8:
                 if ( getGateEntered() != 0) {
 					sb.append(c.getString(R.string.last_trip));
@@ -861,7 +884,7 @@ public class Ticket {
                     sb.append('\n');
 
 // TODO: Translate messages
-                    if (mTicketClass == C_90UNIVERSAL) {
+                    if (getTicketClass() == C_90UNIVERSAL) {
                        sb.append("90 minutes trip details:\n");
                        if (mT90TripTimeLeft > 0) {
                             sb.append("  Time left: ");
@@ -881,7 +904,7 @@ public class Ticket {
                         sb.append(TF.format(mT90ChangeTime.getTime())).append('\n');
                     }
                     
-                    if (mTicketClass == Ticket.C_UNLIM_DAYS &&
+                    if (getTicketClass() == Ticket.C_UNLIM_DAYS &&
                             mTimeToNextTrip > 0) {
                         sb.append(String.format("  %d minutes to next trip", mTimeToNextTrip));
                         sb.append('\n');
@@ -906,7 +929,7 @@ public class Ticket {
                     sb.append(getStationDesc(c, getEntranceEntered()));
                     sb.append('\n');
 
-                    if (mTicketClass == C_90UNIVERSAL) {
+                    if (getTicketClass() == C_90UNIVERSAL) {
                         sb.append("90 minutes trip details:\n");
                         if (mT90TripTimeLeft > 0) {
                             sb.append("  Time left: ");
@@ -929,7 +952,7 @@ public class Ticket {
 						sb.append('\n');
                     }
 
-                    if (mTicketClass == Ticket.C_UNLIM_DAYS &&
+                    if (getTicketClass() == Ticket.C_UNLIM_DAYS &&
                             mTimeToNextTrip > 0) {
                         sb.append(String.format("  %d minutes to next trip", mTimeToNextTrip));
                         sb.append('\n');
@@ -940,12 +963,12 @@ public class Ticket {
                 break;
             default:
                 sb.append(c.getString(R.string.unknown_layout)).append(": ");
-                sb.append(mLayout).append('\n');
+                sb.append(getLayout()).append('\n');
                 break;
         }
 
-        sb.append(String.format("mApp ID: %d (0x%03x), ", mApp, mApp));
-        sb.append(String.format("mTicketType: %d (0x%03x)\n", mTicketType, mTicketType));
+        sb.append(String.format("App ID: %d (0x%03x), ", mApp, mApp));
+        sb.append(String.format("Ticket type: %$1d (0x%$103x)\n", getTicketType()));
 
         sb.append(c.getString(R.string.ticket_hash)).append(": ");
         sb.append(getHashAsHexString()).append('\n');
@@ -956,7 +979,35 @@ public class Ticket {
     }
 
     /**
-     * @return {@link Ticket#mTransportType}
+     * Set number printed on ticket
+     * @param ticketNumber
+     */
+    public void setTicketNumber(long ticketNumber) {
+        if (ticketNumber <= 0L || ticketNumber > 0xffffffffL) {
+            mParserError += " Ticket number wrong,";
+            setDumpIsValid(false);
+        }
+        mTicketNumber = ticketNumber;
+    }
+
+    private void setTicketType(@TicketType int ticketType) {
+        switch (ticketType) {
+            case TO_M1:
+            case TN_U1_DRV:
+            case TN_UL3D:
+            case TN_U2:
+// TODO: Need to add all other types
+
+                break;
+            default:
+                mParserError += " Wrong type,";
+                break;
+        }
+        this.mTicketType = ticketType;
+    }
+
+    /**
+     * @return {@link Ticket#mTicketType}
      */
 	public int getTicketType() { return mTicketType; }
 
@@ -996,7 +1047,15 @@ public class Ticket {
     }
 
 
-    public int getTripSeqNumber() { return TripSeqNumber; }
+    public void setTripSeqNumber(int tripSeqNumber) {
+        if (tripSeqNumber < -2 && tripSeqNumber > 255) {
+            mParserError += " Wrong trip seq number";
+            setDumpIsValid(false);
+        }
+        mTripSeqNumber = tripSeqNumber;
+    }
+
+    public int getTripSeqNumber() { return mTripSeqNumber; }
 
     /**
      * This trip current entered gate
@@ -1014,17 +1073,64 @@ public class Ticket {
         return mEntranceEntered;
     }
 
+    public void setPassTransportType(@PassTransportType int passTransportType) {
+        switch (passTransportType) {
+            case Ticket.TT_GROUND:
+            case Ticket.TT_METRO:
+            case Ticket.TT_UNKNOWN:
+                break;
+            default:
+                mParserError += " Wrong transport type,";
+                setDumpIsValid(false);
+                break;
+        }
+        this.mPassTransportType = passTransportType;
+
+    }
     /**
-     * Get transport type. Possible values:
-     *
-     * @return {@link Ticket#mTransportType} transport type
+     * Get pass transport type. Possible values:
+     * @return {@link Ticket#mPassTransportType} transport type
      */
-    public int getTransportType() {
-        return mTransportType;
+    public int getPassTransportType() {
+        return mPassTransportType;
+    }
+
+    public void setTicketClass(@TicketClass int ticketClass) {
+        switch (ticketClass) {
+            case Ticket.C_UNKNOWN:
+            case Ticket.C_OLD_METRO:
+            case Ticket.C_OLD_SPECIAL:
+            case Ticket.C_GROUND:
+            case Ticket.C_GROUND_B:
+            case Ticket.C_GROUND_AB:
+            case Ticket.C_UNIVERSAL:
+            case Ticket.C_UNLIM_DAYS:
+            case Ticket.C_90UNIVERSAL:
+                break;
+            default:
+                setDumpIsValid(false);
+                mParserError += " Wrong ticket class,";
+                break;
+        }
+
+        this.mTicketClass = ticketClass;
     }
 
     public int getTicketClass() { return mTicketClass; }
-	
+
+    public void setLayout(int layout) {
+        switch (layout) {
+            case 0x08:
+            case 0x0d:
+            case 0x0a:
+                break;
+            default:
+                setDumpIsValid(false);
+                mParserError += " Wrong layout,";
+        }
+
+        this.mLayout = layout;
+    }
 	public int getLayout() { return mLayout; }
 
     /**
@@ -1053,6 +1159,13 @@ public class Ticket {
      * @return for 90 minutes ticket type return amount of transport changes during current trip
      */
     public int getT90ChangeCount() { return mT90GCount + mT90MCount; }
+
+    public void setValidDays(int validDays) {
+        if (validDays < 0 || validDays > 120) {
+            mParserError += " Valid days number wrong,";
+        }
+        this.mValidDays = validDays;
+    }
 
     /**
      *
@@ -1086,7 +1199,7 @@ public class Ticket {
      */
     private String getGateDesc(Context c, int id) {
         String trType ="";
-        switch (this.mTransportType) {
+        switch (getPassTransportType()) {
             case TT_METRO:
                 trType +=c.getString(R.string.tt_metro);
                 break;
@@ -1120,7 +1233,7 @@ public class Ticket {
     private String getStationDesc(Context c, int id) {
         StringBuilder sb = new StringBuilder();
         String TransportType ="";
-        switch (this.mTransportType) {
+        switch (getPassTransportType()) {
             case TT_METRO:
                 TransportType +=c.getString(R.string.tt_metro);
                 break;
@@ -1161,214 +1274,214 @@ public class Ticket {
      * </ul>
      */
     private void setTypeRelatedInfo() {
-        switch (this.mTicketType) {
+        switch (getTicketType()) {
             case TO_M1:
                 mPassesTotal = 1;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M2:
                 mPassesTotal = 2;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M3:
                 mPassesTotal = 3;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M4:
                 mPassesTotal = 4;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M5:
                 mPassesTotal = 5;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M10:
                 mPassesTotal = 10;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M20:
                 mPassesTotal = 20;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_M60:
                 mPassesTotal = 60;
-                mTicketClass = C_OLD_METRO;
+                setTicketClass(C_OLD_METRO);
                 break;
             case TO_BAGGAGE_AND_PASS:
                 mPassesTotal = 1;
-                mTicketClass = C_OLD_SPECIAL;
+                setTicketClass(C_OLD_SPECIAL);
                 break;
             case TO_BAGGAGE:
                 mPassesTotal = 1;
-                mTicketClass = C_OLD_SPECIAL;
+                setTicketClass(C_OLD_SPECIAL);
                 break;
             case TO_UL70:
                 mPassesTotal = -1;
-                mTicketClass = C_OLD_SPECIAL;
+                setTicketClass(C_OLD_SPECIAL);
                 break;
             case TO_VESB:
                 mPassesTotal = -1;
-                mTicketClass = C_OLD_SPECIAL;
+                setTicketClass(C_OLD_SPECIAL);
                 break;
             
             case TN_G1:
                 mPassesTotal = 1;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_G2:
                 mPassesTotal = 2;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_G3_DRV:
                 mPassesTotal = 3;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_DRIVER;
                 break;
             case TN_G5:
                 mPassesTotal = 5;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_G11:
                 mPassesTotal = 11;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_G20:
                 mPassesTotal = 20;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_G40:
                 mPassesTotal = 40;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_G60:
                 mPassesTotal = 60;
-                mTicketClass = C_GROUND;
+                setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_GB1_DRV:
                 mPassesTotal = 1;
-                mTicketClass = C_GROUND_B;
+                setTicketClass(C_GROUND_B);
                 mWhereSell = WS_DRIVER;
                 break;
             case TN_GB2:
                 mPassesTotal = 2;
-                mTicketClass = C_GROUND_B;
+                setTicketClass(C_GROUND_B);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_GAB1:
                 mPassesTotal = 1;
-                mTicketClass = C_GROUND_AB;
+                setTicketClass(C_GROUND_AB);
                 mWhereSell = WS_DRIVER;
                 break;
             case TN_U1_DRV:
                 mPassesTotal = 1;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mWhereSell = WS_DRIVER;
                 break;
             case TN_U1:
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mPassesTotal = 1;
                 mWhereSell = WS_METRO;
                 break;
             case TN_U2:
                 mPassesTotal = 2;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_U5:
                 mPassesTotal = 5;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_U11:
                 mPassesTotal = 11;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_U20:
                 mPassesTotal = 20;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
 // TODO: As code example. Need to check.     
                 mWhereSell = WS_GROUND;
                 mWhereSell |= WS_METRO;
                 break;
             case TN_U40:
                 mPassesTotal = 40;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_U60:
                 mPassesTotal = 60;
-                mTicketClass = C_UNIVERSAL;
+                setTicketClass(C_UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_UL1D:
                 mPassesTotal = -1;
-                mTicketClass = C_UNLIM_DAYS;
-                if (mValidDays == 0) mValidDays = 1;
+                setTicketClass(C_UNLIM_DAYS);
+                if (getValidDays() == 0) setValidDays(1);
                 mWhereSell = WS_METRO;
                 break;
             case TN_UL3D:
                 mPassesTotal = -1;
-                mTicketClass = C_UNLIM_DAYS;
-                if (mValidDays == 0) mValidDays = 3;
+                setTicketClass(C_UNLIM_DAYS);
+                if (getValidDays() == 0) setValidDays(3);
                 mWhereSell = WS_METRO;
                 break;
             case TN_UL7D:
                 mPassesTotal = -1;
-                mTicketClass = C_UNLIM_DAYS;
-                if (mValidDays == 0) mValidDays = 7;
+                setTicketClass(C_UNLIM_DAYS);
+                if (getValidDays() == 0) setValidDays(7);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U1_G:
                 mPassesTotal = 1;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_90U1:
                 mPassesTotal = 1;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U2_G:
                 mPassesTotal = 2;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_GROUND;
                 break;
             case TN_90U2:
                 mPassesTotal = 2;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U5:
                 mPassesTotal = 5;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U11:
                 mPassesTotal = 11;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U20:
                 mPassesTotal = 20;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U40:
                 mPassesTotal = 40;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U60:
                 mPassesTotal = 60;
-                mTicketClass = C_90UNIVERSAL;
+                setTicketClass(C_90UNIVERSAL);
                 mWhereSell = WS_METRO;
                 break;
             default:
@@ -1378,6 +1491,22 @@ public class Ticket {
     }
 
 /* Time related internal functions */
+
+    /**
+     * set {@link Ticket#mTimeToCompare}
+     * @param mTimeToCompare
+     */
+    public void setTimeToCompare(Calendar mTimeToCompare) {
+        this.mTimeToCompare = mTimeToCompare;
+    }
+
+    /**
+     *
+     * @return {@link Ticket#mTimeToCompare}
+     */
+    public Calendar getTimeToCompare() {
+        return mTimeToCompare;
+    }
 
     /**
      * Get Calendar object which set to start of the day.
