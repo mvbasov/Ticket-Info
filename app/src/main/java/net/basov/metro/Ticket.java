@@ -613,10 +613,12 @@ public class Ticket {
                 }
                 tmp = (mDump.get(6) & 0x0000fff0) >>> 5;
                 if (tmp != 0 ) {
+// TODO: Check hear. If field contain only minutes frm mIssued
                     mStartUseTill = Calendar.getInstance();
                     mStartUseTill.clear();
                     mStartUseTill.set(1991, Calendar.DECEMBER, 31);
                     mStartUseTill.add(Calendar.MINUTE, tmp);
+                    mFirstUseTime = tmp;
                 }
                 mGateEntered = mDump.get(9) & 0x0000ffff;
                 tmp = (mDump.get(11) & 0xffff0000) >>> 16;
@@ -853,28 +855,31 @@ public class Ticket {
         }
 
         if (getTicketClass() == C_UNLIM_DAYS) {
-            tmpCal = (Calendar) mIssued.clone();
-            tmpCal.add(Calendar.HOUR, 24 * getValidDays());
-
-            if (DEBUG_TIME)
-                Log.d(TAG, String.format("Compare: %s\n", DDF.format(tmpCal.getTime())));
-
             if (mIssued == null ) {
                 if (mStartUseBefore.after(tmpCal)) {
                     sb.append("\n\tE X P I R E D\n");
+                } else {
+                    sb.append("\n\tN E V E R  U S E D\n");
                 }
             } else {
+
+                tmpCal = (Calendar) mIssued.clone();
+                tmpCal.add(Calendar.HOUR, 24 * getValidDays());
+
+                if (DEBUG_TIME)
+                    Log.d(TAG, String.format("Compare: %s\n", DDF.format(tmpCal.getTime())));
+
                 if (tmpCal.compareTo(getTimeToCompare()) < 0) {
                     sb.append("\n\tE X P I R E D\n");
                 } else if (mTimeToNextTrip > 0) {
                     sb.append("\n\tW A I T\n");
                 }
+                if (tmpCal.after(getTimeToCompare())
+                        && getTripSeqNumber() == 0)
+                    sb.append("\n\tN E V E R  U S E D\n");
             }
-            if (tmpCal.after(getTimeToCompare())
-                    && getTripSeqNumber() == 0)
-                sb.append("\n\tN E V E R  U S E D");
             if (mStartUseTill != null) {
-                sb.append(String.format("\n\tStart use up to: %s",
+                sb.append(String.format("\n\tStart use till: %s",
                         DTF.format(mStartUseTill.getTime())));
             }
 
