@@ -520,6 +520,23 @@ public class Ticket {
         processTicket();
     }
 
+    /**
+     * {@link Ticket#mDump} filled from <b>dump</b> parameters<br/>
+     * {@link Ticket#mTimeToCompare} filled from <b>timeToCompare</b> parameters<br/>
+     * Other fields automatically filled.
+     * @param dump ArrayList&lt;Integer>
+     * @param timeToCompare
+     */
+    public Ticket(ArrayList<Integer> dump, Calendar timeToCompare) {
+
+        this();
+
+        setDump(dump);
+        setTimeToCompare(timeToCompare);
+
+        processTicket();
+    }
+
     public static String createDumpFileName(Ticket ticket) {
 
         StringBuilder dName = new StringBuilder();
@@ -559,14 +576,14 @@ public class Ticket {
 
         mOTP = mDump.get(3);
 
-        setTicketNumber((((mDump.get(4) & 0xfff) << 20) | (mDump.get(5) >>> 12)) & 0xffffffffL);
+        setTicketNumber((((mDump.get(4) & 0x00000fff) << 20) | ((mDump.get(5) & 0xfffff000)>>> 12)) & 0xffffffffL);
 
-        setLayout(((mDump.get(5) >>> 8) & 0xf));
+        setLayout(((mDump.get(5) & 0x00000f00) >>> 8));
 
-        mApp = mDump.get(4) >>> 22;
+        mApp = (mDump.get(4) & 0xfffffc00) >>> 22;
 
         //noinspection WrongConstant
-        setTicketType((mDump.get(4) >>> 12) & 0x3ff);
+        setTicketType((mDump.get(4) & 0x003ff000) >>> 12);
 
         setTypeRelatedInfo();
 
@@ -578,37 +595,37 @@ public class Ticket {
         switch (getLayout()) {
             case 0x08:
             case 0x0d:
-                setValidDays((mDump.get(8) >>> 8) & 0xff);
-                mPassesLeft = (mDump.get(9) >>> 16) & 0xff;
-                tmp = (mDump.get(8) >>> 16) & 0xffff;
+                setValidDays((mDump.get(8) & 0x0000ff00) >>> 8);
+                mPassesLeft = (mDump.get(9) & 0x00ff0000) >>> 16;
+                tmp = (mDump.get(8) & 0xffff0000) >>> 16;
                 if ( tmp != 0) {
                     mIssued = Calendar.getInstance();
                     mIssued.clear();
                     mIssued.set(1991, Calendar.DECEMBER, 31);
                     mIssued.add(Calendar.DATE, tmp);
                 }
-                tmp = (mDump.get(6) >>> 16) & 0xffff;
+                tmp = (mDump.get(6) & 0xffff0000) >>> 16;
                 if (tmp != 0 && mLayout == 0xd) {
                     mStartUseBefore = Calendar.getInstance();
                     mStartUseBefore.clear();
                     mStartUseBefore.set(1991, Calendar.DECEMBER, 31);
                     mStartUseBefore.add(Calendar.DATE, tmp);
                 }
-                tmp = (mDump.get(6) & 0xfff0) >>> 5;
+                tmp = (mDump.get(6) & 0x0000fff0) >>> 5;
                 if (tmp != 0 ) {
                     mStartUseTill = Calendar.getInstance();
                     mStartUseTill.clear();
                     mStartUseTill.set(1991, Calendar.DECEMBER, 31);
                     mStartUseTill.add(Calendar.MINUTE, tmp);
                 }
-                mGateEntered = mDump.get(9) & 0xffff;
-                tmp = (mDump.get(11) >>> 16) & 0xffff;
+                mGateEntered = mDump.get(9) & 0x0000ffff;
+                tmp = (mDump.get(11) & 0xffff0000) >>> 16;
                 if (tmp != 0) {
                     mTripStart = Calendar.getInstance();
                     mTripStart.clear();
                     mTripStart.set(1991, Calendar.DECEMBER, 31);
                     mTripStart.add(Calendar.DAY_OF_MONTH, tmp);
-                    mTripStart.add(Calendar.MINUTE, (mDump.get(11) & 0xfff0) >>> 5);
+                    mTripStart.add(Calendar.MINUTE, (mDump.get(11) & 0x0000fff0) >>> 5);
                     if (mLayout == 0xd) {
                         //noinspection WrongConstant
                         setPassTransportType((mDump.get(9) & 0xc0000000) >>> 30);
@@ -622,8 +639,9 @@ public class Ticket {
                     }
                 }
                 if (getTicketClass() == C_90UNIVERSAL) {
-                    if ((mDump.get(8) & 0xff) != 0 && (mDump.get(8) & 0xff) != 0x80) {
-                        mT90RelChangeTime = (mDump.get(8) & 0xff) * 5;
+                    tmp = mDump.get(8) & 0x0000007f;
+                    if (tmp != 0) {
+                        mT90RelChangeTime = tmp * 5;
                         mT90ChangeTime = (Calendar) mTripStart.clone();
                         mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
                     }
@@ -644,29 +662,28 @@ public class Ticket {
 
                 break;
             case 0x0a:
-                setValidDays(((mDump.get(6) >>> 1) & 0x7ffff) / (24 * 60));
-                mPassesLeft = (mDump.get(8) >>> 24) & 0xff;
+                setValidDays(((mDump.get(6) & 0x000ffffe) >>> 1) / (24 * 60));
+                mPassesLeft = (mDump.get(8) & 0xff000000) >>> 24;
                 mIssued = Calendar.getInstance();
                 mIssued.clear();
                 mIssued.set(2015, Calendar.DECEMBER, 31);
-                mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) >>> 20) & 0xfff);
+                mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) & 0x0fff00000) >>> 20);
                 if (mTicketClass == C_UNLIM_DAYS && mPassesLeft != 0)
                      // mPassesLeft == 0 is unused flag for day limited tickets
-                    mFirstUseTime = ((mDump.get(6) >>> 1) & 0x7ffff) % (24 * 60);;
+                    mFirstUseTime = ((mDump.get(6) & 0x000ffffe) >>> 1) % (24 * 60);;
 
-                mEntranceEntered = (mDump.get(8) >>> 8) & 0xffff;
+                mEntranceEntered = (mDump.get(8) & 0x00ffff00) >>> 8;
 
-                tmp = (mDump.get(7) >>> 13) & 0x7ffff;
+                tmp = (mDump.get(7) & 0xffffe000) >>> 13;
                 if (tmp != 0) {
-                    // Base date (mIssued) used with zero time. Set it.
-                    mTripStart = getBaseDate((Calendar) mIssued.clone());
+                    mTripStart = (Calendar) mIssued.clone();
                     mTripStart.add(Calendar.MINUTE, tmp);
                     //noinspection WrongConstant
-                    setPassTransportType(mDump.get(7) & 0x3);
+                    setPassTransportType(mDump.get(7) & 0x00000003);
                 }
                 if (getTicketClass() == C_90UNIVERSAL) {
-                    mT90MCount = (mDump.get(8) >>> 6) & 0x01;
-                    mT90RelChangeTime = (mDump.get(7) >>> 2) & 0x3ff;
+                    mT90MCount = (mDump.get(8) & 0x00000040) >>> 6;
+                    mT90RelChangeTime = (mDump.get(7) & 0x00000ffc) >>> 2;
                     mT90ChangeTime = (Calendar) mTripStart.clone();
                     mT90ChangeTime.add(Calendar.MINUTE, mT90RelChangeTime);
 
@@ -708,7 +725,7 @@ public class Ticket {
         }
 
 		if (getTicketType() == TO_VESB) {
-			setTripSeqNumber((mDump.get(9) >>> 16) & 0xfff);
+			setTripSeqNumber((mDump.get(9) & 0x0fff0000) >>> 16);
 			mPassesLeft = -1;
 		}
 
@@ -1139,6 +1156,14 @@ public class Ticket {
     }
 
 
+    public int getTimeToNextTrip() {
+        return mTimeToNextTrip;
+    }
+
+    public void setTimeToNextTrip(int timeToNextTrip) {
+        mTimeToNextTrip = timeToNextTrip;
+    }
+
     public void setTripSeqNumber(int tripSeqNumber) {
         if (tripSeqNumber < 0 || tripSeqNumber > 255)
             addParserError("Wrong trip seq number");
@@ -1278,7 +1303,13 @@ public class Ticket {
             setTicketFormatIsValid(false);
             addParserError("Valid days number wrong");
         }
-        this.mValidDays = validDays;
+        if (this.mValidDays == 0)
+        /**
+         * if not 0 it is day limited and set and set by
+         * {@link Ticket#setTypeRelatedInfo()}
+         */
+
+            this.mValidDays = validDays;
     }
 
     public Calendar getT90ChangeTime() {
@@ -1546,7 +1577,8 @@ public class Ticket {
             case TN_UL1D:
                 mPassesTotal = -1;
                 setTicketClass(C_UNLIM_DAYS);
-                if (getValidDays() == 0) setValidDays(1);
+//                if (getValidDays() == 0) setValidDays(1);
+                setValidDays(1);
                 mWhereSell = WS_METRO;
                 break;
             case TN_UL3D:
@@ -1559,7 +1591,8 @@ public class Ticket {
             case TN_UL7D:
                 mPassesTotal = -1;
                 setTicketClass(C_UNLIM_DAYS);
-                if (getValidDays() == 0) setValidDays(7);
+//                if (getValidDays() == 0) setValidDays(7);
+                setValidDays(7);
                 mWhereSell = WS_METRO;
                 break;
             case TN_90U1_G:

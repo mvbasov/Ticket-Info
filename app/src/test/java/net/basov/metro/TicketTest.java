@@ -23,7 +23,10 @@ public class TicketTest {
 
     public TicketTest(Ticket TDS) {
         this.expectedTicket = TDS;
-        this.realTicket = new Ticket(TDS.getDump());
+        this.realTicket = new Ticket(
+                TDS.getDump(),
+                TDS.getTimeToCompare()
+        );
     }
 
     @Test
@@ -206,6 +209,27 @@ public class TicketTest {
         Assert.assertEquals(
                 this.expectedTicket.getFirstUseTime(),
                 this.realTicket.getFirstUseTime()
+        );
+    }
+
+    @Test
+    public void testGetTimeToNextTrip() throws Exception {
+        Assert.assertEquals(
+                this.expectedTicket.getTimeToNextTrip(),
+                this.realTicket.getTimeToNextTrip()
+        );
+
+    }
+
+    @Test
+    public void testGetTimeToCompare() throws Exception {
+        Assert.assertEquals(
+                "Expected: " +
+                        Ticket.DDF.format(this.expectedTicket.getTimeToCompare().getTime()) +
+                        " Result: " +
+                        Ticket.DDF.format(this.realTicket.getTimeToCompare().getTime()),
+                this.expectedTicket.getTimeToCompare(),
+                this.realTicket.getTimeToCompare()
         );
     }
 }

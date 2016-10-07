@@ -17,11 +17,11 @@ public class TicketTestData {
         TDSArray.add(TDS_0x8_M10_8());
         TDSArray.add(TDS_0x8_M20_20());
         TDSArray.add(TDS_0x8_M60_59());
-        TDSArray.add(TDS_0xd_U1());
-        TDSArray.add(TDS_0xa_3D());
-        TDSArray.add(TDS_0xa_U2());
-        TDSArray.add(TDS_0xa_3D_unused());
+        TDSArray.add(TDS_0xd_U1_1());
+        TDSArray.add(TDS_0xa_3D_0());
         TDSArray.add(TDS_0xa_3D_3());
+        TDSArray.add(TDS_0xa_3D_15());
+        TDSArray.add(TDS_0xa_U2_2());
         TDSArray.add(TDS_0xa_90M2());
         return TDSArray;
     }
@@ -357,7 +357,7 @@ public class TicketTestData {
      * Layout 13, AppId 279, Type 410<br/>
      *
      */
-    public static Ticket TDS_0xd_U1() {
+    public static Ticket TDS_0xd_U1_1() {
 
         Ticket TDS = new Ticket();
 
@@ -409,7 +409,7 @@ public class TicketTestData {
      * Layout 10, AppId 279, Type 435<br/>
      *
      */
-    public static Ticket TDS_0xa_3D() {
+    public static Ticket TDS_0xa_3D_15() {
 
         Ticket TDS = new Ticket();
 
@@ -461,7 +461,7 @@ public class TicketTestData {
      * Layout 10, AppId 279, Type 412<br/>
      *
      */
-    public static Ticket TDS_0xa_U2(){
+    public static Ticket TDS_0xa_U2_2(){
 
         Ticket TDS = new Ticket();
 
@@ -511,7 +511,7 @@ public class TicketTestData {
      * Layout 10, AppId 279, Type 435<br/>
      *
      */
-    public static Ticket TDS_0xa_3D_unused(){
+    public static Ticket TDS_0xa_3D_0(){
 
         Ticket TDS = new Ticket();
 
@@ -563,7 +563,7 @@ public class TicketTestData {
 
         Ticket TDS = new Ticket();
 
-        TDS.setName("Layout 0xa, 3 days limited, trip 3");
+        TDS.setName("Layout 0xa, 3 days limited, trip 3; Check time to next trip");
         TDS.setTicketNumber(1964479L);
         TDS.setTicketClass(Ticket.C_UNLIM_DAYS);
         TDS.setPassesTotal(-1);
@@ -579,6 +579,10 @@ public class TicketTestData {
         TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 0, 0));
         TDS.setFirstUseTime(12 * 60 + 42);
         TDS.setTripStart(getCldr(2016, Calendar.OCTOBER, 4, 23, 25));
+        // Time related part of test
+        TDS.setTimeToCompare(getCldr(2016, Calendar.OCTOBER, 4, 23, 27));
+        TDS.setTimeToNextTrip(19);
+
 
         ArrayList<Integer> content = new ArrayList<Integer>();
         content.add(0x34e780db); //P0
