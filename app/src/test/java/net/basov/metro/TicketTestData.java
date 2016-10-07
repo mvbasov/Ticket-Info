@@ -11,6 +11,8 @@ public class TicketTestData {
 
     public static ArrayList<Ticket> getDataSets() {
         ArrayList<Ticket> TDSArray = new ArrayList<Ticket>();
+        TDSArray.add(TDS_0x8_VESB_0());
+        TDSArray.add(TDS_0x8_VESB_9());
         TDSArray.add(TDS_0x8_M1_1());
         TDSArray.add(TDS_0x8_M2_1());
         TDSArray.add(TDS_0x8_M5_4());
@@ -31,6 +33,103 @@ public class TicketTestData {
         rCal.clear();
         rCal.set(year, month, day, hour, minute, 0);
         return rCal;
+    }
+
+    /**
+     * 0006981689<br/>
+     * VESB<br/>
+     * Valid 30 days from 1-st pass<br/>
+     * Real Issued 31.03.2016<br/>
+     * Valid 30 days (from 31.03.2016 to 17.12.2011)<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 150<br/>
+     *
+     */
+    public static Ticket TDS_0x8_VESB_0() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, VESB, unused");
+        TDS.setTicketNumber(6981689L);
+        TDS.setTicketClass(Ticket.C_OLD_SPECIAL);
+        TDS.setPassesTotal(-1);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(-1);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_VESB);
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04d58ed7); //P0
+        content.add(0xa2aa4180); //P1
+        content.add(0xc948f088); //P2
+        content.add(0x00000000); //P3
+        content.add(0x41896006); //P4
+        content.add(0xa8839823); //P5
+        content.add(0x74000000); //P6
+        content.add(0x00000000); //P7
+        content.add(0x00000080); //P8
+        content.add(0x00000000); //P9
+        content.add(0x662eb555); //P10
+        content.add(0x00000000); //P11
+        content.add(0x00000080); //P12
+        content.add(0x00000000); //P13
+        content.add(0x662eb555); //P14
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+    /**
+     * 0006981689<br/>
+     * VESB<br/>
+     * Valid 30 days from 1-st pass<br/>
+     * Real Issued 31.03.2016<br/>
+     * 1-st pass 01.05.2016 (represents as issued)<br/>
+     * Trip N9
+     *<br/>
+     * Layout 8, AppId 279, Type 150<br/>
+     *
+     */
+    public static Ticket TDS_0x8_VESB_9() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, VESB, pass 9");
+        TDS.setTicketNumber(6981689L);
+        TDS.setTicketClass(Ticket.C_OLD_SPECIAL);
+        TDS.setPassesTotal(-1);
+        TDS.setValidDays(30);
+        TDS.setTripSeqNumber(9);
+        TDS.setGateEntered(10673);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(-1);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_VESB);
+        TDS.setIssued(getCldr(2016, Calendar.MAY, 1, 0, 0));
+        TDS.setStartUseBefore(getCldr(2016, Calendar.MAY, 31, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04d58ed7); //P0
+        content.add(0xa2aa4180); //P0
+        content.add(0xc948f099); //P0
+        content.add(0x00000000); //P0
+        content.add(0x41896006); //P0
+        content.add(0xa8839823); //P0
+        content.add(0x74000000); //P0
+        content.add(0x00000000); //P0
+        content.add(0x22b81e00); //P0
+        content.add(0x000929b1); //P0
+        content.add(0xce9818eb); //P0
+        content.add(0x00000000); //P0
+        content.add(0x22b81e00); //P0
+        content.add(0x000929b1); //P0
+        content.add(0xce9818eb); //P0
+        content.add(0x00000000); //P0
+        TDS.setDump(content);
+
+        return TDS;
     }
 
     /**

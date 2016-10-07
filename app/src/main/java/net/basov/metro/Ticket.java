@@ -720,11 +720,9 @@ public class Ticket {
                     mTimeToNextTrip = 0;
                 }
             }
-        } else {
+        } else if (getTicketType() != TO_VESB){
             setTripSeqNumber(mPassesTotal - getPassesLeft());
-        }
-
-		if (getTicketType() == TO_VESB) {
+        } else {
 			setTripSeqNumber((mDump.get(9) & 0x0fff0000) >>> 16);
 			mPassesLeft = -1;
 		}

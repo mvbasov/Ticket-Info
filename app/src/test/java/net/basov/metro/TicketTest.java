@@ -138,14 +138,25 @@ public class TicketTest {
 
     @Test
     public void testGetIssued() throws Exception {
-        Assert.assertEquals(
-                "Expected: " +
-                    Ticket.DDF.format(this.expectedTicket.getIssued().getTime()) +
-                " Result: " +
-                    Ticket.DDF.format(this.realTicket.getIssued().getTime()),
-                this.expectedTicket.getIssued(),
-                this.realTicket.getIssued()
-        );
+        if (expectedTicket.getIssued() != null) {
+            Assert.assertEquals(
+                    "Expected: " +
+                            Ticket.DDF.format(this.expectedTicket.getIssued().getTime()) +
+                            " Result: " +
+                            Ticket.DDF.format(this.realTicket.getIssued().getTime()),
+                    this.expectedTicket.getIssued(),
+                    this.realTicket.getIssued()
+            );
+        } else {
+            if (realTicket.getIssued() != null) {
+                Assert.assertEquals(
+                        "Expected: null" +
+                                " Result: " +
+                                Ticket.DDF.format(this.realTicket.getIssued().getTime()),
+                        null,
+                        this.realTicket.getIssued());
+            }
+        }
     }
 
     @Test
