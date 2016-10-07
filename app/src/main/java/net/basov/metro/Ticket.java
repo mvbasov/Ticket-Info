@@ -588,7 +588,7 @@ public class Ticket {
                     mIssued.add(Calendar.DATE, tmp);
                 }
                 tmp = (mDump.get(6) >>> 16) & 0xffff;
-                if (tmp != 0) {
+                if (tmp != 0 && mLayout == 0xd) {
                     mStartUseBefore = Calendar.getInstance();
                     mStartUseBefore.clear();
                     mStartUseBefore.set(1991, Calendar.DECEMBER, 31);
@@ -601,7 +601,6 @@ public class Ticket {
                     mStartUseTill.set(1991, Calendar.DECEMBER, 31);
                     mStartUseTill.add(Calendar.MINUTE, tmp);
                 }
-
                 mGateEntered = mDump.get(9) & 0xffff;
                 tmp = (mDump.get(11) >>> 16) & 0xffff;
                 if (tmp != 0) {
@@ -610,8 +609,17 @@ public class Ticket {
                     mTripStart.set(1991, Calendar.DECEMBER, 31);
                     mTripStart.add(Calendar.DAY_OF_MONTH, tmp);
                     mTripStart.add(Calendar.MINUTE, (mDump.get(11) & 0xfff0) >>> 5);
-                    //noinspection WrongConstant
-                    setPassTransportType((mDump.get(9) & 0xc0000000) >>> 30);
+                    if (mLayout == 0xd) {
+                        //noinspection WrongConstant
+                        setPassTransportType((mDump.get(9) & 0xc0000000) >>> 30);
+                    }
+                }
+                if (mLayout == 0x8) {
+                    setPassTransportType(TT_METRO);
+                    if (mIssued != null) {
+                        mStartUseBefore = (Calendar) mIssued.clone();
+                        mStartUseBefore.add(Calendar.DATE, mValidDays);
+                    }
                 }
                 if (getTicketClass() == C_90UNIVERSAL) {
                     if ((mDump.get(8) & 0xff) != 0 && (mDump.get(8) & 0xff) != 0x80) {

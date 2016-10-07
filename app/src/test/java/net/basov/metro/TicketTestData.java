@@ -11,11 +11,17 @@ public class TicketTestData {
 
     public static ArrayList<Ticket> getDataSets() {
         ArrayList<Ticket> TDSArray = new ArrayList<Ticket>();
+        TDSArray.add(TDS_0x8_M1_1());
+        TDSArray.add(TDS_0x8_M2_1());
+        TDSArray.add(TDS_0x8_M5_4());
+        TDSArray.add(TDS_0x8_M10_8());
+        TDSArray.add(TDS_0x8_M20_20());
+        TDSArray.add(TDS_0x8_M60_59());
         TDSArray.add(TDS_0xd_U1());
         TDSArray.add(TDS_0xa_3D());
         TDSArray.add(TDS_0xa_U2());
         TDSArray.add(TDS_0xa_3D_unused());
-        TDSArray.add(TDS_0xa_3D_trip_3());
+        TDSArray.add(TDS_0xa_3D_3());
         TDSArray.add(TDS_0xa_90M2());
         return TDSArray;
     }
@@ -25,6 +31,319 @@ public class TicketTestData {
         rCal.clear();
         rCal.set(year, month, day, hour, minute, 0);
         return rCal;
+    }
+
+    /**
+     * 1080692610<br/>
+     * Old metro, 1 pass<br/>
+     * Valid 65 days (from 13.10.2011 to 17.12.2011)<br/>
+     * Trip N1<br/>
+     * Gate 2011 (Metro)<br/>
+     * Passes left 0<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 410<br/>
+     *
+     */
+    public static Ticket TDS_0x8_M1_1() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, Metro 1 pass");
+        TDS.setTicketNumber(1080692610L);
+        TDS.setTicketClass(Ticket.C_OLD_METRO);
+        TDS.setPassesTotal(1);
+        TDS.setValidDays(65);
+        TDS.setTripSeqNumber(1);
+        TDS.setGateEntered(2011);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(0);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_M1);
+        TDS.setIssued(getCldr(2011, Calendar.OCTOBER, 13, 0, 0));
+        TDS.setStartUseBefore(getCldr(2011, Calendar.DECEMBER, 17, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x0443a36c);
+        content.add(0x12172782);
+        content.add(0xa048f8ff);
+        content.add(0xfffffffc);
+        content.add(0x41878406);
+        content.add(0xa0f8281c);
+        content.add(0x7a000000);
+        content.add(0x00000000);
+        content.add(0x1c3a4100);
+        content.add(0x000007db);
+        content.add(0xd7f9ffa6);
+        content.add(0x00000000);
+        content.add(0x1c3a4100);
+        content.add(0x000007db);
+        content.add(0xd7f9ffa6);
+        content.add(0x00000000);
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+
+    /**
+     * 1146014286<br/>
+     * Old metro, 2 passes, 1-st pass<br/>
+     * Valid 5 days (from 08.01.2012 up to 13.01.2012)<br/>
+     * Trip N1<br/>
+     * Gate 2003 (Metro)<br/>
+     * Passes left 1<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 121<br/>
+     *
+     */
+    public static Ticket TDS_0x8_M2_1() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, Metro 2 passes, pass 1");
+        TDS.setTicketNumber(1146014286L);
+        TDS.setTicketClass(Ticket.C_OLD_METRO);
+        TDS.setPassesTotal(2);
+        TDS.setValidDays(5);
+        TDS.setTripSeqNumber(1);
+        TDS.setGateEntered(2003);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(1);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_M2);
+        TDS.setIssued(getCldr(2012, Calendar.JANUARY, 8, 0, 0));
+        TDS.setStartUseBefore(getCldr(2012, Calendar.JANUARY, 13, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04198015);
+        content.add(0x6a462982);
+        content.add(0x8748f099);
+        content.add(0x0001fffc);
+        content.add(0x41879444);
+        content.add(0xeca4e81c);
+        content.add(0x95000000);
+        content.add(0x00000000);
+        content.add(0x1c910500);
+        content.add(0x000107d3);
+        content.add(0x360ddc56);
+        content.add(0x00000000);
+        content.add(0x1c910500);
+        content.add(0x000107d3);
+        content.add(0x360ddc56);
+        content.add(0x00000000);
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+    /**
+     * 1062999288<br/>
+     * Old metro, 5 passes, 4-th pass<br/>
+     * Valid 45 days (from 26.09.2011 up to 10.11.2011)<br/>
+     * Trip N4<br/>
+     * Gate 1501 (Metro)<br/>
+     * Passes left 1<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 126<br/>
+     *
+     */
+    public static Ticket TDS_0x8_M5_4() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, Metro 5 passes, pass 4");
+        TDS.setTicketNumber(1062999288L);
+        TDS.setTicketClass(Ticket.C_OLD_METRO);
+        TDS.setPassesTotal(5);
+        TDS.setValidDays(45);
+        TDS.setTripSeqNumber(4);
+        TDS.setGateEntered(1501);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(1);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_M5);
+        TDS.setIssued(getCldr(2011, Calendar.SEPTEMBER, 26, 0, 0));
+        TDS.setStartUseBefore(getCldr(2011, Calendar.NOVEMBER, 10, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04ce97d5);
+        content.add(0x62842882);
+        content.add(0x4c48f099);
+        content.add(0x03fffffc);
+        content.add(0x4187e3f5);
+        content.add(0xc14f881c);
+        content.add(0x55000000);
+        content.add(0x00000000);
+        content.add(0x1c292d00);
+        content.add(0x000105dd);
+        content.add(0xd7b3a839);
+        content.add(0x00000000);
+        content.add(0x1c292d00);
+        content.add(0x000105dd);
+        content.add(0xd7b3a839);
+        content.add(0x00000000);
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+    /**
+     * 1022067563<br/>
+     * Old metro, 10 passes, 8-th pass<br/>
+     * Valid 45 days (from 06.08.2011 up to 20.09.2011)<br/>
+     * Trip N8<br/>
+     * Gate 609 (Metro)<br/>
+     * Passes left 2<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 127<br/>
+     *
+     */
+    public static Ticket TDS_0x8_M10_8() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, Metro 10 passes, pass 8");
+        TDS.setTicketNumber(1022067563L);
+        TDS.setTicketClass(Ticket.C_OLD_METRO);
+        TDS.setPassesTotal(10);
+        TDS.setValidDays(45);
+        TDS.setTripSeqNumber(8);
+        TDS.setGateEntered(609);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(2);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_M10);
+        TDS.setIssued(getCldr(2011, Calendar.AUGUST, 6, 0, 0));
+        TDS.setStartUseBefore(getCldr(2011, Calendar.SEPTEMBER, 20, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x0496dac0);
+        content.add(0xb2a62782);
+        content.add(0xb148f099);
+        content.add(0x03fffffc);
+        content.add(0x4187f3ce);
+        content.add(0xb836b81c);
+        content.add(0x22000000);
+        content.add(0x00000000);
+        content.add(0x1bf62d00);
+        content.add(0x00020261);
+        content.add(0x051ab9ea);
+        content.add(0x00000000);
+        content.add(0x1bf62d00);
+        content.add(0x00020261);
+        content.add(0x051ab9ea);
+        content.add(0x00000000);
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+    /**
+     * 1424959134<br/>
+     * Old metro, 20 passes, 20-th pass<br/>
+     * Valid 45 days (from 22.08.2011 up to 06.10.2011)<br/>
+     * Trip N20<br/>
+     * Gate 2194 (Metro)<br/>
+     * Passes left 0<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 128<br/>
+     *
+     */
+    public static Ticket TDS_0x8_M20_20() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, Metro 20 passes, pass 20");
+        TDS.setTicketNumber(1424959134L);
+        TDS.setTicketClass(Ticket.C_OLD_METRO);
+        TDS.setPassesTotal(20);
+        TDS.setValidDays(45);
+        TDS.setTripSeqNumber(20);
+        TDS.setGateEntered(2194);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(0);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_M20);
+        TDS.setIssued(getCldr(2011, Calendar.AUGUST, 22, 0, 0));
+        TDS.setStartUseBefore(getCldr(2011, Calendar.OCTOBER, 6, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04619c71);
+        content.add(0xb2fd2682);
+        content.add(0xeb48f8ff);
+        content.add(0xfffffffc);
+        content.add(0x4188054e);
+        content.add(0xf269e81c);
+        content.add(0x32000000);
+        content.add(0x00000000);
+        content.add(0x1c062d00);
+        content.add(0x00000892);
+        content.add(0x74710f24);
+        content.add(0x00000000);
+        content.add(0x1c062d00);
+        content.add(0x00000892);
+        content.add(0x74710f24);
+        content.add(0x00000000);
+        TDS.setDump(content);
+
+        return TDS;
+    }
+
+    /**
+     * 0416338383<br/>
+     * Old metro, 60 passes, 59-th pass<br/>
+     * Valid 45 days (from 08.12.2011 up to 22.01.2012)<br/>
+     * Trip N59<br/>
+     * Gate 1596 (Metro)<br/>
+     * Passes left 1<br/>
+     *<br/>
+     * Layout 8, AppId 279, Type 128<br/>
+     *
+     */
+    public static Ticket TDS_0x8_M60_59() {
+
+        Ticket TDS = new Ticket();
+
+        TDS.setName("Layout 0x8, Metro 60 passes, pass 59");
+        TDS.setTicketNumber(416338383L);
+        TDS.setTicketClass(Ticket.C_OLD_METRO);
+        TDS.setPassesTotal(60);
+        TDS.setValidDays(45);
+        TDS.setTripSeqNumber(59);
+        TDS.setGateEntered(1596);
+        TDS.setPassTransportType(Ticket.TT_METRO);
+        TDS.setPassesLeft(1);
+        TDS.setLayout(0x8);
+        TDS.setApp(Ticket.A_METRO);
+        TDS.setTicketType(Ticket.TO_M60);
+        TDS.setIssued(getCldr(2011, Calendar.DECEMBER, 8, 0, 0));
+        TDS.setStartUseBefore(getCldr(2012, Calendar.JANUARY, 22, 0, 0));
+
+        ArrayList<Integer> content = new ArrayList<Integer>();
+        content.add(0x04188713);
+        content.add(0x8a442882);
+        content.add(0x6448f099);
+        content.add(0x7ffffffc);
+        content.add(0x4188118d);
+        content.add(0x0d1cf81c);
+        content.add(0x9e000000);
+        content.add(0x00000000);
+        content.add(0x1c722d00);
+        content.add(0x0001063c);
+        content.add(0x467a2922);
+        content.add(0x00000000);
+        content.add(0x1c722d00);
+        content.add(0x0001063c);
+        content.add(0x467a2922);
+        content.add(0x00000000);
+        TDS.setDump(content);
+
+        return TDS;
     }
 
     /**
@@ -240,7 +559,7 @@ public class TicketTestData {
      * Layout 10, AppId 279, Type 435<br/>
      *
      */
-    public static Ticket TDS_0xa_3D_trip_3(){
+    public static Ticket TDS_0xa_3D_3(){
 
         Ticket TDS = new Ticket();
 
