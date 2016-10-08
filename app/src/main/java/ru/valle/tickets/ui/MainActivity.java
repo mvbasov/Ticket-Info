@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.pm.PackageInfo;
+import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
@@ -48,9 +49,9 @@ import net.basov.nfc.NFCaDump;
 import net.basov.util.FileIO;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import ru.valle.tickets.R;
-import android.net.Uri;
 
 public final class MainActivity extends Activity {
 
@@ -285,7 +286,21 @@ public final class MainActivity extends Activity {
 				if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
 					StringBuilder sb = new StringBuilder();
 					d.setReadFrom(NFCaDump.READ_FROM_FILE);
-					Ticket t = new Ticket(d);
+					Ticket t;
+					if (d.getDDD() != null) {
+						ArrayList<Integer> tmpDump = new ArrayList<Integer>();
+
+						for (int i = 0; i < 12; i++) {
+							tmpDump.add(d.getPageAsInt(i));
+						}
+						
+						t = new Ticket(tmpDump, d.getDDD());
+						sb.append("DDD rem:\n");
+						sb.append(d.getDDDRem());
+						sb.append('\n');
+					} else {
+						t = new Ticket(d);
+					}
 					if (d.getRemark().length() != 0){
 						sb.append("File: ");
                         sb.append(rcvUri.getLastPathSegment());

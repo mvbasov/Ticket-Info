@@ -56,7 +56,7 @@ import ru.valle.tickets.ui.Lang;
 public class Ticket {
     // Debug facility
     static final String TAG = "tickets";
-    private static final boolean DEBUG_TIME = false;
+    private boolean DEBUG_TIME = false;
 
     public static final DateFormat DDF = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
@@ -533,7 +533,7 @@ public class Ticket {
 
         setDump(dump);
         setTimeToCompare(timeToCompare);
-
+		DEBUG_TIME = true;
         processTicket();
     }
 
@@ -789,7 +789,7 @@ public class Ticket {
         Calendar tmpCal = null;
 
         if (DEBUG_TIME)
-            sb.append(String.format("! ! ! Application time set to %s\n\n",
+            sb.append(String.format("! ! ! App. time set to %s\n",
 									DDF.format(getTimeToCompare().getTime())));
 
         if (!mTicketFormatValid) {
@@ -1233,7 +1233,7 @@ public class Ticket {
             case Ticket.C_90UNIVERSAL:
                 break;
             default:
-                addParserError(" Wrong ticket class,");
+                addParserError("Wrong ticket class");
                 break;
         }
 
@@ -1653,10 +1653,10 @@ public class Ticket {
 
     /**
      * set {@link Ticket#mTimeToCompare}
-     * @param mTimeToCompare
+     * @param timeToCompare
      */
-    public void setTimeToCompare(Calendar mTimeToCompare) {
-        this.mTimeToCompare = mTimeToCompare;
+    public void setTimeToCompare(Calendar timeToCompare) {
+        this.mTimeToCompare = timeToCompare;
     }
 
     /**

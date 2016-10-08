@@ -101,6 +101,8 @@ public class NFCaDump {
     private byte IC_Type;
     private byte[] PagesAccess;
 	private String Remark;
+	private Calendar mDDD;
+	private String mDDDRemark;
 
     public NFCaDump() {
 		ReadFrom = READ_UNSET;
@@ -122,6 +124,10 @@ public class NFCaDump {
         }
 		Remark = "";
     }
+
+	public Calendar getDDD() { return mDDD; }
+	
+	public String getDDDRem() { return mDDDRemark; }
 
 	public void setRemark(String remark) { Remark = remark; }
 	public String getRemark() { return Remark; }
@@ -828,6 +834,9 @@ public class NFCaDump {
     final static int PS_IC_INFO_COUNTERS = PS_IC_INFO_UNKNOWN + 2;
     final static int PS_IC_INFO_SIG = PS_IC_INFO_UNKNOWN + 3;
     final static int PS_IC_INFO_TECH = PS_IC_INFO_UNKNOWN + 4;
+	// Parser substate when reading remark
+	final static int PS_REMARK_WAIT_UNKNOWN = 0;
+	final static int PS_REMARK_WAIT_DDD_REMARK = PS_REMARK_WAIT_UNKNOWN + 1;
 
     public static String getDumpAsString(NFCaDump dump) {
 
@@ -854,6 +863,7 @@ public class NFCaDump {
     public static void parseDump(NFCaDump dump, List<String> content) {
         int parserState = PS_DUMP;
         int parserICsubState = PS_IC_INFO_UNKNOWN;
+		int parserRemSubState = PS_REMARK_WAIT_UNKNOWN;
 
         for (String line : content) {
             if(parserState != PS_REMARK){
@@ -888,6 +898,21 @@ public class NFCaDump {
                     break;
                 case PS_REMARK:
                     dump.appendRemark(line+"\n");
+					if (line.startsWith("DDD: ")) {
+						dump.mDDD = parseDDD(line);
+						if (dump.mDDD != null)
+							parserRemSubState = PS_REMARK_WAIT_DDD_REMARK;
+						break;
+					} else if (line.startsWith("DD: ")) {
+						// TODO: implement dump date reading
+						break;
+					}
+					if (parserRemSubState == PS_REMARK_WAIT_DDD_REMARK) {
+						dump.mDDDRemark = line;
+						// DDD remark only one line
+						parserRemSubState = PS_REMARK_WAIT_UNKNOWN;
+						break;
+					}
                     break;
                 case PS_UNKNOWN:
                     dump.appendRemark("U: :" + line + ":\n");
@@ -946,6 +971,20 @@ public class NFCaDump {
             }
         }
     }
+	
+	private static Calendar parseDDD(String line) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Calendar DDD = null;
+		try {
+			DDD = Calendar.getInstance();
+			// String must be splited only on two parts
+			// by 1-st ':'.
+			// Be careful! 2-nd part alsocontain ':' symbol.
+			String value = line.split(":", 2)[1];
+			DDD.setTime(sdf.parse(value.trim()));
+		} catch (Exception ignore) {}
+		return DDD;
+	}
 
     private static Boolean readVerifyStoreDumpPage(NFCaDump dump, String line){
         Boolean rc;
