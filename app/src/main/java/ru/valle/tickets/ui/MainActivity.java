@@ -295,9 +295,7 @@ public final class MainActivity extends Activity {
 						}
 						
 						t = new Ticket(tmpDump, d.getDDD());
-						sb.append("DDD rem:\n");
-						sb.append(d.getDDDRem());
-						sb.append('\n');
+                        t.setDDDRem(d.getDDDRem());
 					} else {
 						t = new Ticket(d);
 					}

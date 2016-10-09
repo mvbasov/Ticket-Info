@@ -261,6 +261,9 @@ public class Ticket {
      * Usefull for test datatsets.
      */
     private String mName;
+    
+    private String mDDDRem;
+    
     /**
      * Describe parser error if exists
      */
@@ -732,6 +735,8 @@ public class Ticket {
         mHash = mDump.get(10);
 
     }
+    
+    public void setDDDRem(String dddRem) { this.mDDDRem = dddRem; }
 
     /**
      * Set IC dump which ticket based on
@@ -788,13 +793,17 @@ public class Ticket {
         StringBuilder sb = new StringBuilder();
         Calendar tmpCal = null;
 
-        if (DEBUG_TIME)
-            sb.append(String.format("! ! ! App. time set to %s\n",
+        if (DEBUG_TIME) {
+            sb.append(String.format("!!! App. time set to %s\n",
 									DDF.format(getTimeToCompare().getTime())));
-
+            sb.append(String.format("DDD rem: %s\n",
+                                    mDDDRem));
+            sb.append("\n- - - -\n");            
+        }
+        
         if (!mTicketFormatValid) {
 // TODO: Translate message
-            sb.append("! ! ! mDump not valid or ticket type unknown\n\n");
+            sb.append("!!! mDump not valid or ticket type unknown\n\n");
         }
 
         sb.append(Decode.descCardType(c, getTicketType())).append('\n');
