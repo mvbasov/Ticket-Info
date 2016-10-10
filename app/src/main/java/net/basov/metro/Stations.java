@@ -723,6 +723,13 @@ public class Stations {
                 desc += "Бунинская аллея";
                 break;
 
+/**
+ *  Московское Центральное Кольцо
+ */
+            case 540:
+                desc += "Лужники";
+                break;
+
             default:
                 break;
         }
