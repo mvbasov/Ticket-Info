@@ -183,10 +183,18 @@ public class TicketTest {
     }
 
     @Test
-    public void testGetTransportType() throws Exception {
+    public void testGetPassTransportType() throws Exception {
         Assert.assertEquals(
                 this.expectedTicket.getPassTransportType(),
                 this.realTicket.getPassTransportType()
+        );
+    }
+
+    @Test
+    public void testGetPassMetroType() throws Exception {
+        Assert.assertEquals(
+                this.expectedTicket.getPassMetroType(),
+                this.realTicket.getPassMetroType()
         );
     }
 
@@ -241,6 +249,14 @@ public class TicketTest {
                         Ticket.DDF.format(this.realTicket.getTimeToCompare().getTime()),
                 this.expectedTicket.getTimeToCompare(),
                 this.realTicket.getTimeToCompare()
+        );
+    }
+
+    @Test
+    public void testCreateDumpFileName() throws Exception {
+        Assert.assertEquals(
+                Ticket.createDumpFileName(this.expectedTicket),
+                Ticket.createDumpFileName(this.realTicket)
         );
     }
 }

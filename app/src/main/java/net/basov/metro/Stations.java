@@ -726,7 +726,7 @@ public class Stations {
 /**
  *  Московское Центральное Кольцо
  */
-            case 540:
+            case 540: //(2583042010-60-54_1c) (single entrance)
                 desc += "Лужники";
                 break;
 

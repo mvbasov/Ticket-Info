@@ -70,6 +70,15 @@ public class Ticket {
     public static final int TT_METRO = 1;
     public static final int TT_GROUND = 2;
 
+    /* Used metro types */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({MT_UNKNOWN, MT_METRO, MT_MONORAIL, MT_MCC})
+    public @interface PassMetroType {}
+    public static final int MT_UNKNOWN = 0;
+    public static final int MT_METRO = 1;
+    public static final int MT_MONORAIL = 2;
+    public static final int MT_MCC = 3;
+
     /* Ticket Application */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({A_UNKNOWN, A_METRO, A_GROUND, A_SOCIAL, A_METRO_LIGHT, A_UNIVERSAL})
@@ -439,6 +448,18 @@ public class Ticket {
      */
     private int mPassTransportType = TT_UNKNOWN;
     /**
+     * Metro type. Possible values:
+     * <ul>
+     *     <li>{@link Ticket#MT_UNKNOWN}</li>
+     *     <li>{@link Ticket#MT_METRO}</li>
+     *     <li>{@link Ticket#MT_MONORAIL}</li>
+     *     <li>{@link Ticket#MT_MCC}</li>
+     * </ul>
+     */
+    private int mPassMetroType = MT_UNKNOWN;
+
+    private ArrayList<Integer> mMetroTripTransportHistory = new ArrayList<Integer>();
+    /**
      * Metro pass counter during current trip.
      * Looks like a flag, because it can only be 0 or 1
      * Valid only for 90 minutes ticket.
@@ -638,6 +659,7 @@ public class Ticket {
                 }
                 if (mLayout == 0x8) {
                     setPassTransportType(TT_METRO);
+                    setPassMetroType(MT_METRO);
                     if (mIssued != null) {
                         mStartUseBefore = (Calendar) mIssued.clone();
                         mStartUseBefore.add(Calendar.DATE, mValidDays);
@@ -685,6 +707,25 @@ public class Ticket {
                     mTripStart.add(Calendar.MINUTE, tmp);
                     //noinspection WrongConstant
                     setPassTransportType(mDump.get(7) & 0x00000003);
+                    int metroType = (mDump.get(8) & 0x000000ff);
+                    //1-st pass in current trip stored in MSB
+                    // 0b11223344
+                    // 11 - 1-st pass;
+                    // 22 - 2-nd pass (transport change) in current trip
+                    // ...
+                    for (int i = 0; i < 4; i++) {
+                        tmp = (metroType >>> ((3 - i) * 2)) & 0x3;
+                        if (tmp != 0)
+                            mMetroTripTransportHistory.add(tmp);
+                    }
+                    if (mMetroTripTransportHistory != null &&
+                            !mMetroTripTransportHistory.isEmpty())
+                        //noinspection WrongConstant
+                        setPassMetroType(
+                                mMetroTripTransportHistory.get(
+                                        mMetroTripTransportHistory.size() - 1
+                                )
+                        );
                 }
                 if (getTicketClass() == C_90UNIVERSAL) {
                     mT90MCount = (mDump.get(8) & 0x00000040) >>> 6;
@@ -1229,6 +1270,24 @@ public class Ticket {
         return mPassTransportType;
     }
 
+    public int getPassMetroType() {
+        return mPassMetroType;
+    }
+
+    public void setPassMetroType(@PassMetroType int passMetroType) {
+        switch (passMetroType) {
+            case Ticket.MT_UNKNOWN:
+            case Ticket.MT_METRO:
+            case Ticket.MT_MONORAIL:
+            case Ticket.MT_MCC:
+                break;
+            default:
+                addParserError("Wrong metro type");
+                break;
+        }
+        this.mPassMetroType = passMetroType;
+    }
+
     public void setTicketClass(@TicketClass int ticketClass) {
         switch (ticketClass) {
             case Ticket.C_UNKNOWN:
@@ -1287,6 +1346,10 @@ public class Ticket {
      * @return how many passes left
      */
     public int getPassesLeft() { return mPassesLeft; }
+
+    public void setT90RelChangeTime(int t90RelChangeTime) {
+        mT90RelChangeTime = t90RelChangeTime;
+    }
 
     /**
      *
@@ -1366,7 +1429,21 @@ public class Ticket {
         String trType ="";
         switch (getPassTransportType()) {
             case TT_METRO:
-                trType +=c.getString(R.string.tt_metro);
+                switch (getPassMetroType()) {
+                    case MT_METRO:
+                        trType +=c.getString(R.string.mt_metro);
+                        break;
+                    case MT_MONORAIL:
+                        trType +=c.getString(R.string.mt_monorail);
+                        break;
+                    case MT_UNKNOWN:
+// TODO: Remove this than 0xd transport change decoding implementation
+                        trType +=c.getString(R.string.mt_metro);
+                        break;
+                    default:
+                        trType += c.getString(R.string.mt_unknown);
+                        break;
+                }
                 break;
             case TT_GROUND:
                 trType += c.getString(R.string.tt_ground);
@@ -1400,7 +1477,41 @@ public class Ticket {
         String TransportType ="";
         switch (getPassTransportType()) {
             case TT_METRO:
-                TransportType +=c.getString(R.string.tt_metro);
+                switch (getPassMetroType()) {
+                    case MT_MCC:
+                        TransportType +=c.getString(R.string.mt_mcc);
+                        break;
+                    case MT_METRO:
+                        TransportType +=c.getString(R.string.mt_metro);
+                        break;
+                    case MT_MONORAIL:
+                        TransportType +=c.getString(R.string.mt_monorail);
+                        break;
+                    case MT_UNKNOWN:
+                    default:
+                        TransportType += c.getString(R.string.tt_unknown);
+                        break;
+                }
+                if (mMetroTripTransportHistory.size() > 1) {
+                    TransportType += ", hist.: ";
+                    for (int tt : mMetroTripTransportHistory) {
+                        switch (tt) {
+                            case MT_METRO:
+                                TransportType += "M";
+                                break;
+                            case MT_MONORAIL:
+                                TransportType += "R";
+                                break;
+                            case MT_MCC:
+                                TransportType += "C";
+                                break;
+                            default:
+                            case MT_UNKNOWN:
+                                TransportType += "U";
+                                break;
+                        }
+                    }
+                }
                 break;
             case TT_GROUND:
                 TransportType += c.getString(R.string.tt_ground);
