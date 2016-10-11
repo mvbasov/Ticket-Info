@@ -836,7 +836,7 @@ public class TicketTestData {
 
         Ticket TDS = new Ticket();
 
-        TDS.setName("Layout 0xa, Universal 60 passes, trip 54, tc 2 mcc");
+        TDS.setName("Layout 0xa, Universal 60 passes, trip 54, tc 1 mcc");
         TDS.setTicketNumber(2583042010L);
         TDS.setTicketClass(Ticket.C_UNIVERSAL);
         TDS.setPassesTotal(60);
@@ -844,6 +844,8 @@ public class TicketTestData {
         TDS.setTripSeqNumber(54);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_MCC);
+        TDS.addMetroTripTransportHistory(Ticket.MT_METRO);
+        TDS.addMetroTripTransportHistory(Ticket.MT_MCC);
         TDS.setEntranceEntered(5401);
         TDS.setPassesLeft(6);
         TDS.setLayout(10);

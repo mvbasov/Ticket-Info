@@ -576,6 +576,24 @@ public class Ticket {
             } else {
                 dName.append(String.format("-%02d", ticket.getPassesTotal()));
                 dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
+                int lastMTTidx = ticket.mMetroTripTransportHistory.size();
+                if (lastMTTidx > 1) {
+                    String lmt = "";
+                    switch (ticket.mMetroTripTransportHistory.get(lastMTTidx -1)) {
+                        case MT_METRO:
+                            lmt += "m";
+                            break;
+                        case MT_MONORAIL:
+                            lmt += "r";
+                            break;
+                        case MT_MCC:
+                            lmt += "c";
+                            break;
+                        default:
+                            break;
+                    }
+                    dName.append(String.format("_%d%s", lastMTTidx -1, lmt));
+                }
                 if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
                     if (ticket.getLayout() == 0x0d) {
                         dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
@@ -1286,6 +1304,19 @@ public class Ticket {
                 break;
         }
         this.mPassMetroType = passMetroType;
+    }
+
+    public void addMetroTripTransportHistory(@PassMetroType int metroType) {
+        switch (metroType) {
+            case MT_METRO:
+            case MT_MONORAIL:
+            case MT_MCC:
+                break;
+            default:
+                addParserError("Wrong metro type");
+                break;
+        }
+        this.mMetroTripTransportHistory.add(metroType);
     }
 
     public void setTicketClass(@TicketClass int ticketClass) {

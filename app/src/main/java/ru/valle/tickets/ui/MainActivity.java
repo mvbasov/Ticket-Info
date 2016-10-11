@@ -285,7 +285,6 @@ public final class MainActivity extends Activity {
 				FileIO.ReadDump(d, rcvUri.getPath());
 				if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
 					StringBuilder sb = new StringBuilder();
-					d.setReadFrom(NFCaDump.READ_FROM_FILE);
 					Ticket t;
 					if (d.getDDD() != null) {
 						ArrayList<Integer> tmpDump = new ArrayList<Integer>();
