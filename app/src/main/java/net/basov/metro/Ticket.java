@@ -673,6 +673,18 @@ public class Ticket {
                     if (mLayout == 0xd) {
                         //noinspection WrongConstant
                         setPassTransportType((mDump.get(9) & 0xc0000000) >>> 30);
+                        setPassMetroType(
+                                (mDump.get(11) & 0x00000018) >>> 3
+                        );
+                        if ((mDump.get(11) & 0x00000001) == 1) {
+                            if (getPassMetroType() == MT_METRO) {
+                                mMetroTripTransportHistory.add(MT_MONORAIL);
+                                mMetroTripTransportHistory.add(MT_METRO);
+                            } else {
+                                mMetroTripTransportHistory.add(MT_METRO);
+                                mMetroTripTransportHistory.add(MT_MONORAIL);                               
+                            }
+                        }
                     }
                 }
                 if (mLayout == 0x8) {
@@ -1468,12 +1480,28 @@ public class Ticket {
                         trType +=c.getString(R.string.mt_monorail);
                         break;
                     case MT_UNKNOWN:
-// TODO: Remove this than 0xd transport change decoding implementation
-                        trType +=c.getString(R.string.mt_metro);
                         break;
                     default:
                         trType += c.getString(R.string.mt_unknown);
                         break;
+                }
+
+                if (mMetroTripTransportHistory.size() > 1) {
+                    trType += ", hist.: ";
+                    for (int tt : mMetroTripTransportHistory) {
+                        switch (tt) {
+                            case MT_METRO:
+                                trType += "M";
+                                break;
+                            case MT_MONORAIL:
+                                trType += "R";
+                                break;                          
+                            default:
+                            case MT_UNKNOWN:
+                                trType += "U";
+                                break;
+                        }
+                    }
                 }
                 break;
             case TT_GROUND:

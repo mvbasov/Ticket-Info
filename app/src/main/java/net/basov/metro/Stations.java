@@ -670,6 +670,16 @@ public class Stations {
 /**
  * [10] Люблинско-Дмитровская линия
  */
+            case 242:
+                desc += "Фонвизинская";
+                switch (entrance) {
+                    case 1: //(2583042010-60-55)
+                        desc += " (выход к монорельсу)";
+                        break;
+                    default:
+                        break;
+                }
+                break;
             case 166:
                 desc += "Трубная (Люблинско-Дмитровская)";
                 break;

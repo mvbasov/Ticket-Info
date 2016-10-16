@@ -185,6 +185,15 @@ public class Turnstiles {
                 return "Третьяковская";
             case 11984: // [7] (2-nd from right) (2530735535-20-06)
                 return "Боровицкая";
+            case 12589: // [2?] (2-nd from both sides) (2410914497-60-57_1r)
+                return "ул. Милашенкова (монорельс)";
+            case 12293: // [2] (2-nd from left) (2577075687-60-56_1m)
+            case 12409: // [3] (3-rd from left) (2410914497-60-58)
+                return "Тимирязьевская (Сепуховско-Тимирязьевской)";
+            case 11422: // [2] (2-nd from both sides) (2577075687-60-57)
+                return "Тимирязьевская (ММТС)";
+            case 10584: // [] (left) (2577075687-60-57_1m)
+                return "Фонвизинская";    
 
             default:
                 return "";
