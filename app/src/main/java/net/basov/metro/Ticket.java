@@ -590,6 +590,7 @@ public class Ticket {
                             lmt += "c";
                             break;
                         default:
+                            lmt += "x";
                             break;
                     }
                     dName.append(String.format("_%d%s", lastMTTidx -1, lmt));
@@ -1479,6 +1480,9 @@ public class Ticket {
                     case MT_MONORAIL:
                         trType +=c.getString(R.string.mt_monorail);
                         break;
+                    case MT_MCC:
+                        trType +=c.getString(R.string.mt_mcc);
+                        break;
                     case MT_UNKNOWN:
                         break;
                     default:
@@ -1495,7 +1499,10 @@ public class Ticket {
                                 break;
                             case MT_MONORAIL:
                                 trType += "R";
-                                break;                          
+                                break;
+                            case MT_MCC:
+                                trType += "C";
+                                break;
                             default:
                             case MT_UNKNOWN:
                                 trType += "U";
