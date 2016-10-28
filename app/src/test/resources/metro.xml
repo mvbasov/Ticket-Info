@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metro>
+
+    <!-- lns is abbreviation of liness -->
+    <lns>
+        <!-- ln is abbreviation of line -->
+        <ln id="1">Каковская</ln>
+        <ln id="2">Никаковская</ln>
+    </lns>
+
+    <!-- sts is abbreviation of stations -->
+    <sts>
+        <!-- st is abbreviation of station
+             n  is abbrevation of name -->
+        <st id="1" ln="1" uniq="yes">
+            <n>Какая то</n>
+            <!-- entrances only with types -->
+            <e id="1" et="1"/>
+            <e id="2" et="2"/>
+        </st>
+        <st id="2" ln="1" uniq="no"><n>Никакая</n></st>
+        <st id="3" ln="2" uniq="no"><n>Никакая</n></st>
+        <st id="11" ln="1">
+            <n>Tакая то</n>
+            <!-- entrances with types and comments -->
+            <e id="1" et="3">До дому</e>
+            <e id="2" et="4">До хаты</e>
+        </st>
+    </sts>
+
+    <!-- ets is abbreviation of entrance types -->
+    <ets>
+        <!-- et is abbreviation of entrance type -->
+        <et id="1">Верхний</et>
+        <et id="2">Нижний</et>
+        <et id="3">Левый</et>
+        <et id="4">Правый</et>
+    </ets>
+
+    <!-- tss is abbreviation of turnstiles -->
+    <tss>
+        <!-- ts is abbreviation of turnstile -->
+        <ts id="1101" st="1" e="1"/>
+        <ts id="1102" st="2"/>
+        <ts id="1103" st="3"/>
+        <ts id="1111" st="11" e="2"/>
+    </tss>
+
+</metro>
