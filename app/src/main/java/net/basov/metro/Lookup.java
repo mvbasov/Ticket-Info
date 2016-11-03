@@ -18,6 +18,21 @@ import javax.xml.xpath.XPathFactory;
  * Created by mvb on 10/13/16.
  */
 public class Lookup {
+    /**
+     * Wrapper to old Stations class
+     *
+     * @param stationId
+     * @param inputStream
+     * @return Station name and discription
+     */
+    public static String getStationByIdFromTicket(int stationId,  InputStream inputStream) {
+        return getStationById(
+                (stationId / 10) + "",
+                (stationId % 10) + "",
+                inputStream
+                );
+    }
+
 
     /**
      * Lookup to asset file metro xml and find station name by station ID

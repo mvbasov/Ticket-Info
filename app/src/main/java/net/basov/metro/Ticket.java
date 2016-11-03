@@ -30,6 +30,8 @@ import android.util.Log;
 
 import net.basov.nfc.NFCaDump;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import android.support.annotation.IntDef;
@@ -1521,7 +1523,17 @@ public class Ticket {
                 trType += "!!! Internal error !!!";
                 break;
         }
-        String SN = Lang.transliterate(Turnstiles.getStationByTurnstile(id));
+
+        InputStream is = null;
+        InputStream is2 = null;
+        try {
+            is = c.getAssets().open("metro.xml");
+            is2 = c.getAssets().open("metro.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String SN = Lang.transliterate(Lookup.getStationNameByTurnstileId(id+"", is, is2));
         String gateNumType = "№" + id + " (" + trType + ")";
         if (SN.length() != 0) {
             return gateNumType + '\n' +
@@ -1589,8 +1601,14 @@ public class Ticket {
                 TransportType += "!!! Internal error !!!";
                 break;
         }
-        
-        String StationName = Lang.transliterate(Stations.getStationByStationId(id));
+
+        InputStream is = null;
+        try {
+            is = c.getAssets().open("metro.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String StationName = Lang.transliterate(Lookup.getStationByIdFromTicket(id, is));
 
         if (StationName.length() != 0) {
             sb.append("  ");
