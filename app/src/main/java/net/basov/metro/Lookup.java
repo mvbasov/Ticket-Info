@@ -83,7 +83,7 @@ public class Lookup {
                     metro,
                     XPathConstants.NODESET
             );
-            int lnIdx = Integer.parseInt(stLine.item(0).getTextContent());
+            String lnIdx = stLine.item(0).getTextContent();
 
             NodeList stUniq = (NodeList) xPath.evaluate(
                     String.format(
@@ -186,6 +186,7 @@ public class Lookup {
      * @return Station name as {@link Lookup#getStationById(String, InputStream)}
      */
     public static String getStationNameByTurnstileId(String tId, InputStream inputStream1, InputStream inputStream2) {
+// TODO: It is very ugly :( Need to find way to reuse InputStream
         return getStationById(
                 getStationIdByTurnstailId(tId, inputStream1),
                 inputStream2

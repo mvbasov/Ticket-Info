@@ -30,6 +30,8 @@ import android.util.Log;
 
 import net.basov.nfc.NFCaDump;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Retention;
@@ -676,6 +678,7 @@ public class Ticket {
                     if (mLayout == 0xd) {
                         //noinspection WrongConstant
                         setPassTransportType((mDump.get(9) & 0xc0000000) >>> 30);
+                        //noinspection WrongConstant
                         setPassMetroType(
                                 (mDump.get(11) & 0x00000018) >>> 3
                         );
@@ -1526,9 +1529,18 @@ public class Ticket {
 
         InputStream is = null;
         InputStream is2 = null;
+        File sdcard = c.getExternalFilesDir(null);
         try {
-            is = c.getAssets().open("metro.xml");
-            is2 = c.getAssets().open("metro.xml");
+            File metroDataFile = new File(sdcard, "/" + "metro.xml");
+            if (metroDataFile.exists()) {
+                //open if exists metro data file from  /sdcard/Android/...
+                is = new FileInputStream(metroDataFile);
+                is2 = new FileInputStream(metroDataFile);
+            } else {
+                // if doesn't exists open provided by assets
+                is = c.getAssets().open("metro.xml");
+                is2 = c.getAssets().open("metro.xml");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1603,8 +1615,16 @@ public class Ticket {
         }
 
         InputStream is = null;
+        File sdcard = c.getExternalFilesDir(null);
         try {
-            is = c.getAssets().open("metro.xml");
+            File metroDataFile = new File(sdcard, "/" + "metro.xml");
+            if (metroDataFile.exists()) {
+                //open if exists metro data file from  /sdcard/Android/...
+                is = new FileInputStream(metroDataFile);
+            } else {
+                // if doesn't exists open provided by assets
+                is = c.getAssets().open("metro.xml");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
