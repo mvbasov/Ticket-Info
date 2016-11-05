@@ -107,7 +107,7 @@ public class Lookup {
             }
 
             if (eId != null) {
-                ret += " (";
+                String eInfo = "";
                 NodeList eType = (NodeList) xPath.evaluate(
                         String.format(
                                 "/metro/sts/st[@id='%s']/e[@id='%s']/@et", sId, eId
@@ -126,7 +126,7 @@ public class Lookup {
                             XPathConstants.NODESET
                     );
                     if (eTypeString.getLength() > 0)
-                        ret += eTypeString.item(0).getTextContent();
+                        eInfo += eTypeString.item(0).getTextContent();
 
                 }
                 NodeList eNote = (NodeList) xPath.evaluate(
@@ -137,9 +137,12 @@ public class Lookup {
                         XPathConstants.NODESET
                 );
 
-                if (eNote.getLength() > 0)
-                    ret += ". " + eNote.item(0).getTextContent();
-                ret += ")";
+                if (eNote.getLength() > 0) {
+					if (eInfo.length() > 0) eInfo +=". ";
+                    eInfo += eNote.item(0).getTextContent();
+				}
+				if (eInfo.length() > 0)					
+                	ret += "(" + eInfo + ")";
 
             }
         } catch (XPathExpressionException e) {
