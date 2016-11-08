@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<metro ts="201611050522">
+<metro ts="201611090053">
 
     <!-- Stations with unknown ID:
     <st id="tmp001" ln="2"><n>Алма-Атинская</n></st>
@@ -339,7 +339,6 @@
             <n>Крестьянская застава</n>
             <!-- (2580244002-20-16) -->
             <e id="1" et="0"/>
-
         </st>
         <st id="161" ln="10" uniq="no"><n>Дубровка</n></st>
         <st id="154" ln="10"><n>Кожуховская</n></st>
@@ -416,7 +415,7 @@
         <et id="3">Западный</et>
         <et id="4">Восточный</et>
         <et id="5">Первый</et>
-        <et id="5">Второй</et>
+        <et id="6">Второй</et>
         <et id="99">???</et><!-- need to know formal name -->
     </ets>
 
