@@ -12,79 +12,82 @@ public class LookupTest {
     public void testStationById() throws Exception {
         Assert.assertEquals(
                 "Какая то",
-                Lookup.getStationById("1", getInputStream())
+                Lookup.findStationById("10", getDataFileURI())
         );
         Assert.assertEquals(
                 "Tакая то",
-                Lookup.getStationById("11", getInputStream())
+                Lookup.findStationById("110", getDataFileURI())
         );
     }
-
     @Test
     public void testStationByIdWithEntr() throws Exception {
         Assert.assertEquals(
                 "Какая то (Верхний)",
-                Lookup.getStationById("1", "1", getInputStream())
+                Lookup.findStationById("1", "1", getDataFileURI())
         );
         Assert.assertEquals(
                 "Какая то (Нижний)",
-                Lookup.getStationById("1", "2", getInputStream())
+                Lookup.findStationById("1", "2", getDataFileURI())
         );
     }
-
     @Test
     public void testStationNotUniq() throws Exception {
         Assert.assertEquals(
-                "Никакая [Каковская]",
-                Lookup.getStationById("2", getInputStream())
+                "Никакая[Каковская]",
+                Lookup.findStationById("20", getDataFileURI())
         );
         Assert.assertEquals(
-                "Никакая [Никаковская]",
-                Lookup.getStationById("3", getInputStream())
+                "Никакая[Никаковская]",
+                Lookup.findStationById("30", getDataFileURI())
         );
     }
-
     @Test
     public void testStationWithEntTypeAndRem() throws Exception {
         Assert.assertEquals(
                 "Tакая то (Левый. До дому)",
-                Lookup.getStationById("11", "1", getInputStream())
+                Lookup.findStationById("11", "1", getDataFileURI())
+        );
+        Assert.assertEquals(
+                "Tакая то (Левый. До дому)",
+                Lookup.findStationById("111", getDataFileURI())
         );
         Assert.assertEquals(
                 "Tакая то (Правый. До хаты)",
-                Lookup.getStationById("11", "2", getInputStream())
+                Lookup.findStationById("11", "2", getDataFileURI())
+        );
+        Assert.assertEquals(
+                "Tакая то (Правый. До хаты)",
+                Lookup.findStationById("112", getDataFileURI())
         );
     }
-
     @Test
     public void testEmptyStation() throws Exception {
         Assert.assertEquals(
                 "",
-                Lookup.getStationById("5", getInputStream())
+                Lookup.findStationById("50", getDataFileURI())
         );
     }
-
     @Test
     public void testStationIdByTurnstileId() throws Exception {
         Assert.assertEquals(
-                "1",
-                Lookup.getStationIdByTurnstailId("1101",getInputStream())
-        );
-        Assert.assertEquals(
-                "2",
-                Lookup.getStationIdByTurnstailId("1102",getInputStream())
-        );
-        Assert.assertEquals(
-                "3",
-                Lookup.getStationIdByTurnstailId("1103",getInputStream())
-        );
-        Assert.assertEquals(
                 "11",
-                Lookup.getStationIdByTurnstailId("1111",getInputStream())
+                Lookup.findStationIdByTsId("1101",getDataFileURI())
+        );
+        Assert.assertEquals(
+                "20",
+                Lookup.findStationIdByTsId("1102",getDataFileURI())
+        );
+        Assert.assertEquals(
+                "30",
+                Lookup.findStationIdByTsId("1103",getDataFileURI())
+        );
+        Assert.assertEquals(
+                "112",
+                Lookup.findStationIdByTsId("1111",getDataFileURI())
         );
         Assert.assertEquals(
                 "",
-                Lookup.getStationIdByTurnstailId("9999",getInputStream())
+                Lookup.findStationIdByTsId("9999",getDataFileURI())
         );
 
     }
@@ -92,24 +95,24 @@ public class LookupTest {
     @Test
     public void testStationNameByTurnstileId() throws Exception {
         Assert.assertEquals(
-                "Какая то",
-                Lookup.getStationNameByTurnstileId("1101", getInputStream(), getInputStream())
+                "Какая то (Верхний)",
+                Lookup.findStationInfoByTsId("1101", getDataFileURI())
         );
         Assert.assertEquals(
-                "Никакая [Каковская]",
-                Lookup.getStationNameByTurnstileId("1102", getInputStream(), getInputStream())
+                "Никакая[Каковская]",
+                Lookup.findStationInfoByTsId("1102", getDataFileURI())
         );
         Assert.assertEquals(
-                "Никакая [Никаковская]",
-                Lookup.getStationNameByTurnstileId("1103", getInputStream(), getInputStream())
+                "Никакая[Никаковская]",
+                Lookup.findStationInfoByTsId("1103", getDataFileURI())
         );
         Assert.assertEquals(
-                "Tакая то",
-                Lookup.getStationNameByTurnstileId("1111", getInputStream(), getInputStream())
+                "Tакая то (Правый. До хаты)",
+                Lookup.findStationInfoByTsId("1111", getDataFileURI())
         );
         Assert.assertEquals(
                 "",
-                Lookup.getStationNameByTurnstileId("9999", getInputStream(), getInputStream())
+                Lookup.findStationInfoByTsId("9999", getDataFileURI())
         );
 
     }
@@ -118,8 +121,11 @@ public class LookupTest {
      * Read file app/src/test/resources/metro.xml
      * @return InputStream
      */
-   private InputStream getInputStream() {
+    private InputStream getInputStream() {
         return  this.getClass().getClassLoader().getResourceAsStream("metro.xml");
+    }
+    private String getDataFileURI() {
+        return String.valueOf(this.getClass().getClassLoader().getResource("metro.xml"));
     }
 
 }

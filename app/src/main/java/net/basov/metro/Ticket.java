@@ -31,13 +31,16 @@ import android.util.Log;
 import net.basov.nfc.NFCaDump;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import android.support.annotation.IntDef;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1527,26 +1530,11 @@ public class Ticket {
                 break;
         }
 
-        InputStream is = null;
-        InputStream is2 = null;
-        File sdcard = c.getExternalFilesDir(null);
-        try {
-            File metroDataFile = new File(sdcard, "/" + "metro.xml");
-            if (metroDataFile.exists()) {
-                //open if exists metro data file from  /sdcard/Android/...
-                is = new FileInputStream(metroDataFile);
-                is2 = new FileInputStream(metroDataFile);
-            } else {
-                // if doesn't exists open provided by assets
-                is = c.getAssets().open("metro.xml");
-                is2 = c.getAssets().open("metro.xml");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String SN = Lang.transliterate(Lookup.getStationNameByTurnstileId(id+"", is, is2));
+        String SN = Lang.transliterate(
+                Lookup.findStationInfoByTsId(id+"", getDataFileURIasString(c))
+        );
         String gateNumType = "№" + id + " (" + trType + ")";
+
         if (SN.length() != 0) {
             return gateNumType + '\n' +
                     "  " + c.getString(R.string.station) + " " +
@@ -1614,21 +1602,9 @@ public class Ticket {
                 break;
         }
 
-        InputStream is = null;
-        File sdcard = c.getExternalFilesDir(null);
-        try {
-            File metroDataFile = new File(sdcard, "/" + "metro.xml");
-            if (metroDataFile.exists()) {
-                //open if exists metro data file from  /sdcard/Android/...
-                is = new FileInputStream(metroDataFile);
-            } else {
-                // if doesn't exists open provided by assets
-                is = c.getAssets().open("metro.xml");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String StationName = Lang.transliterate(Lookup.getStationByIdFromTicket(id, is));
+        String StationName = Lang.transliterate(
+                Lookup.findStationById(id+"", getDataFileURIasString(c))
+        );
 
         if (StationName.length() != 0) {
             sb.append("  ");
@@ -1913,5 +1889,57 @@ public class Ticket {
                 time / 60,
                 time % 60);
     }
+
+    /**
+     * Get data file URI.
+     * Use External storage stored datafile if exists.
+     * As default use assets provided file (copy it).
+     * @param c application context
+     * @return data file URI (as String)
+     */
+    private String getDataFileURIasString(Context c) {
+        String sdcardPath = c.getExternalFilesDir(null).getPath();
+        URI dataFileURI = null;
+        try {
+            dataFileURI = new URI("file://" + sdcardPath + "/" + "metro.xml");
+            File metroDataFile = new File(dataFileURI);
+            if (!metroDataFile.exists()) {
+                InputStream in = null;
+                OutputStream out = null;
+                try {
+                    in = c.getAssets().open("metro.xml");
+                    File outFile = new File(dataFileURI);
+                    out = new FileOutputStream(outFile);
+                    byte[] buffer = new byte[1024];
+                    int read;
+                    while((read = in.read(buffer)) != -1){
+                        out.write(buffer, 0, read);
+                    }
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return dataFileURI.toString();
+    }
+
 
 }
