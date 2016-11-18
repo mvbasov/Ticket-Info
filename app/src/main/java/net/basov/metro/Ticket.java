@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
 
- Copyright (c) 2015 Mikhail Basov
+ Copyright (c) 2015,2016 Mikhail Basov
  Copyright (c) 2013 Valentin Konovalov
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -257,12 +257,27 @@ public class Ticket {
     /**
      * Ticket sell by ground sell point
      */
-    public static final int WS_GROUND = WS_METRO >>> 1;
+    public static final int WS_GROUND = WS_METRO << 1;
     /**
      * Ticket sell by ground transport driver
      */
-    public static final int WS_DRIVER = WS_METRO >>> 2;
-    
+    public static final int WS_DRIVER = WS_METRO << 2;
+	
+	/**
+	 * Tecket state
+     */
+	@Retention(RetentionPolicy.SOURCE)
+    @IntDef(
+		flag = true,
+		value = {TS_UNKNOWN, TS_NEVER_USED, TS_EXPIRED, TS_EMPTY, TS_IN_TRIP}
+	)
+    public @interface TicketState {}
+	public static final int TS_UNKNOWN = 0;
+	public static final int TS_NEVER_USED = 1;
+	public static final int TS_EXPIRED = 2;
+	public static final int TS_EMPTY = 4;
+	public static final int TS_IN_TRIP = 8;
+	
     // Data fields definition
 
     /**
@@ -494,6 +509,16 @@ public class Ticket {
      * Valid only for 90 minutes ticket.
      */
     private Calendar mT90ChangeTime = null;
+	/**
+	 * Current ticket state.
+	 * Possible values:
+	 * <li>
+     *     <li>{@link Ticket#TS_UNKNOWN}</li>
+     *     <li>{@link Ticket#TS_NEVER_USER}</li>
+     *     <li>{@link Ticket#TS_}</li>
+	 * </li>
+	 */
+	private int mTicketState = TS_UNKNOWN;
     /**
      * One time programming bit counter
      * Used for control number of passes.
@@ -571,49 +596,36 @@ public class Ticket {
     public static String createDumpFileName(Ticket ticket) {
 
         StringBuilder dName = new StringBuilder();
-
-        dName.append(String.format("%010d", ticket.getTicketNumber()));
+		dName.append("");
+		     
         if (ticket.isTicketFormatValid()) {
-            if (ticket.getTicketClass() == Ticket.C_UNLIM_DAYS ){
-                dName.append(String.format("-%dd",ticket.getValidDays()));
-                dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
-            } else if (ticket.getTicketType() == Ticket.TO_VESB) {
+			dName.append(String.format("%010d", ticket.getTicketNumber()));
+			switch (ticket.getTicketClass()){
+            	case Ticket.C_UNLIM_DAYS:
+                	dName.append(String.format("-%dd",ticket.getValidDays()));
+                	dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
+					dName.append(getTCsuffix(ticket));
+					break;
+        	    case Ticket.TO_VESB:
                     dName.append("-su");
                     dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
-            } else {
-                dName.append(String.format("-%02d", ticket.getPassesTotal()));
-                dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
-                int lastMTTidx = ticket.mMetroTripTransportHistory.size();
-                if (lastMTTidx > 1) {
-                    String lmt = "";
-                    switch (ticket.mMetroTripTransportHistory.get(lastMTTidx -1)) {
-                        case MT_METRO:
-                            lmt += "m";
-                            break;
-                        case MT_MONORAIL:
-                            lmt += "r";
-                            break;
-                        case MT_MCC:
-                            lmt += "c";
-                            break;
-                        default:
-                            lmt += "x";
-                            break;
-                    }
-                    dName.append(String.format("_%d%s", lastMTTidx -1, lmt));
-                }
-                if (ticket.getTicketClass() == Ticket.C_90UNIVERSAL) {
+					break;
+                case Ticket.C_90UNIVERSAL:
                     if (ticket.getLayout() == 0x0d) {
                         dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
                         dName.append(String.format(".%1d", ticket.getT90ChangeCount()));
                     } else if (ticket.getLayout() == 0x0a) {
                         dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
                     }
-                }
+					break;
+				default:
+					dName.append(String.format("-%02d", ticket.getPassesTotal()));
+                	dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
+                	dName.append(getTCsuffix(ticket));
+					break;
             }
-
         } else {
-            dName.append("-xx-xx");
+            dName.append("xxxxxxxxxx-xx-xx");
         }
 
         return dName.toString();
@@ -1941,5 +1953,27 @@ public class Ticket {
         return dataFileURI.toString();
     }
 
-
+	private static String getTCsuffix(Ticket ticket){
+		int lastMTTidx = ticket.mMetroTripTransportHistory.size();
+		String lmt = "";
+		if (lastMTTidx > 1) {
+			switch (ticket.mMetroTripTransportHistory.get(lastMTTidx - 1)) {
+				case MT_METRO:
+					lmt += "m";
+					break;
+				case MT_MONORAIL:
+					lmt += "r";
+					break;
+				case MT_MCC:
+					lmt += "c";
+					break;
+				default:
+					lmt += "x";
+					break;
+			}
+			return String.format("_%d%s", lastMTTidx - 1, lmt);
+		} else {
+			return "";
+		}
+	}
 }
