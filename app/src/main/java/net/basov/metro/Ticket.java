@@ -611,6 +611,9 @@ public class Ticket {
                     dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
 					break;
                 case Ticket.C_90UNIVERSAL:
+					dName.append(String.format("-%02d", ticket.getPassesTotal()));
+                	dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
+                	dName.append(getTCsuffix(ticket));
                     if (ticket.getLayout() == 0x0d) {
                         dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
                         dName.append(String.format(".%1d", ticket.getT90ChangeCount()));
