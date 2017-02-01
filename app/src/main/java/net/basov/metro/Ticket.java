@@ -1622,7 +1622,7 @@ public class Ticket {
                 Lookup.findStationById(id+"", getDataFileURIasString(c))
         );
 
-        if (StationName.length() != 0) {
+        if ((StationName.length() != 0) && (getPassTransportType() != TT_GROUND)) {
             sb.append("  ");
             sb.append(c.getString(R.string.station));
             sb.append(" ");
