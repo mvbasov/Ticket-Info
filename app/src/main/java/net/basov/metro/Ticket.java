@@ -1545,17 +1545,18 @@ public class Ticket {
                 break;
         }
 
+		String gateNumAndType = "№" + id + " (" + trType + ")";
+		
         String SN = Lang.transliterate(
                 Lookup.findStationInfoByTsId(id+"", getDataFileURIasString(c))
         );
-        String gateNumType = "№" + id + " (" + trType + ")";
 
-        if (SN.length() != 0) {
-            return gateNumType + '\n' +
+        if ((SN.length() != 0 ) && (getPassTransportType() != TT_GROUND)) {
+            return gateNumAndType + '\n' +
                     "  " + c.getString(R.string.station) + " " +
                     SN;
         } else {
-            return gateNumType;
+            return gateNumAndType;
         }
     }
 
