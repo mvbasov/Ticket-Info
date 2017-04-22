@@ -163,6 +163,14 @@ public final class MainActivity extends Activity {
                 Tag tag = (Tag) extras.get(NfcAdapter.EXTRA_TAG);
 
                 final String[] techList = tag.getTechList();
+                
+                // TODO: remove debug toast
+                Toast.makeText(
+                    this,
+                    "Chip UID: "
+                    +byteArrayToHexString(tag.getId()),
+                    Toast.LENGTH_LONG
+                ).show();
 
                 final NfcA nfca = NfcA.get(tag);
                 text.setText(getString(R.string.ticket_is_reading));
@@ -327,5 +335,14 @@ public final class MainActivity extends Activity {
 
     public static Context getAppContext() {
         return c;
+    }
+    
+    // TODO: move to more logicaly sutable place. Introduced to debug UID print.
+    //http://stackoverflow.com/a/13006907
+    public static String byteArrayToHexString(byte[] a) {
+        StringBuilder sb = new StringBuilder(a.length * 2);
+        for(byte b: a)
+            sb.append(String.format("%02x", b));
+        return sb.toString();
     }
 }
