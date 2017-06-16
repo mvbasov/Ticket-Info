@@ -4,7 +4,7 @@ android {
         variant.outputs.each { output ->
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                def fileName =  "Ticket-Info." + versionName + ".apk"
+                def fileName =  "Ticket-InfoW." + versionName + ".apk"
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
@@ -21,12 +21,12 @@ android {
             storePassword 'android'
         }
     }
-    compileSdkVersion 15
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
     defaultConfig {
-        applicationId "ru.valle.tickets"
+        applicationId "net.basov.ticketinfo"
         minSdkVersion 11
-        targetSdkVersion 11
+        targetSdkVersion 21
         versionCode 300
         versionName '3.00'
     }

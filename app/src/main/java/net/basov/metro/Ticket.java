@@ -46,7 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import ru.valle.tickets.R;
+import net.basov.ticketinfo.R;
 import ru.valle.tickets.ui.Decode;
 import ru.valle.tickets.ui.Lang;
 

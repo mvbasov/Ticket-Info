@@ -13,7 +13,6 @@
     <string name="ticket_hash">Хеш</string>
     <string name="start_use_before">Начать использовать до</string>
     <string name="unknown_layout">Неизвестная разметка билета</string>
-    <string name="otp">OTP</string>
     <string name="baggage_and_pass">багаж + проход</string>
     <string name="baggage_only">только багаж</string>
     <string name="universal_ultralight_70">единый ультралайт (70 поездок)</string>

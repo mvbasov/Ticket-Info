@@ -1,36 +1,14 @@
+package net.basov.ticketinfo;
+
 /**
- * The MIT License (MIT)
-
- Copyright (c) 2015 Mikhail Basov
- Copyright (c) 2013 Valentin Konovalov
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
+ * Created by mvb on 6/15/17.
+ * New version of UI based on WebView
  */
-
-package ru.valle.tickets.ui;
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
@@ -40,8 +18,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
+import android.webkit.WebView;
+import android.webkit.WebSettings;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import net.basov.metro.Ticket;
@@ -51,27 +30,37 @@ import net.basov.util.FileIO;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.basov.ticketinfo.R;
-
-public final class MainActivity extends Activity {
+public class MainActivity extends Activity {
 
     static final String TAG = "tickets";
 
-    private TextView text;
+    private WebView mainUI_WV;
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
     private IntentFilter[] filters;
-	private NFCaDump d;
+    private NFCaDump d;
     private String[][] techList;
     private static Context c;
+    private String welcome_json;
+    private String msg_json;
+    private String ticket_json;
+    private String ticket_visibility_json;
+    private String ic_json;
+    private String ic_visibility_json;
+    private String header_json;
+
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         c = this;
-		d = new NFCaDump();
-        setContentView(R.layout.main);
-        text = (TextView) findViewById(R.id.body);
+        d = new NFCaDump();
+        setContentView(R.layout.webview_ui);
+        mainUI_WV = (WebView) findViewById(R.id.webview);
+        WebSettings webSettings = mainUI_WV.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
         try {
 
             /**
@@ -98,25 +87,87 @@ public final class MainActivity extends Activity {
                             + " "
                             + pInfo.versionName;
             }
-            this.setTitle(title);
+            welcome_json = "{ " +
+                "\"w_header\":\"" + title + "\"" +
+                "}";
+            fillUI(mainUI_WV, "start.html", welcome_json);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
         }
-		
+
         onNewIntent(getIntent());
-// TODO: Check NFC is switched on  
+// TODO: Check NFC is switched on
         adapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
         try {
             filter.addDataType("*/*");
-        } catch (MalformedMimeTypeException e) {
+        } catch (IntentFilter.MalformedMimeTypeException e) {
             Log.e(TAG, "Add data type fail", e);
         }
         filters = new IntentFilter[]{filter};
         techList = new String[][]{new String[]{NfcA.class.getName()}};
+
+//        header_json = "{"
+//            +"\"h_number\":\"0003123881\","
+//            +"\"h_state\":\"<font color=\\\\\"violet\\\\\">DebugAPP</font>\""
+//            +"}";
+//
+//        ticket_json = "{"
+//            +"\"t_valid_days\":\"1\","
+//            +"\"t_from_datetime\":\"07.06.2017 16:03\","
+//            +"\"t_to_datetime\":\"08.06.2017 16:03\","
+//            +"\"t_start_use\":\"08.06.2017 at 00:00\","
+//            +"\"t_ic_uid\":\"0123456789abcdef\""
+//            +"}";
+//
+//        ticket_visibility_json = "{"
+//            +"\"vt_note\":null,"
+//            +"\"vt_trip\":null,"
+//            +"\"vt_station\":null"
+//            +"}";
+//
+//        ic_json = "{"
+//            +"\"i_manufacturer\":\"JSC Micron Russia\","
+//            +"\"i_ic_std_bytes\":\"164\","
+//            +"\"i_names\":\""
+//            +"  MIK1312ED\\\\n"
+//            +"  aka К5016ВГ4Н4\\\\n"
+//            +"  aka K5016XC1M1H4\","
+//            +"\"i_read_pages\":\"41\","
+//            +"\"i_read_bytes\":\"164\","
+//            +"\"i_read_sig\":\""
+//            +"  00000000000000000000000000000000\\\\n"
+//            +"  00000000000000000000000000000000\","
+//            +"\"i_tech\":\"nfcA\""
+//            +"}";
+//
+//        ic_visibility_json = "{"
+//                +"\"vi_get_version\":null,"
+//                +"\"vi_read_sig\":null,"
+//                +"\"vi_counters\":null"
+//                +"}";
+//
+//        mainUI_WV.setWebViewClient(new WebViewClient() {
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                super.onPageFinished(mainUI_WV, url);
+//
+//                view.loadUrl("javascript:jreplace('" + header_json +"')");
+//
+//                view.loadUrl("javascript:jreplace('" + ticket_json +"')");
+//                view.loadUrl("javascript:jvisible('" + ticket_visibility_json +"')");
+//
+//                view.loadUrl("javascript:jreplace('" + ic_json +"')");
+//                view.loadUrl("javascript:jvisible('" + ic_visibility_json +"')");
+//
+//                mainUI_WV.clearCache(true);
+//            }
+//        });
+//
+//        mainUI_WV.loadUrl("file:///android_asset/webview_ui.html");
     }
 
     @Override
@@ -132,30 +183,6 @@ public final class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_settings:
-                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.menu_ic_info:
-                Toast.makeText(this, "IC info", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.menu_dump:
-                Toast.makeText(this, "Dump", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.menu_debug:
-                Toast.makeText(this, "Debug", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     public void onNewIntent(Intent intent) {
         if (intent != null && intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
             try {
@@ -163,27 +190,37 @@ public final class MainActivity extends Activity {
                 Tag tag = (Tag) extras.get(NfcAdapter.EXTRA_TAG);
 
                 final String[] techList = tag.getTechList();
-                
+
                 // TODO: remove debug toast
                 Toast.makeText(
-                    this,
-                    "Chip UID: "
-                    +byteArrayToHexString(tag.getId()),
-                    Toast.LENGTH_LONG
+                        this,
+                        "Chip UID: "
+                                +byteArrayToHexString(tag.getId()),
+                        Toast.LENGTH_LONG
                 ).show();
 
                 final NfcA nfca = NfcA.get(tag);
-                text.setText(getString(R.string.ticket_is_reading));
+                msg_json = "{" +
+                        "\"error_msg\":\""+getString(R.string.ticket_is_reading)+"\"," +
+                        "\"visibility\":[" +
+                        "\"error_msg\"" +
+                        "]" +
+                        "}";
+                fillUI(mainUI_WV, "start.html", msg_json);
+
+
+
+
                 new AsyncTask<NfcA, Void, NFCaDump>() {
 
                     @Override
                     protected NFCaDump doInBackground(NfcA... paramss) {
                         try {
-							d = new NFCaDump();
+                            d = new NFCaDump();
 
                             nfca.connect();
 
-							d.setReadFrom(NFCaDump.READ_FROM_NFC);
+                            d.setReadFrom(NFCaDump.READ_FROM_NFC);
                             d.readATQA(nfca);
                             d.readSAK(nfca);
                             d.readPages(nfca);
@@ -265,78 +302,98 @@ public final class MainActivity extends Activity {
                             sb.append(dump.getIC_InfoAsString());
                             sb.append(dump.getDetectedICTypeAsString());
                             sb.append(dump.getDumpAsDetailedString());
-                            text.setText(sb.toString());
+                            // REDESIGN
+                            //text.setText(sb.toString());
 
                         } else {
-                            text.setText(getString(R.string.ticket_read_error));
+                            msg_json = "{" +
+                                    "\"error_msg\":\""+getString(R.string.ticket_read_error)+"\"," +
+                                    "\"visibility\":[" +
+                                    "\"error_msg\"" +
+                                    "]" +
+                                    "}";
+                            fillUI(mainUI_WV, "start.html", msg_json);
+                            Log.e(TAG, "dump err");
                         }
                     }
                 }.execute(nfca);
 
             } catch (Throwable th) {
-                text.setText(getString(R.string.ticket_read_error));
+                msg_json = "{" +
+                        "\"error_msg\":\""+getString(R.string.ticket_read_error)+"\"," +
+                        "\"visibility\":[" +
+                        "\"error_msg\"" +
+                        "]" +
+                        "}";
+                fillUI(mainUI_WV, "start.html", msg_json);
                 Log.e(TAG, "read err", th);
             }
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
-				|| intent.getAction().equals(Intent.ACTION_VIEW))
-				&& intent.getType().startsWith("text/")){
-					
-			Uri rcvUri = null;
-			
-			if (intent.getAction().equals(Intent.ACTION_SEND)) {
-				rcvUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-			} else if (intent.getAction().equals(Intent.ACTION_VIEW)){
-				rcvUri = intent.getData();
-			}
-			
-			if (rcvUri != null) {
-				FileIO.ReadDump(d, rcvUri.getPath());
-				if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
-					StringBuilder sb = new StringBuilder();
-					Ticket t;
-					if (d.getDDD() != null) {
-						ArrayList<Integer> tmpDump = new ArrayList<Integer>();
+                || intent.getAction().equals(Intent.ACTION_VIEW))
+                && intent.getType().startsWith("text/")){
 
-						for (int i = 0; i < 12; i++) {
-							tmpDump.add(d.getPageAsInt(i));
-						}
-						
-						t = new Ticket(tmpDump, d.getDDD());
+            Uri rcvUri = null;
+
+            if (intent.getAction().equals(Intent.ACTION_SEND)) {
+                rcvUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            } else if (intent.getAction().equals(Intent.ACTION_VIEW)){
+                rcvUri = intent.getData();
+            }
+
+            if (rcvUri != null) {
+                FileIO.ReadDump(d, rcvUri.getPath());
+                if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
+                    StringBuilder sb = new StringBuilder();
+                    Ticket t;
+                    if (d.getDDD() != null) {
+                        ArrayList<Integer> tmpDump = new ArrayList<Integer>();
+
+                        for (int i = 0; i < 12; i++) {
+                            tmpDump.add(d.getPageAsInt(i));
+                        }
+
+                        t = new Ticket(tmpDump, d.getDDD());
                         t.setDDDRem(d.getDDDRem());
-					} else {
-						t = new Ticket(d);
-					}
-					if (d.getRemark().length() != 0){
-						sb.append("File: ");
+                    } else {
+                        t = new Ticket(d);
+                    }
+                    if (d.getRemark().length() != 0){
+                        sb.append("File: ");
                         sb.append(rcvUri.getLastPathSegment());
                         sb.append("\n");
-						sb.append(d.getRemark());
-						sb.append("\n- - - -\n");
-					}
-					if (d.getPagesNumber() < 12) {
-						sb.append("!!! Dump partial.\n");
-						sb.append("!!! Decoding ticket information impossible.\n");
-						sb.append("- - - -\n");
-					} else {
-						sb.append(t.getTicketAsString(c));
-					}
-					sb.append(d.getMemoryInfoAsString());
-					sb.append(d.getUIDCheckAsString());
-					sb.append(d.getIC_InfoAsString());
-					sb.append(d.getDetectedICTypeAsString());
-					sb.append(d.getDumpAsDetailedString());
-					text.setText(sb.toString());
-				}
-			}
-		} else {
-			text.setText(getString(R.string.ticket_disclaimer));
-		}
+                        sb.append(d.getRemark());
+                        sb.append("\n- - - -\n");
+                    }
+                    if (d.getPagesNumber() < 12) {
+                        sb.append("!!! Dump partial.\n");
+                        sb.append("!!! Decoding ticket information impossible.\n");
+                        sb.append("- - - -\n");
+                    } else {
+                        sb.append(t.getTicketAsString(c));
+                    }
+                    sb.append(d.getMemoryInfoAsString());
+                    sb.append(d.getUIDCheckAsString());
+                    sb.append(d.getIC_InfoAsString());
+                    sb.append(d.getDetectedICTypeAsString());
+                    sb.append(d.getDumpAsDetailedString());
+                    // REDESIGN
+                    //text.setText(sb.toString());
+                }
+            }
+        } else {
+            msg_json = "{" +
+                    "\"error_msg\":\""+getString(R.string.ticket_disclaimer)+"\"," +
+                    "\"visibility\":[" +
+                    "\"error_msg\"" +
+                    "]" +
+                    "}";
+            fillUI(mainUI_WV, "start.html", msg_json);
+        }
     }
-
     public static Context getAppContext() {
         return c;
     }
-    
+
     // TODO: move to more logicaly sutable place. Introduced to debug UID print.
     //http://stackoverflow.com/a/13006907
     public static String byteArrayToHexString(byte[] a) {
@@ -344,5 +401,19 @@ public final class MainActivity extends Activity {
         for(byte b: a)
             sb.append(String.format("%02x", b));
         return sb.toString();
+    }
+
+    public static void fillUI(final WebView wv, String page, final String json) {
+        wv.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(wv, url);
+
+                view.loadUrl("javascript:jreplace('" + json +"')");
+
+                wv.clearCache(true);
+            }
+        });
+        wv.loadUrl("file:///android_asset/"+page);
     }
 }

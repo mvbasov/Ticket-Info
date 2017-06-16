@@ -33,7 +33,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import ru.valle.tickets.ui.MainActivity;
+import net.basov.ticketinfo.MainActivity;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
@@ -50,10 +50,13 @@ public class FileIO {
 		String dumpContent = NFCaDump.getDumpAsString(dump);
 
         FileOutputStream outputStream;
-        File sdcard = MainActivity.getAppContext().getExternalFilesDir(null);
+        File sdcard;
         String fNamePrefix = "AutoDumps/";
         String fName;
+        String dummy = "files";
         try {
+
+            sdcard = MainActivity.getAppContext().getExternalFilesDir(null);
             fName = "/" + fNamePrefix + "/" + dumpFileName;
             fileW = new File(sdcard, fName + ".txt");
             if (!fileW.getParentFile().exists())

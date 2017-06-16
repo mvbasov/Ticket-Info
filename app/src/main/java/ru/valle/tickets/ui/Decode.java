@@ -28,7 +28,7 @@ import android.content.Context;
 
 import net.basov.metro.Ticket;
 
-import ru.valle.tickets.R;
+import net.basov.ticketinfo.R;
 
 public class Decode {
 
