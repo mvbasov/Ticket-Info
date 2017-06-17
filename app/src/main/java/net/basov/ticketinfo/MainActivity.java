@@ -1,3 +1,27 @@
+/**
+ * The MIT License (MIT)
+
+ Copyright (c) 2017 Mikhail Basov
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 package net.basov.ticketinfo;
 
 /**
@@ -9,18 +33,18 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import net.basov.metro.Ticket;
@@ -49,17 +73,26 @@ public class MainActivity extends Activity {
     private String ic_visibility_json;
     private String header_json;
 
+    private UI ui;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         c = this;
         d = new NFCaDump();
+        ui = new UI();
         setContentView(R.layout.webview_ui);
         mainUI_WV = (WebView) findViewById(R.id.webview);
         WebSettings webSettings = mainUI_WV.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        /* Enable chome remote debuging for WebView (Ctrl-Shift-I) */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE))
+            { WebView.setWebContentsDebuggingEnabled(true); }
+        }
+
 
         try {
 
@@ -87,10 +120,9 @@ public class MainActivity extends Activity {
                             + " "
                             + pInfo.versionName;
             }
-            welcome_json = "{ " +
-                "\"w_header\":\"" + title + "\"" +
-                "}";
-            fillUI(mainUI_WV, "start.html", welcome_json);
+
+            ui.setWelcome("w_header", title);
+            ui.displayWelcome(mainUI_WV);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
@@ -110,64 +142,6 @@ public class MainActivity extends Activity {
         filters = new IntentFilter[]{filter};
         techList = new String[][]{new String[]{NfcA.class.getName()}};
 
-//        header_json = "{"
-//            +"\"h_number\":\"0003123881\","
-//            +"\"h_state\":\"<font color=\\\\\"violet\\\\\">DebugAPP</font>\""
-//            +"}";
-//
-//        ticket_json = "{"
-//            +"\"t_valid_days\":\"1\","
-//            +"\"t_from_datetime\":\"07.06.2017 16:03\","
-//            +"\"t_to_datetime\":\"08.06.2017 16:03\","
-//            +"\"t_start_use\":\"08.06.2017 at 00:00\","
-//            +"\"t_ic_uid\":\"0123456789abcdef\""
-//            +"}";
-//
-//        ticket_visibility_json = "{"
-//            +"\"vt_note\":null,"
-//            +"\"vt_trip\":null,"
-//            +"\"vt_station\":null"
-//            +"}";
-//
-//        ic_json = "{"
-//            +"\"i_manufacturer\":\"JSC Micron Russia\","
-//            +"\"i_ic_std_bytes\":\"164\","
-//            +"\"i_names\":\""
-//            +"  MIK1312ED\\\\n"
-//            +"  aka К5016ВГ4Н4\\\\n"
-//            +"  aka K5016XC1M1H4\","
-//            +"\"i_read_pages\":\"41\","
-//            +"\"i_read_bytes\":\"164\","
-//            +"\"i_read_sig\":\""
-//            +"  00000000000000000000000000000000\\\\n"
-//            +"  00000000000000000000000000000000\","
-//            +"\"i_tech\":\"nfcA\""
-//            +"}";
-//
-//        ic_visibility_json = "{"
-//                +"\"vi_get_version\":null,"
-//                +"\"vi_read_sig\":null,"
-//                +"\"vi_counters\":null"
-//                +"}";
-//
-//        mainUI_WV.setWebViewClient(new WebViewClient() {
-//            @Override
-//            public void onPageFinished(WebView view, String url) {
-//                super.onPageFinished(mainUI_WV, url);
-//
-//                view.loadUrl("javascript:jreplace('" + header_json +"')");
-//
-//                view.loadUrl("javascript:jreplace('" + ticket_json +"')");
-//                view.loadUrl("javascript:jvisible('" + ticket_visibility_json +"')");
-//
-//                view.loadUrl("javascript:jreplace('" + ic_json +"')");
-//                view.loadUrl("javascript:jvisible('" + ic_visibility_json +"')");
-//
-//                mainUI_WV.clearCache(true);
-//            }
-//        });
-//
-//        mainUI_WV.loadUrl("file:///android_asset/webview_ui.html");
     }
 
     @Override
@@ -200,16 +174,9 @@ public class MainActivity extends Activity {
                 ).show();
 
                 final NfcA nfca = NfcA.get(tag);
-                msg_json = "{" +
-                        "\"error_msg\":\""+getString(R.string.ticket_is_reading)+"\"," +
-                        "\"visibility\":[" +
-                        "\"error_msg\"" +
-                        "]" +
-                        "}";
-                fillUI(mainUI_WV, "start.html", msg_json);
 
-
-
+                ui.setWelcome("w_msg", getString(R.string.ticket_is_reading));
+                ui.displayWelcome(mainUI_WV);
 
                 new AsyncTask<NfcA, Void, NFCaDump>() {
 
@@ -259,6 +226,7 @@ public class MainActivity extends Activity {
                     @Override
                     protected void onPostExecute(NFCaDump dump) {
                         if (dump != null) {
+                            ui.dataClean();
                             Ticket t = new Ticket(dump);
                             StringBuilder sb = new StringBuilder();
 
@@ -289,6 +257,7 @@ public class MainActivity extends Activity {
                                             sb.append("Existing dump comment:\n");
                                             sb.append(d_tmp.getRemark());
                                             sb.append("\n- - - -\n");
+
                                         }
                                     } catch (NullPointerException e) {
                                         sb.append("Dump exist but not readable\n");
@@ -299,33 +268,50 @@ public class MainActivity extends Activity {
 
                             sb.append(dump.getMemoryInfoAsString());
                             sb.append(dump.getUIDCheckAsString());
-                            sb.append(dump.getIC_InfoAsString());
+                            //sb.append(dump.getIC_InfoAsString());
                             sb.append(dump.getDetectedICTypeAsString());
-                            sb.append(dump.getDumpAsDetailedString());
+                            //sb.append(dump.getDumpAsDetailedString());
                             // REDESIGN
                             //text.setText(sb.toString());
+                            ui.setTicketHeader("h_state","DebugAPP");
+                            ui.setTicketHeader("h_number",String.format("%010d", t.getTicketNumber()));
+                            ui.setTicket("i_manufacturer", d.getManufacturerAsHTML());
+                            ui.setTicket("i_chip_names", d.getChipNamesAsHTML());
+                            ui.setTicket("i_std_bytes", d.getChipCapacityAsHTML());
+                            ui.setTicket("i_read_pages", d.getPagesReadAsHTML());
+                            ui.setTicket("i_read_bytes", d.getBytesReadAsHTML());
+                            ui.setTicket("i_uid_hi", d.getUIDHiasHTML());
+                            ui.setTicket("i_uid_lo", d.getUIDLoasHTML());
+                            ui.setTicket("i_bcc0", d.getBCC0AsHTML());
+                            ui.setTicket("i_bcc1", d.getBCC1AsHTML());
+                            ui.setTicket("i_crc_status", d.getUIDCRCStatusAsHTML());
+                            ui.setTicket("i_otp", d.getOTPAsHTML());
+                            if (d.isSAKNotEmpty())
+                                ui.setIC("i_sak",d.getSAKAsHTML());
+                            if (d.isATQANotEmpty())
+                                ui.setIC("i_atqa",d.getATQAAsHTML());
+                            if (d.isVERSIONNotEmpty())
+                                ui.setIC("i_get_version", d.getVERSIONAsHTML());
+                            if (d.isCountersNotEmpty())
+                                ui.setIC("i_counters", d.getCountersAsHTML());
+                            if (d.isSIGNNotEmpty())
+                                ui.setIC("i_read_sig", d.getSIGNAsHTML());
+                            if (d.isAtechListNotEmpty())
+                                ui.setIC("i_tech",d.getATechAsHTML());
+                            ui.setDump(d.getDumpAsHTMLString());
+                            ui.displayUI(mainUI_WV);
 
                         } else {
-                            msg_json = "{" +
-                                    "\"error_msg\":\""+getString(R.string.ticket_read_error)+"\"," +
-                                    "\"visibility\":[" +
-                                    "\"error_msg\"" +
-                                    "]" +
-                                    "}";
-                            fillUI(mainUI_WV, "start.html", msg_json);
+                            ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
+                            ui.displayWelcome(mainUI_WV);
                             Log.e(TAG, "dump err");
                         }
                     }
                 }.execute(nfca);
 
             } catch (Throwable th) {
-                msg_json = "{" +
-                        "\"error_msg\":\""+getString(R.string.ticket_read_error)+"\"," +
-                        "\"visibility\":[" +
-                        "\"error_msg\"" +
-                        "]" +
-                        "}";
-                fillUI(mainUI_WV, "start.html", msg_json);
+                ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
+                ui.displayWelcome(mainUI_WV);
                 Log.e(TAG, "read err", th);
             }
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
@@ -378,16 +364,13 @@ public class MainActivity extends Activity {
                     sb.append(d.getDumpAsDetailedString());
                     // REDESIGN
                     //text.setText(sb.toString());
+                    ui.setDump(d.getDumpAsDetailedString());
+                    ui.displayUI(mainUI_WV);
                 }
             }
         } else {
-            msg_json = "{" +
-                    "\"error_msg\":\""+getString(R.string.ticket_disclaimer)+"\"," +
-                    "\"visibility\":[" +
-                    "\"error_msg\"" +
-                    "]" +
-                    "}";
-            fillUI(mainUI_WV, "start.html", msg_json);
+            ui.setWelcome("w_msg", getString(R.string.ticket_disclaimer));
+            ui.displayWelcome(mainUI_WV);
         }
     }
     public static Context getAppContext() {
@@ -401,19 +384,5 @@ public class MainActivity extends Activity {
         for(byte b: a)
             sb.append(String.format("%02x", b));
         return sb.toString();
-    }
-
-    public static void fillUI(final WebView wv, String page, final String json) {
-        wv.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(wv, url);
-
-                view.loadUrl("javascript:jreplace('" + json +"')");
-
-                wv.clearCache(true);
-            }
-        });
-        wv.loadUrl("file:///android_asset/"+page);
     }
 }

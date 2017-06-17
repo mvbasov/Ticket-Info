@@ -73,18 +73,18 @@ public class NFCaDump {
     public static final byte IC_MF0UL21 = IC_UNKNOWN + 3;
     public static final byte IC_MIK640D = IC_UNKNOWN + 4;
     public static final byte IC_MIK1312ED = IC_UNKNOWN + 5;
-	
-	public static final byte READ_UNSET = 0;
-	public static final byte READ_FROM_NFC = READ_UNSET + 1;
-	public static final byte READ_FROM_FILE = READ_UNSET + 2;
 
-    public static final byte CMD_GET_VERSION = (byte)0x60;
-    public static final byte CMD_READ_SIGN = (byte)0x3C;
-    public static final byte CMD_READ_CNT = (byte)0x39;
-    public static final byte CMD_INCR_CNT = (byte)0xA5;
+    public static final byte READ_UNSET = 0;
+    public static final byte READ_FROM_NFC = READ_UNSET + 1;
+    public static final byte READ_FROM_FILE = READ_UNSET + 2;
+
+    public static final byte CMD_GET_VERSION = (byte) 0x60;
+    public static final byte CMD_READ_SIGN = (byte) 0x3C;
+    public static final byte CMD_READ_CNT = (byte) 0x39;
+    public static final byte CMD_INCR_CNT = (byte) 0xA5;
 
     // Data fields definition
-	private byte ReadFrom;
+    private byte ReadFrom;
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
     private boolean LastBlockVerified;
@@ -96,24 +96,24 @@ public class NFCaDump {
     private ArrayList<String> AndTechList;
     private boolean SIGNisEmpty;
     private boolean VERSIONisEmpty;
-	private boolean SIGNHisEmpty;
-	private boolean SAKisEmpty;
+    private boolean SIGNHisEmpty;
+    private boolean SAKisEmpty;
     private byte IC_Type;
     private byte[] PagesAccess;
-	private String Remark;
-	private Calendar mDDD;
-	private String mDDDRemark;
+    private String Remark;
+    private Calendar mDDD;
+    private String mDDDRemark;
 
     public NFCaDump() {
-		ReadFrom = READ_UNSET;
+        ReadFrom = READ_UNSET;
         Pages = new ArrayList<byte[]>();
         Counters = new ArrayList<byte[]>();
         AndTechList = new ArrayList<String>();
         LastBlockValidPages = 4;
         SIGNisEmpty = true;
         VERSIONisEmpty = true;
-		SIGNHisEmpty = true;
-		SAKisEmpty = true;
+        SIGNHisEmpty = true;
+        SAKisEmpty = true;
         LastBlockVerified = false;
         //VersionInfo = new byte[8];
         //SIGN = new byte[32];
@@ -122,19 +122,36 @@ public class NFCaDump {
         for (int i = 0; i < MAX_PAGES - 1; i++) {
             PagesAccess[i] = AC_UNKNOWN;
         }
-		Remark = "";
+        Remark = "";
     }
 
-	public Calendar getDDD() { return mDDD; }
-	
-	public String getDDDRem() { return mDDDRemark; }
+    public Calendar getDDD() {
+        return mDDD;
+    }
 
-	public void setRemark(String remark) { Remark = remark; }
-	public String getRemark() { return Remark; }
-	public void appendRemark(String line) { Remark = Remark + line; }
-	
-	public void setReadFrom(byte from) { ReadFrom = from; }
-	public byte getReadFrom() { return ReadFrom; }
+    public String getDDDRem() {
+        return mDDDRemark;
+    }
+
+    public void setRemark(String remark) {
+        Remark = remark;
+    }
+
+    public String getRemark() {
+        return Remark;
+    }
+
+    public void appendRemark(String line) {
+        Remark = Remark + line;
+    }
+
+    public void setReadFrom(byte from) {
+        ReadFrom = from;
+    }
+
+    public byte getReadFrom() {
+        return ReadFrom;
+    }
 	
 /* Operate with ATQA and SAK */
 
@@ -142,7 +159,8 @@ public class NFCaDump {
         try {
             if (!nfca.isConnected()) nfca.connect();
             setATQA(nfca.getAtqa());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
     public void setATQA(byte[] ATQA) {
@@ -153,26 +171,35 @@ public class NFCaDump {
         return this.ATQA;
     }
 
+    public boolean isATQANotEmpty() {
+        return this.ATQA != null;
+    }
+
     public void readSAK(NfcA nfca) {
         try {
             if (!nfca.isConnected()) nfca.connect();
             setSAK((byte) nfca.getSak());
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
     public void setSAK(byte SAK) {
         this.SAK = SAK;
-		SAKisEmpty = false;
+        SAKisEmpty = false;
     }
 
     public byte getSAK() {
         return this.SAK;
     }
 
+    public boolean isSAKNotEmpty() {
+        return !SAKisEmpty;
+    }
+
 /* Dump pages operation functions */
 
     public void readPages(NfcA nfca) {
-        for (int i = 0; i < (NFCaDump.MAX_PAGES/4) + 1; i++) {
+        for (int i = 0; i < (NFCaDump.MAX_PAGES / 4) + 1; i++) {
             byte[] cmd = {0x30, (byte) (i * 4)};
             try {
                 if (!nfca.isConnected()) nfca.connect();
@@ -191,7 +218,7 @@ public class NFCaDump {
                 if (answer.length != 16) {
                     break;  //   Only 16 bytes blocks are valid
                 }
-                addPagesBlock( answer );
+                addPagesBlock(answer);
             } catch (IOException ignored) {
                 break; // this 4 pages block totally out of band
             }
@@ -226,14 +253,14 @@ public class NFCaDump {
         return this.Pages.size();
     }
 
-    public boolean isPagesEmpty(){
+    public boolean isPagesEmpty() {
         return this.Pages.size() == 0;
     }
 
     public byte[] getPage(int n) {
-		if (n < this.Pages.size()) {
-			return this.Pages.get(n);
-		} else return null;
+        if (n < this.Pages.size()) {
+            return this.Pages.get(n);
+        } else return null;
     }
 
     public int getPageAsInt(int n) {
@@ -277,9 +304,9 @@ public class NFCaDump {
 /* Pages access condition detection and show functions */
 
     private void detectPagesAccess() {
-		
-		// TODO: Think where to put diagnostic/error
-		if (2+1 > getPagesNumber()) return;
+
+        // TODO: Think where to put diagnostic/error
+        if (2 + 1 > getPagesNumber()) return;
 
         PagesAccess[0] = AC_FACTORY_LOCKED;
         PagesAccess[1] = AC_FACTORY_LOCKED;
@@ -304,10 +331,10 @@ public class NFCaDump {
                 PagesAccess[17] = AC_SPECIAL;
                 PagesAccess[18] = AC_SPECIAL;
                 PagesAccess[19] = AC_SPECIAL;
-				// TODO: Think where to put diagnostic/error
-				if (16+1 > getPagesNumber()) return;
-                if (getPage(16)[3] != (byte)0xff) {
-                    for (int i = (int)(getPage(16)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
+                // TODO: Think where to put diagnostic/error
+                if (16 + 1 > getPagesNumber()) return;
+                if (getPage(16)[3] != (byte) 0xff) {
+                    for (int i = (int) (getPage(16)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
                         PagesAccess[i] = AC_AUTH_REQUIRE;
                     }
                 }
@@ -320,8 +347,8 @@ public class NFCaDump {
                 break;
             case IC_MIK1312ED:
             case IC_MF0UL21:
-				// TODO: Think where to put diagnostic/error
-				if (37+1 > getPagesNumber()) return;
+                // TODO: Think where to put diagnostic/error
+                if (37 + 1 > getPagesNumber()) return;
                 PagesAccess[16] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 PagesAccess[17] = ((getPage(36)[0] & 0x01) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
                 PagesAccess[18] = ((getPage(36)[0] & 0x02) | (getPage(36)[2] & 0x01)) != 0 ? AC_READ_ONLY : AC_WRITE;
@@ -347,9 +374,9 @@ public class NFCaDump {
                 PagesAccess[38] = AC_SPECIAL;
                 PagesAccess[39] = AC_SPECIAL;
                 PagesAccess[40] = AC_SPECIAL;
-                if (getPage(37)[3] != (byte)0xff) {
-                    for (int i = (int)(getPage(37)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
-                        PagesAccess[(byte)i] = AC_AUTH_REQUIRE;
+                if (getPage(37)[3] != (byte) 0xff) {
+                    for (int i = (int) (getPage(37)[3] & 0x0ffL); i < MAX_PAGES - 1; i++) {
+                        PagesAccess[(byte) i] = AC_AUTH_REQUIRE;
                     }
                 }
                 break;
@@ -401,7 +428,7 @@ public class NFCaDump {
         switch (getPage(0)[0]) {
             case 0x04:
                 if (getPagesNumber() == 20 &&
-                        !isVERSIONEmpty()) {
+                        isVERSIONNotEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
@@ -419,7 +446,7 @@ public class NFCaDump {
                         IC_Type = IC_MF0UL11;
                     }
                 } else if (getPagesNumber() == 44 &&
-                        !isVERSIONEmpty()) {
+                        isVERSIONNotEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x04 &&
                             getVersionInfo()[2] == (byte) 0x03 &&
@@ -436,7 +463,7 @@ public class NFCaDump {
                 break;
             case 0x34:
                 if (getPagesNumber() == 44 &&
-                        !isVERSIONEmpty()) {
+                        isVERSIONNotEmpty()) {
                     if (getVersionInfo()[0] == (byte) 0x00 &&
                             getVersionInfo()[1] == (byte) 0x34 &&
                             getVersionInfo()[2] == (byte) 0x21 &&
@@ -446,7 +473,7 @@ public class NFCaDump {
                         IC_Type = IC_MIK1312ED;
                     }
                 } else if (getPagesNumber() == 20) {
-                        IC_Type = IC_MIK640D;
+                    IC_Type = IC_MIK640D;
                 } else {
                     IC_Type = IC_UNKNOWN;
                 }
@@ -458,7 +485,7 @@ public class NFCaDump {
 
     }
 
-    public byte getIC_Type(){
+    public byte getIC_Type() {
         if (IC_Type == IC_UNKNOWN) detectIC_Type();
         return IC_Type;
     }
@@ -485,13 +512,13 @@ public class NFCaDump {
     public boolean UID_CRC_Check() {
 
         // CT (Cascade Tag) [value 88h] as defined in ISO/IEC 14443-3 Type A
-        byte UID_BCC0_CRC = (byte)0x88;
+        byte UID_BCC0_CRC = (byte) 0x88;
         UID_BCC0_CRC ^= getPage(0)[0];
         UID_BCC0_CRC ^= getPage(0)[1];
         UID_BCC0_CRC ^= getPage(0)[2];
         UID_BCC0_CRC ^= getPage(0)[3]; //The BCC0 itself, if ok result is 0
 
-        byte UID_BCC1_CRC = (byte)0x00;
+        byte UID_BCC1_CRC = (byte) 0x00;
         UID_BCC1_CRC ^= getPage(1)[0];
         UID_BCC1_CRC ^= getPage(1)[1];
         UID_BCC1_CRC ^= getPage(1)[2];
@@ -504,7 +531,7 @@ public class NFCaDump {
 /* Display manufacturer name */
 
     public String getManufName() {
-        switch (Pages.get(0)[0]){
+        switch (Pages.get(0)[0]) {
             case 0x04:
                 return "NXP Semiconductors (Philips) Germany";
             case 0x34:
@@ -521,7 +548,7 @@ public class NFCaDump {
         try {
             byte[] cmd_read_sign = {
                     NFCaDump.CMD_READ_SIGN,
-                    (byte)0x00}; // according to data sheet
+                    (byte) 0x00}; // according to data sheet
             if (!nfca.isConnected()) nfca.connect();
             setSIGN(nfca.transceive(cmd_read_sign));
             setSIGNisEmpty(false);
@@ -540,29 +567,29 @@ public class NFCaDump {
         this.SIGNisEmpty = true;
     }
 
-    public boolean isSIGNEmpty() {
-        return SIGNisEmpty;
+    public boolean isSIGNNotEmpty() {
+        return !SIGNisEmpty;
     }
 
     public void setSIGN(byte[] aSIGN) {
-		if (aSIGN.length == 32){
-			setSIGNisEmpty(false);
-			this.SIGN = aSIGN;
-		} else {
-			if (isSIGNHEmpty()) {
-				byte[] SIGNnewHi = new byte[32];
-				// hi 16 bytes of sign
-				reverseByteArray(aSIGN);
-				System.arraycopy(aSIGN, 0, SIGNnewHi, 16, aSIGN.length);
-				this.SIGN = SIGNnewHi;
-				setSIGNHisEmpty(false);
-			} else {
-				// low 16 bytes of sign
-				reverseByteArray(aSIGN);
-				System.arraycopy(aSIGN, 0, this.SIGN, 0, aSIGN.length);
-				setSIGNisEmpty(false); 
-			}
-		}
+        if (aSIGN.length == 32) {
+            setSIGNisEmpty(false);
+            this.SIGN = aSIGN;
+        } else {
+            if (isSIGNHEmpty()) {
+                byte[] SIGNnewHi = new byte[32];
+                // hi 16 bytes of sign
+                reverseByteArray(aSIGN);
+                System.arraycopy(aSIGN, 0, SIGNnewHi, 16, aSIGN.length);
+                this.SIGN = SIGNnewHi;
+                setSIGNHisEmpty(false);
+            } else {
+                // low 16 bytes of sign
+                reverseByteArray(aSIGN);
+                System.arraycopy(aSIGN, 0, this.SIGN, 0, aSIGN.length);
+                setSIGNisEmpty(false);
+            }
+        }
     }
 
     public byte[] getSIGN() {
@@ -587,26 +614,25 @@ public class NFCaDump {
     public void setVERSIONisEmpty(boolean VERSIONisEmpty) {
         this.VERSIONisEmpty = VERSIONisEmpty;
     }
-	
-	public void setSIGNHisEmpty(boolean state) {
+
+    public void setSIGNHisEmpty(boolean state) {
         this.SIGNHisEmpty = state;
     }
-
 
     public void setVERSIONisEmpty() {
         this.VERSIONisEmpty = true;
     }
 
-    public boolean isVERSIONEmpty() {
-        return VERSIONisEmpty;
+    public boolean isVERSIONNotEmpty() {
+        return !VERSIONisEmpty;
     }
-	
-	public boolean isSIGNHEmpty() {
+
+    public boolean isSIGNHEmpty() {
         return SIGNHisEmpty;
     }
 
     public void setVersionInfo(byte[] versionInfo) {
-		setVERSIONisEmpty(false);
+        setVERSIONisEmpty(false);
         this.VersionInfo = versionInfo;
     }
 
@@ -620,13 +646,14 @@ public class NFCaDump {
         try {
             byte[] cmd_read_cnt = {
                     NFCaDump.CMD_READ_CNT,
-                    (byte)0x00 };
+                    (byte) 0x00};
             if (!nfca.isConnected()) nfca.connect();
             for (int i = 0; i < 3; i++) {
                 cmd_read_cnt[1] = (byte) i;
                 addCounter(nfca.transceive(cmd_read_cnt));
             }
-        } catch (IOException ignored) { }
+        } catch (IOException ignored) {
+        }
 
     }
 
@@ -636,6 +663,10 @@ public class NFCaDump {
 
     public int getCountersNumber() {
         return this.Counters.size();
+    }
+
+    public boolean isCountersNotEmpty() {
+        return getCountersNumber() > 0;
     }
 
     public byte[] getCounter(int i) {
@@ -673,13 +704,14 @@ public class NFCaDump {
         try {
             byte[] cmd_incr_cnt = {
                     CMD_INCR_CNT,
-                    (byte)cnt,  // increment counter 0
+                    (byte) cnt,  // increment counter 0
                     // LSB 1-st, 4-th byte need but ignored.
                     // 0 increment is valid but has no effect.
                     inc[0], inc[1], inc[2], inc[3]};
             if (!nfca.isConnected()) nfca.connect();
             nfca.transceive(cmd_incr_cnt);
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
 /* Operate with Android detected technologies list */
@@ -690,6 +722,10 @@ public class NFCaDump {
 
     public ArrayList<String> getAndTechList() {
         return this.AndTechList;
+    }
+
+    public boolean isAtechListNotEmpty() {
+        return !AndTechList.isEmpty();
     }
 
 /* Display dump and IC tech . information */
@@ -719,15 +755,15 @@ public class NFCaDump {
     public String getIC_InfoAsString() {
 
         StringBuilder sb = new StringBuilder();
-		if (ATQA != null) {
-        	sb.append(String.format("ATQA: %02x %02x\n",
-					getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
-                	getATQA()[0]));
-		}
-		if (!SAKisEmpty){
-        	sb.append(String.format("SAK: %02x\n", getSAK()));
-		}
-        if (!isVERSIONEmpty()) {
+        if (ATQA != null) {
+            sb.append(String.format("ATQA: %02x %02x\n",
+                    getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
+                    getATQA()[0]));
+        }
+        if (!SAKisEmpty) {
+            sb.append(String.format("SAK: %02x\n", getSAK()));
+        }
+        if (isVERSIONNotEmpty()) {
             sb.append("GET_VERSION:\n");
             sb.append("  ");
             for (int i = 0; i < getVersionInfo().length; i++) {
@@ -748,25 +784,25 @@ public class NFCaDump {
             }
         }
 
-        if (!isSIGNEmpty()) {
+        if (isSIGNNotEmpty()) {
             sb.append("READ_SIG:\n  ");
-			for (int i = getSIGN().length; i > 0; i--) {
-                sb.append(String.format("%02x", getSIGN()[i-1]));
+            for (int i = getSIGN().length; i > 0; i--) {
+                sb.append(String.format("%02x", getSIGN()[i - 1]));
                 if (i == 16 + 1) sb.append("\n  ");
             }
             sb.append("\n");
         }
-		if(!AndTechList.isEmpty()){
-        	String prefix = "android.nfc.tech.";
-        	sb.append("Android technologies: \n   ");
-        	for (int i = 0; i < getAndTechList().size(); i++) {
-            	if (i != 0) {
-                	sb.append(", ");
-            	}
-            	sb.append(getAndTechList().get(i).substring(prefix.length()));
-        	}
-        	sb.append('\n');
-		}
+        if (!AndTechList.isEmpty()) {
+            String prefix = "android.nfc.tech.";
+            sb.append("Android technologies: \n   ");
+            for (int i = 0; i < getAndTechList().size(); i++) {
+                if (i != 0) {
+                    sb.append(", ");
+                }
+                sb.append(getAndTechList().get(i).substring(prefix.length()));
+            }
+            sb.append('\n');
+        }
         return sb.toString();
     }
 
@@ -781,9 +817,9 @@ public class NFCaDump {
     public String getDumpAsDetailedString() {
         StringBuilder sb = new StringBuilder();
         sb.append("- - - Dump: - - -\n");
-        for (int i=0; i < getPagesNumber() - ( 4 - getLastBlockValidPages() ); i++){
+        for (int i = 0; i < getPagesNumber() - (4 - getLastBlockValidPages()); i++) {
             sb.append(String.format("%02x:%s: ", i, getAccessAsString(getPageAssess(i))));
-            for (int j=0; j < 4; j++){
+            for (int j = 0; j < 4; j++) {
                 sb.append(String.format("%02x ", getPage(i)[j]));
             }
             sb.append("\n");
@@ -834,9 +870,9 @@ public class NFCaDump {
     final static int PS_IC_INFO_COUNTERS = PS_IC_INFO_UNKNOWN + 2;
     final static int PS_IC_INFO_SIG = PS_IC_INFO_UNKNOWN + 3;
     final static int PS_IC_INFO_TECH = PS_IC_INFO_UNKNOWN + 4;
-	// Parser substate when reading remark
-	final static int PS_REMARK_WAIT_UNKNOWN = 0;
-	final static int PS_REMARK_WAIT_DDD_REMARK = PS_REMARK_WAIT_UNKNOWN + 1;
+    // Parser substate when reading remark
+    final static int PS_REMARK_WAIT_UNKNOWN = 0;
+    final static int PS_REMARK_WAIT_DDD_REMARK = PS_REMARK_WAIT_UNKNOWN + 1;
 
     public static String getDumpAsString(NFCaDump dump) {
 
@@ -863,86 +899,86 @@ public class NFCaDump {
     public static void parseDump(NFCaDump dump, List<String> content) {
         int parserState = PS_DUMP;
         int parserICsubState = PS_IC_INFO_UNKNOWN;
-		int parserRemSubState = PS_REMARK_WAIT_UNKNOWN;
+        int parserRemSubState = PS_REMARK_WAIT_UNKNOWN;
 
         for (String line : content) {
-            if(parserState != PS_REMARK){
-                if(line.matches("-\\?-")){
+            if (parserState != PS_REMARK) {
+                if (line.matches("-\\?-")) {
                     parserState = PS_FAKE_PAGES;
                     continue;
                 }
-                if(line.matches("\\+\\+\\+")){
+                if (line.matches("\\+\\+\\+")) {
                     parserState = PS_IC_INFO;
                     continue;
                 }
-                if(line.matches("===")){
+                if (line.matches("===")) {
                     parserState = PS_IC_DECODE;
                     continue;
                 }
-                if(line.matches("---")){
+                if (line.matches("---")) {
                     parserState = PS_REMARK;
                     continue;
                 }
             }
-            switch(parserState){
+            switch (parserState) {
                 case PS_FAKE_PAGES:
                     //TODO: Check is it need to set dump.LastBlockValidPages (now private) here
-                    if (!readVerifyStoreDumpPage(dump, line)){
+                    if (!readVerifyStoreDumpPage(dump, line)) {
                         parserState = PS_UNKNOWN;
                     }
                     break;
                 case PS_DUMP:
-                    if (!readVerifyStoreDumpPage(dump, line)){
+                    if (!readVerifyStoreDumpPage(dump, line)) {
                         parserState = PS_UNKNOWN;
                     }
                     break;
                 case PS_REMARK:
-                    dump.appendRemark(line+"\n");
-					if (line.startsWith("DDD: ")) {
-						dump.mDDD = parseDDD(line);
-						if (dump.mDDD != null)
-							parserRemSubState = PS_REMARK_WAIT_DDD_REMARK;
-						break;
-					} else if (line.startsWith("DD: ")) {
-						// TODO: implement dump date reading
-						break;
-					}
-					if (parserRemSubState == PS_REMARK_WAIT_DDD_REMARK) {
-						dump.mDDDRemark = line;
-						// DDD remark only one line
-						parserRemSubState = PS_REMARK_WAIT_UNKNOWN;
-						break;
-					}
+                    dump.appendRemark(line + "\n");
+                    if (line.startsWith("DDD: ")) {
+                        dump.mDDD = parseDDD(line);
+                        if (dump.mDDD != null)
+                            parserRemSubState = PS_REMARK_WAIT_DDD_REMARK;
+                        break;
+                    } else if (line.startsWith("DD: ")) {
+                        // TODO: implement dump date reading
+                        break;
+                    }
+                    if (parserRemSubState == PS_REMARK_WAIT_DDD_REMARK) {
+                        dump.mDDDRemark = line;
+                        // DDD remark only one line
+                        parserRemSubState = PS_REMARK_WAIT_UNKNOWN;
+                        break;
+                    }
                     break;
                 case PS_UNKNOWN:
                     dump.appendRemark("U: :" + line + ":\n");
                     break;
                 case PS_IC_INFO:
-                    if (line.startsWith("SAK:")){
+                    if (line.startsWith("SAK:")) {
                         String value = line.split(":")[1];
                         dump.setSAK(hexStringToByteArray(value)[0]);
                     }
-                    if (line.startsWith("ATQA:")){
+                    if (line.startsWith("ATQA:")) {
                         String value = line.split(":")[1];
                         dump.setATQA(hexStringToByteArray(value));
                     }
-                    if (line.startsWith("GET_VERSION:")){
+                    if (line.startsWith("GET_VERSION:")) {
                         parserICsubState = PS_IC_INFO_VERSION;
                         continue;
                     }
-                    if (line.startsWith("Counters(hex):")){
+                    if (line.startsWith("Counters(hex):")) {
                         parserICsubState = PS_IC_INFO_COUNTERS;
                         continue;
                     }
-                    if (line.startsWith("READ_SIG:")){
+                    if (line.startsWith("READ_SIG:")) {
                         parserICsubState = PS_IC_INFO_SIG;
                         continue;
                     }
-                    if (line.startsWith("Android technologies:")){
+                    if (line.startsWith("Android technologies:")) {
                         parserICsubState = PS_IC_INFO_TECH;
                         continue;
                     }
-                    switch(parserICsubState){
+                    switch (parserICsubState) {
                         case PS_IC_INFO_VERSION:
                             dump.setVersionInfo(hexStringToByteArray(line));
                             break;
@@ -955,8 +991,8 @@ public class NFCaDump {
                             dump.addCounter(val);
                             break;
                         case PS_IC_INFO_TECH:
-                            for(String tech : line.trim().split(",")){
-                                dump.addAndTechList("android.nfc.tech."+tech.trim());
+                            for (String tech : line.trim().split(",")) {
+                                dump.addAndTechList("android.nfc.tech." + tech.trim());
                             }
                             break;
                         default:
@@ -971,24 +1007,25 @@ public class NFCaDump {
             }
         }
     }
-	
-	private static Calendar parseDDD(String line) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Calendar DDD = null;
-		try {
-			DDD = Calendar.getInstance();
-			// String must be splited only on two parts
-			// by 1-st ':'.
-			// Be careful! 2-nd part alsocontain ':' symbol.
-			String value = line.split(":", 2)[1];
-			DDD.setTime(sdf.parse(value.trim()));
-		} catch (Exception ignore) {}
-		return DDD;
-	}
 
-    private static Boolean readVerifyStoreDumpPage(NFCaDump dump, String line){
+    private static Calendar parseDDD(String line) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar DDD = null;
+        try {
+            DDD = Calendar.getInstance();
+            // String must be splited only on two parts
+            // by 1-st ':'.
+            // Be careful! 2-nd part alsocontain ':' symbol.
+            String value = line.split(":", 2)[1];
+            DDD.setTime(sdf.parse(value.trim()));
+        } catch (Exception ignore) {
+        }
+        return DDD;
+    }
+
+    private static Boolean readVerifyStoreDumpPage(NFCaDump dump, String line) {
         Boolean rc;
-        if (line.matches("-?[0-9a-fA-F]+") && line.length() == 8){
+        if (line.matches("-?[0-9a-fA-F]+") && line.length() == 8) {
             dump.addPage(hexStringToByteArray(line));
             rc = true;
         } else {
@@ -1001,22 +1038,22 @@ public class NFCaDump {
 
 /* Common functions */
 
-	public static void reverseByteArray(byte[] array) {
-		// Grab from http://stackoverflow.com/a/12893827
-		if (array == null) {
-			return;
-		}
-		int i = 0;
-		int j = array.length - 1;
-		byte tmp;
-		while (j > i) {
-			tmp = array[j];
-			array[j] = array[i];
-			array[i] = tmp;
-			j--;
-			i++;
-		}
-	}
+    public static void reverseByteArray(byte[] array) {
+        // Grab from http://stackoverflow.com/a/12893827
+        if (array == null) {
+            return;
+        }
+        int i = 0;
+        int j = array.length - 1;
+        byte tmp;
+        while (j > i) {
+            tmp = array[j];
+            array[j] = array[i];
+            array[i] = tmp;
+            j--;
+            i++;
+        }
+    }
 
     public static byte[] hexStringToByteArray(String s) {
         // Grabbed from http://stackoverflow.com/a/18714790
@@ -1024,12 +1061,175 @@ public class NFCaDump {
         s = s.replaceAll(" ", "");
         int len = s.length();
 
-        byte[] data = new byte[len/2];
+        byte[] data = new byte[len / 2];
 
-        for(int i = 0; i < len; i+=2){
-            data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
         }
 
         return data;
+    }
+
+/* WebView UI related functions */
+
+    public String getDumpAsHTMLString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < getPagesNumber() - (4 - getLastBlockValidPages()); i++) {
+            sb.append(String.format("%02x:%s: ", i, getAccessAsString(getPageAssess(i))));
+            for (int j = 0; j < 4; j++) {
+                sb.append(String.format("%02x ", getPage(i)[j]));
+            }
+            sb.append("\\n");
+        }
+        // warning, because fuzzy algorithm used
+        if (getLastBlockValidPages() != 4)
+            sb.append(String.format("---\\n[!]Last block\\nvalid pages: %d\\n",
+                    getLastBlockValidPages()));
+
+        return sb.toString();
+    }
+
+    public String getATechAsHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (!AndTechList.isEmpty()) {
+            String prefix = "android.nfc.tech.";
+            for (int i = 0; i < getAndTechList().size(); i++) {
+                if (i != 0) {
+                    sb.append(",\\n  ");
+                }
+                sb.append(getAndTechList().get(i).substring(prefix.length()));
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public String getATQAAsHTML() {
+        return String.format("%02x %02x",
+                getATQA()[1], // in reverse order according to ISO/IEC 14443-3 Type A
+                getATQA()[0]);
+    }
+
+    public String getSAKAsHTML() {
+        return String.format("%02x", getSAK());
+    }
+
+    public String getVERSIONAsHTML() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < getVersionInfo().length; i++) {
+            sb.append(String.format("%02x ", getVersionInfo()[i]));
+        }
+        return sb.toString();
+    }
+
+    public String getCountersAsHTML() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < getCountersNumber(); i++) {
+            sb.append(String.format("  %01x: ", i));
+            // LSB is 1-st
+            for (int j = (getCountersNumber() - 1); j >= 0; j--) {
+                sb.append(String.format("%02x", getCounter(i)[j]));
+            }
+            sb.append("\\n");
+        }
+        return sb.toString();
+    }
+
+    public String getSIGNAsHTML() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  ");
+        for (int i = getSIGN().length; i > 0; i--) {
+            sb.append(String.format("%02x", getSIGN()[i - 1]));
+            if (i == 16 + 1) sb.append("\\n  ");
+        }
+        return sb.toString();
+    }
+
+    public String getUIDHiasHTML() {
+        return String.format("%08x", getPageAsInt(0));
+
+    }
+
+    public String getUIDLoasHTML() {
+        return String.format("%08x", getPageAsInt(1));
+
+    }
+
+    public String getBCC0AsHTML() {
+        return String.format("%02x", getPage(0)[3]);
+    }
+
+    public String getBCC1AsHTML() {
+        return String.format("%02x", getPage(2)[0]);
+    }
+
+    public String getUIDCRCStatusAsHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (UID_CRC_Check()) {
+            sb.append("CRC OK");
+        } else {
+            sb.append("CRC not OK");
+        }
+        return sb.toString();
+    }
+
+    public String getOTPAsHTML() {
+        return Integer.toBinaryString(getPageAsInt(3));
+    }
+
+    public String getPagesReadAsHTML() {
+        return String.format("%d", getPagesNumber() - 4 + getLastBlockValidPages());
+    }
+
+    public String getBytesReadAsHTML() {
+        return String.format("%d", (getPagesNumber() - 4 + getLastBlockValidPages()) * 4);
+    }
+
+    public String getManufacturerAsHTML() {
+        switch (Pages.get(0)[0]) {
+            case 0x04:
+                return "NXP Semiconductors\\n  (Philips) Germany";
+            case 0x34:
+                return "JSC Micron Russia";
+            default:
+                return "Unknown";
+        }
+    }
+
+    public String getChipNamesAsHTML() {
+        if (IC_Type == IC_UNKNOWN) detectIC_Type();
+        switch (getIC_Type()) {
+            case IC_MF0ICU1:
+                return "  (probably) MF0ICU1\\n  [Mifare Ultralight]";
+            case IC_MF0UL11:
+                return "  MF0UL(H)11\\n  [Mifare Ultralight EV1]";
+            case IC_MF0UL21:
+                return "  MF0UL(H)21\\n  [Mifare Ultralight EV1]";
+            case IC_MIK640D:
+                return "  (probably) MIK64PTAS\\n   aka MIK640D";
+            case IC_MIK1312ED:
+                return "  MIK1312ED\\n  aka К5016ВГ4Н4\\n  aka K5016XC1M1H4";
+            default:
+                return "Unknown";
+        }
+    }
+
+    public String getChipCapacityAsHTML() {
+        if (IC_Type == IC_UNKNOWN) detectIC_Type();
+        switch (getIC_Type()) {
+            case IC_MF0ICU1:
+                return "64";
+            case IC_MF0UL11:
+                return "80";
+            case IC_MF0UL21:
+                return "164";
+            case IC_MIK640D:
+                return "80";
+            case IC_MIK1312ED:
+                return "164";
+            default:
+                return "Unknown";
+        }
+
     }
 }

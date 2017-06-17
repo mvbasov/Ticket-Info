@@ -27,17 +27,14 @@ function debug(){
             'DD: 2017-06-05 22:29:53\\n' +
             'м. Беговая (первый)\\n' +
             'Выход к платформе Беговая (7),\\n' +
-            'к магазину Чип и Дип (3)."' +
-
-        '}';
-        jreplace(t);
-
-        var tv = '{' +
+            'к магазину Чип и Дип (3).",' +
+            '"visibility":{' +
             '"vt_note":null,' +
             '"vt_trip":null,' +
             '"vt_station":null' +
+            '}' +
         '}';
-        jvisible(tv);
+        jreplace(t);
 
         var i = '{ ' +
             '"i_manufacturer":"JSC Micron Russia",' +
@@ -64,16 +61,14 @@ function debug(){
             '"i_read_sig":"' +
             '  00000000000000000000000000000000\\n' +
             '  00000000000000000000000000000000",' +
-            '"i_tech":"nfcA"' +
-        '}';
-        jreplace(i);
-
-        var iv = '{' +
+            '"i_tech":"nfcA",' +
+            '"visibility":{' +
             '"vi_get_version":null,' +
             '"vi_counters":null,' +
             '"vi_read_sig":null' +
+            '}' +
         '}';
-        jvisible(iv);
+        jreplace(i);
 
         var d = '{ ' +
             '"d_content":"' +

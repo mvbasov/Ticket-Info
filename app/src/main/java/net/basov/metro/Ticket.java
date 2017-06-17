@@ -101,13 +101,13 @@ public class Ticket {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             T_UNKNOWN,
-            TO_M1, TO_M2, TO_M3, TO_M4, TO_M5, TO_M10, TO_M20, TO_M20, TO_M60,
+            TO_M1, TO_M2, TO_M3, TO_M4, TO_M5, TO_M10, TO_M20, TO_M60,
             TO_BAGGAGE_AND_PASS, TO_BAGGAGE, TO_UL70,
             TO_VESB,
-            TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_90U20, TN_U40, TN_U60,
+            TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_U20, TN_U40, TN_U60,
             TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U60,
             TN_UL1D, TN_UL3D, TN_UL7D,
-            TN_G1, TN_GB1_DRV, TN_G2, TN_G3_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
+            TN_G1, TN_G2, TN_G3_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
             TN_GB1_DRV, TN_GAB1
 
     })
@@ -514,8 +514,10 @@ public class Ticket {
 	 * Possible values:
 	 * <li>
      *     <li>{@link Ticket#TS_UNKNOWN}</li>
-     *     <li>{@link Ticket#TS_NEVER_USER}</li>
-     *     <li>{@link Ticket#TS_}</li>
+     *     <li>{@link Ticket#TS_NEVER_USED}</li>
+     *     <li>{@link Ticket#TS_EXPIRED}</li>
+     *     <li>{@link Ticket#TS_EMPTY}</li>
+     *     <li>{@link Ticket#TS_IN_TRIP}</li>
 	 * </li>
 	 */
 	private int mTicketState = TS_UNKNOWN;

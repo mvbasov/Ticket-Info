@@ -4,7 +4,7 @@ android {
         variant.outputs.each { output ->
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                def fileName =  "Ticket-InfoW." + versionName + ".apk"
+                def fileName =  "Ticket-Info." + versionName + ".apk"
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
@@ -25,7 +25,7 @@ android {
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "net.basov.ticketinfo"
-        minSdkVersion 11
+        minSdkVersion 19
         targetSdkVersion 21
         versionCode 300
         versionName '3.00'

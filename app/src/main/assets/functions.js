@@ -23,11 +23,11 @@ function jreplace(jcontent) {
        if (document.getElementById(key))
            document.getElementById(key).innerHTML = jobj[key];
        else if (!key.localeCompare("visibility"))
-           for( i in jobj.visibility){
-               if (document.getElementById(jobj.visibility[i]))
-                   document.getElementById(jobj.visibility[i]).style.display = "block";
+           for(var v in jobj.visibility){
+               if (document.getElementById(v))
+                   document.getElementById(v).style.display = "block";
                else
-                   console.log("ID "+jobj.visibility[i]+" doesn't exists");
+                   console.log("visibility ID "+v+" doesn't exists");
            }
        else
            console.log("ID "+key+" doesn't exists");
@@ -35,15 +35,4 @@ function jreplace(jcontent) {
    }
 }
 
-function jvisible(jcontent) {
-   jobj=JSON.parse(jcontent);
-
-   for (var key in jobj) {
-       if (document.getElementById(key))
-           document.getElementById(key).style.display = "block";
-       else
-           console.log("ID "+key+" doesn't exists");
-
-   }
-}
 
