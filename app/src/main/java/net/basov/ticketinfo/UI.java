@@ -35,68 +35,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-
-//        header_json = "{"
-//            +"\"h_number\":\"0003123881\","
-//            +"\"h_state\":\"<font color=\\\\\"violet\\\\\">DebugAPP</font>\""
-//            +"}";
-//
-//        ticket_json = "{"
-//            +"\"t_valid_days\":\"1\","
-//            +"\"t_from_datetime\":\"07.06.2017 16:03\","
-//            +"\"t_to_datetime\":\"08.06.2017 16:03\","
-//            +"\"t_start_use\":\"08.06.2017 at 00:00\","
-//            +"\"t_ic_uid\":\"0123456789abcdef\""
-//            +"}";
-//
-//        ticket_visibility_json = "{"
-//            +"\"vt_note\":null,"
-//            +"\"vt_trip\":null,"
-//            +"\"vt_station\":null"
-//            +"}";
-//
-//        ic_json = "{"
-//            +"\"i_manufacturer\":\"JSC Micron Russia\","
-//            +"\"i_ic_std_bytes\":\"164\","
-//            +"\"i_names\":\""
-//            +"  MIK1312ED\\\\n"
-//            +"  aka К5016ВГ4Н4\\\\n"
-//            +"  aka K5016XC1M1H4\","
-//            +"\"i_read_pages\":\"41\","
-//            +"\"i_read_bytes\":\"164\","
-//            +"\"i_read_sig\":\""
-//            +"  00000000000000000000000000000000\\\\n"
-//            +"  00000000000000000000000000000000\","
-//            +"\"i_tech\":\"nfcA\""
-//            +"}";
-//
-//        ic_visibility_json = "{"
-//                +"\"vi_get_version\":null,"
-//                +"\"vi_read_sig\":null,"
-//                +"\"vi_counters\":null"
-//                +"}";
-//
-//        mainUI_WV.setWebViewClient(new WebViewClient() {
-//            @Override
-//            public void onPageFinished(WebView view, String url) {
-//                super.onPageFinished(mainUI_WV, url);
-//
-//                view.loadUrl("javascript:jreplace('" + header_json +"')");
-//
-//                view.loadUrl("javascript:jreplace('" + ticket_json +"')");
-//                view.loadUrl("javascript:jvisible('" + ticket_visibility_json +"')");
-//
-//                view.loadUrl("javascript:jreplace('" + ic_json +"')");
-//                view.loadUrl("javascript:jvisible('" + ic_visibility_json +"')");
-//
-//                mainUI_WV.clearCache(true);
-//            }
-//        });
-//
-//        mainUI_WV.loadUrl("file:///android_asset/webview_ui.html");
-
-
-
 /*
 * Created by mvb on 6/17/17.
 */
@@ -115,6 +53,8 @@ public class UI {
     {
         visibilityMap = new HashMap<String, String>();
         visibilityMap.put("w_msg", "vw_msg");
+        visibilityMap.put("t_trips_left", "vt_trips_left");
+        visibilityMap.put("t_trip_seq_number", "vt_trip");
         visibilityMap.put("t_station", "vt_station");
         visibilityMap.put("i_get_version", "vi_get_version");
         visibilityMap.put("i_counters", "vi_counters");
@@ -267,7 +207,7 @@ public class UI {
 
                 wv.clearCache(true);
                 //TODO: remove debug
-                Log.d("iiii", ic_json.toString());
+                //Log.d("iiii", ic_json.toString());
             }
         });
         wv.loadUrl("file:///android_asset/webview_ui.html");

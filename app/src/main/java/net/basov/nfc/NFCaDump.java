@@ -531,7 +531,7 @@ public class NFCaDump {
 /* Display manufacturer name */
 
     public String getManufName() {
-        switch (Pages.get(0)[0]) {
+        switch (getPage(0)[0]) {
             case 0x04:
                 return "NXP Semiconductors (Philips) Germany";
             case 0x34:
@@ -1155,6 +1155,10 @@ public class NFCaDump {
 
     }
 
+    public String getUIDAsHTML(){
+        return String.format("%08x%08x", getPageAsInt(0), getPageAsInt(1));
+    }
+
     public String getBCC0AsHTML() {
         return String.format("%02x", getPage(0)[3]);
     }
@@ -1186,7 +1190,7 @@ public class NFCaDump {
     }
 
     public String getManufacturerAsHTML() {
-        switch (Pages.get(0)[0]) {
+        switch (getPage(0)[0]) {
             case 0x04:
                 return "NXP Semiconductors\\n  (Philips) Germany";
             case 0x34:
@@ -1230,6 +1234,6 @@ public class NFCaDump {
             default:
                 return "Unknown";
         }
-
     }
+/**/
 }

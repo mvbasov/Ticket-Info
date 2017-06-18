@@ -96,7 +96,7 @@ span.d_internal { color: aqua }
 <body onload="openTab('Ticket', 'btnTicket'); debug();">
     <h3>
         &#8470; <span id="h_number">XXXXXXXXXX</span>
-        &emsp;&emsp;&emsp;&emsp;&emsp;
+        &emsp;&emsp;&emsp;
         <span id="h_state">Xxxxx</span>
     </h3>
     <div>
@@ -108,10 +108,15 @@ span.d_internal { color: aqua }
 
     <div id="Ticket" class="tab" style="display:none">
 
-        <h3>Universal, 1 day, unlimited passes</h3>
+        <h3><span id="t_desc">xxxxxxxxxx</span></h3>
 
         <div class="f_frame">
         <!-- ticket info frame -->
+
+            <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
+                <pre>
+Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
+            </div>
             <pre>
 Valid in days: <span id="t_valid_days">x</span>
   from  <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>

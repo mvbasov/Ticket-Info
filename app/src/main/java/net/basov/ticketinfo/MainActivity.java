@@ -54,6 +54,8 @@ import net.basov.util.FileIO;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import ru.valle.tickets.ui.Decode;
+
 public class MainActivity extends Activity {
 
     static final String TAG = "tickets";
@@ -166,12 +168,12 @@ public class MainActivity extends Activity {
                 final String[] techList = tag.getTechList();
 
                 // TODO: remove debug toast
-                Toast.makeText(
-                        this,
-                        "Chip UID: "
-                                +byteArrayToHexString(tag.getId()),
-                        Toast.LENGTH_LONG
-                ).show();
+//                Toast.makeText(
+//                        this,
+//                        "Chip UID: "
+//                                +byteArrayToHexString(tag.getId()),
+//                        Toast.LENGTH_LONG
+//                ).show();
 
                 final NfcA nfca = NfcA.get(tag);
 
@@ -266,15 +268,29 @@ public class MainActivity extends Activity {
                                 sb.append(t.getTicketAsString(c));
                             }
 
-                            sb.append(dump.getMemoryInfoAsString());
-                            sb.append(dump.getUIDCheckAsString());
+                            //sb.append(dump.getMemoryInfoAsString());
+                            //sb.append(dump.getUIDCheckAsString());
                             //sb.append(dump.getIC_InfoAsString());
-                            sb.append(dump.getDetectedICTypeAsString());
+                            //sb.append(dump.getDetectedICTypeAsString());
                             //sb.append(dump.getDumpAsDetailedString());
                             // REDESIGN
                             //text.setText(sb.toString());
-                            ui.setTicketHeader("h_state","DebugAPP");
-                            ui.setTicketHeader("h_number",String.format("%010d", t.getTicketNumber()));
+                            ui.setTicketHeader("h_state", t.getTicketStateAsHTML());
+                            ui.setTicketHeader("h_number", t.getTicketNumberAsHTML());
+                            ui.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
+                            if (t.getPassesLeft() != 0)
+                                ui.setTicket("t_trips_left",
+                                        String.format("%d", t.getPassesLeft()));
+                            if ((t.getGateEntered() != 0) || (t.getEntranceEntered() != 0)) {
+                                ui.setTicket("t_trip_seq_number",
+                                     String.format("%d", t.getTripSeqNumber()));
+                            }
+                            ui.setTicket("t_layout", t.getTicketLayoutAsHTML());
+                            ui.setTicket("t_app_id", t.getTicketAppIDAsHTML());
+                            ui.setTicket("t_type_id", t.getTicketTypeAsHTML());
+                            ui.setTicket("t_hash", t.getHashAsHexString());
+                            ui.setTicket("t_number", t.getTicketNumberAsHTML());
+                            ui.setTicket("t_ic_uid", d.getUIDAsHTML());
                             ui.setTicket("i_manufacturer", d.getManufacturerAsHTML());
                             ui.setTicket("i_chip_names", d.getChipNamesAsHTML());
                             ui.setTicket("i_std_bytes", d.getChipCapacityAsHTML());

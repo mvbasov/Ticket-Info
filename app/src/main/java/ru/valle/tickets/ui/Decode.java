@@ -101,12 +101,12 @@ public class Decode {
             case Ticket.TN_U60: // 60 passes, universal (2478069296, confirmed lly)
                 return c.getString(R.string.universal) + ", 60 " + Lang.getNounCase(60, R.array.trip_cases, c);
 // TODO: Translate messages
-            case Ticket.TN_UL1D: // 1 days, unlimited passes, 20 minutes between passes (0001029499, with paper check)
-                return "Universal, 1 day, unlimited passes, 20 minutes between passes";
-            case Ticket.TN_UL3D: // 3 days, unlimited passes, 20 minutes between passes (0001192751, with paper check)
-                return "Universal, 3 days, unlimited passes, 20 minutes between passes";
-            case Ticket.TN_UL7D: // 7 days, unlimited passes, 20 minutes between passes (0001192740, with paper check)
-                return "Universal, 7 days, unlimited passes, 20 minutes between passes";
+            case Ticket.TN_UL1D: // 1 days, unlimited passes, 20 minutes between passes on same station (0001029499, with paper check)
+                return "Universal, 1 day, unlimited passes";
+            case Ticket.TN_UL3D: // 3 days, unlimited passes, 20 minutes between passes on same station (0001192751, with paper check)
+                return "Universal, 3 days, unlimited passes";
+            case Ticket.TN_UL7D: // 7 days, unlimited passes, 20 minutes between passes on same station (0001192740, with paper check)
+                return "Universal, 7 days, unlimited passes";
             case Ticket.TN_90U1_G: // 1 pass, 90 minutes, universal, sell on ground (1013862735, with paper check)
                 return "90 minutes, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c) + " (sell on ground)";
             case Ticket.TN_90U1: // 1 pass, 90 minutes, universal, sell in metro (1016236236, with paper check)

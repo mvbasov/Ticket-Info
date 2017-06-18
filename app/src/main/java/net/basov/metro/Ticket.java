@@ -262,22 +262,23 @@ public class Ticket {
      * Ticket sell by ground transport driver
      */
     public static final int WS_DRIVER = WS_METRO << 2;
-	
-	/**
-	 * Tecket state
+    
+    /**
+     * Tecket state
      */
-	@Retention(RetentionPolicy.SOURCE)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef(
-		flag = true,
-		value = {TS_UNKNOWN, TS_NEVER_USED, TS_EXPIRED, TS_EMPTY, TS_IN_TRIP}
-	)
+        flag = true,
+        value = {TS_UNKNOWN, TS_NEVER_USED, TS_READY,TS_IN_TRIP, TS_EMPTY, TS_EXPIRED}
+    )
     public @interface TicketState {}
-	public static final int TS_UNKNOWN = 0;
-	public static final int TS_NEVER_USED = 1;
-	public static final int TS_EXPIRED = 2;
-	public static final int TS_EMPTY = 4;
-	public static final int TS_IN_TRIP = 8;
-	
+    public static final int TS_UNKNOWN = 0;
+    public static final int TS_NEVER_USED = 1;
+    public static final int TS_READY = 1 << 1;
+    public static final int TS_IN_TRIP = 1 << 2;
+    public static final int TS_EMPTY = 1 << 3;
+    public static final int TS_EXPIRED = 1 << 4;
+
     // Data fields definition
 
     /**
@@ -299,12 +300,12 @@ public class Ticket {
      * Describe parser error if exists
      */
     private String mParserError;
-	/**
-	 * Date and time to calculate time difference related values.
-	 * To process real ticket in normal circumstance set to now time.
-	 * For test and debug can be set to any point of time.
-	 */
-	private Calendar mTimeToCompare = null;
+    /**
+     * Date and time to calculate time difference related values.
+     * To process real ticket in normal circumstance set to now time.
+     * For test and debug can be set to any point of time.
+     */
+    private Calendar mTimeToCompare = null;
     /**
      * Is dump valid
      */
@@ -509,18 +510,18 @@ public class Ticket {
      * Valid only for 90 minutes ticket.
      */
     private Calendar mT90ChangeTime = null;
-	/**
-	 * Current ticket state.
-	 * Possible values:
-	 * <li>
+    /**
+     * Current ticket state.
+     * Possible values:
+     * <li>
      *     <li>{@link Ticket#TS_UNKNOWN}</li>
      *     <li>{@link Ticket#TS_NEVER_USED}</li>
      *     <li>{@link Ticket#TS_EXPIRED}</li>
      *     <li>{@link Ticket#TS_EMPTY}</li>
      *     <li>{@link Ticket#TS_IN_TRIP}</li>
-	 * </li>
-	 */
-	private int mTicketState = TS_UNKNOWN;
+     * </li>
+     */
+    private int mTicketState = TS_UNKNOWN;
     /**
      * One time programming bit counter
      * Used for control number of passes.
@@ -541,7 +542,7 @@ public class Ticket {
      */
     public Ticket() {
         mDump = new ArrayList<Integer>();
-		mTimeToCompare = Calendar.getInstance();
+        mTimeToCompare = Calendar.getInstance();
         setTicketFormatIsValid(true);
     }
 
@@ -591,43 +592,43 @@ public class Ticket {
 
         setDump(dump);
         setTimeToCompare(timeToCompare);
-		DEBUG_TIME = true;
+        DEBUG_TIME = true;
         processTicket();
     }
 
     public static String createDumpFileName(Ticket ticket) {
 
         StringBuilder dName = new StringBuilder();
-		dName.append("");
-		     
+        dName.append("");
+
         if (ticket.isTicketFormatValid()) {
-			dName.append(String.format("%010d", ticket.getTicketNumber()));
-			switch (ticket.getTicketClass()){
-            	case Ticket.C_UNLIM_DAYS:
-                	dName.append(String.format("-%dd",ticket.getValidDays()));
-                	dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
-					dName.append(getTCsuffix(ticket));
-					break;
-        	    case Ticket.TO_VESB:
+            dName.append(String.format("%010d", ticket.getTicketNumber()));
+            switch (ticket.getTicketClass()){
+                case Ticket.C_UNLIM_DAYS:
+                    dName.append(String.format("-%dd",ticket.getValidDays()));
+                    dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
+                    dName.append(getTCsuffix(ticket));
+                    break;
+                case Ticket.TO_VESB:
                     dName.append("-su");
                     dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
-					break;
+                    break;
                 case Ticket.C_90UNIVERSAL:
-					dName.append(String.format("-%02d", ticket.getPassesTotal()));
-                	dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
-                	dName.append(getTCsuffix(ticket));
+                    dName.append(String.format("-%02d", ticket.getPassesTotal()));
+                    dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
+                    dName.append(getTCsuffix(ticket));
                     if (ticket.getLayout() == 0x0d) {
                         dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
                         dName.append(String.format(".%1d", ticket.getT90ChangeCount()));
                     } else if (ticket.getLayout() == 0x0a) {
                         dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
                     }
-					break;
-				default:
-					dName.append(String.format("-%02d", ticket.getPassesTotal()));
-                	dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
-                	dName.append(getTCsuffix(ticket));
-					break;
+                    break;
+                default:
+                    dName.append(String.format("-%02d", ticket.getPassesTotal()));
+                    dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
+                    dName.append(getTCsuffix(ticket));
+                    break;
             }
         } else {
             dName.append("xxxxxxxxxx-xx-xx");
@@ -735,7 +736,7 @@ public class Ticket {
                     if (mT90MCount != 0 || mT90GCount != 0) {
                         if (getTimeToCompare().after(mTripStart)){
                             mT90TripTimeLeft = (int)( 90 -
-								((getTimeToCompare().getTimeInMillis()
+                                ((getTimeToCompare().getTimeInMillis()
                                             - mTripStart.getTimeInMillis())
                                     /(1000L * 60)));
                         }
@@ -825,9 +826,9 @@ public class Ticket {
         } else if (getTicketType() != TO_VESB){
             setTripSeqNumber(mPassesTotal - getPassesLeft());
         } else {
-			setTripSeqNumber((mDump.get(9) & 0x0fff0000) >>> 16);
-			mPassesLeft = -1;
-		}
+            setTripSeqNumber((mDump.get(9) & 0x0fff0000) >>> 16);
+            mPassesLeft = -1;
+        }
 
         mHash = mDump.get(10);
 
@@ -892,7 +893,7 @@ public class Ticket {
 
         if (DEBUG_TIME) {
             sb.append(String.format("!!! App. time set to %s\n",
-									DDF.format(getTimeToCompare().getTime())));
+                                    DDF.format(getTimeToCompare().getTime())));
             sb.append(String.format("DDD rem: %s\n",
                                     mDDDRem));
             sb.append("\n- - - -\n");            
@@ -1001,13 +1002,13 @@ public class Ticket {
         switch (getLayout()) {
             case 8:
                 if ( getGateEntered() != 0) {
-					sb.append(c.getString(R.string.last_trip));
+                    sb.append(c.getString(R.string.last_trip));
                     if (getTripSeqNumber() > 0) {
                         sb.append(" №");
                         sb.append(getTripSeqNumber());
                     }
                     sb.append(":\n  ");
-           
+
                     sb.append(c.getString(R.string.station_last_enter)).append(": ");
                     sb.append(getGateDesc(c, getGateEntered())).append('\n');
                 }
@@ -1096,8 +1097,8 @@ public class Ticket {
                         sb.append('\n');
                         sb.append("  Change  time: ");
                         sb.append(TF.format(mT90ChangeTime.getTime()));
-						sb.append(String.format(" (%02d min)", mT90RelChangeTime));
-						sb.append('\n');
+                        sb.append(String.format(" (%02d min)", mT90RelChangeTime));
+                        sb.append('\n');
                     }
 
                     if (getTicketClass() == Ticket.C_UNLIM_DAYS &&
@@ -1264,7 +1265,6 @@ public class Ticket {
         return mTripStart;
     }
 
-
     public int getTimeToNextTrip() {
         return mTimeToNextTrip;
     }
@@ -1391,8 +1391,8 @@ public class Ticket {
 
         this.mLayout = layout;
     }
-	public int getLayout() { return mLayout; }
 
+	public int getLayout() { return mLayout; }
 
     public void setPassesTotal(int passesTotal) {
         mPassesTotal = passesTotal;
@@ -1440,8 +1440,6 @@ public class Ticket {
      */
     public int getT90ChangeCount() { return mT90GCount + mT90MCount; }
 
-
-
     public void setValidDays(int validDays) {
         if (validDays < 0 || validDays > 120) {
             setTicketFormatIsValid(false);
@@ -1470,6 +1468,8 @@ public class Ticket {
      */
     public int getValidDays() { return mValidDays; }
 
+    public int getTicketState() { return mTicketState; }
+
 /* Internal functions */
 
     /**
@@ -1484,7 +1484,7 @@ public class Ticket {
      *
      * @return get hash (encrypted checksum) as hex string
      */
-    private String getHashAsHexString() {
+    public String getHashAsHexString() {
         return Integer.toHexString(mHash);
     }
 
@@ -1547,8 +1547,8 @@ public class Ticket {
                 break;
         }
 
-		String gateNumAndType = "№" + id + " (" + trType + ")";
-		
+        String gateNumAndType = "№" + id + " (" + trType + ")";
+
         String SN = Lang.transliterate(
                 Lookup.findStationInfoByTsId(id+"", getDataFileURIasString(c))
         );
@@ -1959,27 +1959,63 @@ public class Ticket {
         return dataFileURI.toString();
     }
 
-	private static String getTCsuffix(Ticket ticket){
-		int lastMTTidx = ticket.mMetroTripTransportHistory.size();
-		String lmt = "";
-		if (lastMTTidx > 1) {
-			switch (ticket.mMetroTripTransportHistory.get(lastMTTidx - 1)) {
-				case MT_METRO:
-					lmt += "m";
-					break;
-				case MT_MONORAIL:
-					lmt += "r";
-					break;
-				case MT_MCC:
-					lmt += "c";
-					break;
-				default:
-					lmt += "x";
-					break;
-			}
-			return String.format("_%d%s", lastMTTidx - 1, lmt);
-		} else {
-			return "";
-		}
-	}
+    private static String getTCsuffix(Ticket ticket){
+        int lastMTTidx = ticket.mMetroTripTransportHistory.size();
+        String lmt = "";
+        if (lastMTTidx > 1) {
+            switch (ticket.mMetroTripTransportHistory.get(lastMTTidx - 1)) {
+                case MT_METRO:
+                    lmt += "m";
+                    break;
+                case MT_MONORAIL:
+                    lmt += "r";
+                    break;
+                case MT_MCC:
+                    lmt += "c";
+                    break;
+                default:
+                    lmt += "x";
+                    break;
+            }
+            return String.format("_%d%s", lastMTTidx - 1, lmt);
+        } else {
+            return "";
+        }
+    }
+
+/* WebView UI related functions */
+    public String getTicketNumberAsHTML() {
+        return String.format("%010d", getTicketNumber());
+    }
+
+    public String getTicketStateAsHTML() {
+        switch (getTicketState()){
+            case TS_UNKNOWN:
+                return "Unknown";
+            case TS_NEVER_USED:
+                return "Newer Used";
+            case TS_READY:
+                return "Ready to use";
+            case TS_IN_TRIP:
+                return "In trip";
+            case TS_EMPTY:
+                return "Empty";
+            case TS_EXPIRED:
+                return "Expired";
+            default:
+                return "???";
+        }
+    }
+
+    public String getTicketTypeAsHTML() {
+        return String.format("%d (0x%03x)", getTicketType(), getTicketType());
+    }
+
+    public String getTicketAppIDAsHTML() {
+        return String.format("%d (0x%03x)", getApp(), getApp());
+    }
+
+    public String getTicketLayoutAsHTML() {
+        return String.format("%d (0x%02x)", getLayout(), getLayout());
+    }
 }
