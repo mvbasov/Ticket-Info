@@ -2008,14 +2008,103 @@ public class Ticket {
     }
 
     public String getTicketTypeAsHTML() {
-        return String.format("%d (0x%03x)", getTicketType(), getTicketType());
+        return String.format("%1$d (0x%1$03x)", getTicketType());
     }
 
     public String getTicketAppIDAsHTML() {
-        return String.format("%d (0x%03x)", getApp(), getApp());
+        return String.format("%1$d (0x%1$03x)", getApp());
     }
 
     public String getTicketLayoutAsHTML() {
-        return String.format("%d (0x%02x)", getLayout(), getLayout());
+        return String.format("%1$d (0x%1$02x)", getLayout());
     }
+
+    public String getGateEnteredAsHTML() {
+        return String.format("1$%04d [0x%1$04x]", getGateEntered());
+
+    }
+
+    public String getEntrancrEnteredAsHTML() {
+        return String.format("%1$04d [0x%1$04x]", getEntranceEntered());
+
+    }
+
+    public String getPassesLeftAsHTML() {
+        return String.format("%d", getPassesLeft());
+    }
+
+    public String getTripSeqNumbetAsHTML() {
+        return String.format("%d", getTripSeqNumber());
+    }
+
+    public String getTransportTypeAsHTML(Context c) {
+        String TransportType ="";
+        switch (getPassTransportType()) {
+            case TT_METRO:
+                switch (getPassMetroType()) {
+                    case MT_MCC:
+                        TransportType +=c.getString(R.string.mt_mcc);
+                        break;
+                    case MT_METRO:
+                        TransportType +=c.getString(R.string.mt_metro);
+                        break;
+                    case MT_MONORAIL:
+                        TransportType +=c.getString(R.string.mt_monorail);
+                        break;
+                    case MT_UNKNOWN:
+                    default:
+                        TransportType += c.getString(R.string.tt_unknown);
+                        break;
+                }
+                if (mMetroTripTransportHistory.size() > 1) {
+                    TransportType += ", hist.: ";
+                    for (int tt : mMetroTripTransportHistory) {
+                        switch (tt) {
+                            case MT_METRO:
+                                TransportType += "M";
+                                break;
+                            case MT_MONORAIL:
+                                TransportType += "R";
+                                break;
+                            case MT_MCC:
+                                TransportType += "C";
+                                break;
+                            default:
+                            case MT_UNKNOWN:
+                                TransportType += "U";
+                                break;
+                        }
+                    }
+                }
+                break;
+            case TT_GROUND:
+                TransportType += c.getString(R.string.tt_ground);
+                break;
+            case TT_UNKNOWN:
+                TransportType += c.getString(R.string.tt_unknown);
+                break;
+            default:
+                TransportType += "!!! Internal error !!!";
+                break;
+        }
+
+        return TransportType;
+    }
+
+    public String getStationDescAsHTML(Context c) {
+//        return Lang.transliterate(
+//                Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c))
+//        );
+        return
+            Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c));
+    }
+
+    public String getTurnstileDescAsHTML(Context c) {
+//        return Lang.transliterate(
+//                Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c))
+//        );
+        return
+            Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c));
+    }
+
 }

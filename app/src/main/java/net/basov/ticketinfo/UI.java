@@ -24,16 +24,21 @@
 
 package net.basov.ticketinfo;
 
+import android.content.Context;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.json.JSONArray;
+import net.basov.metro.Ticket;
+import net.basov.nfc.NFCaDump;
+import net.basov.util.StringTools;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
+
+import ru.valle.tickets.ui.Decode;
 
 /*
 * Created by mvb on 6/17/17.
@@ -99,7 +104,7 @@ public class UI {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if (visibilityMap.containsKey(field))
+        if (visibilityMap.containsKey(field) && (content.length() > 0))
             setTicketVisibility(visibilityMap.get(field));
 
     }
@@ -207,10 +212,62 @@ public class UI {
 
                 wv.clearCache(true);
                 //TODO: remove debug
+                //Log.d("hhhh", header_json.toString());
+                //Log.d("tttt", ticket_json.toString());
                 //Log.d("iiii", ic_json.toString());
             }
         });
         wv.loadUrl("file:///android_asset/webview_ui.html");
     }
 
+    public void displayTicketInfo(NFCaDump d, Ticket t, WebView wv, Context c) {
+        this.setTicketHeader("h_state", t.getTicketStateAsHTML());
+        this.setTicketHeader("h_number", t.getTicketNumberAsHTML());
+        this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
+        if (t.getPassesLeft() != 0)
+            this.setTicket("t_trips_left", t.getPassesLeftAsHTML());
+        if ((t.getGateEntered() != 0) || (t.getEntranceEntered() != 0)) {
+            this.setTicket("t_trip_seq_number", t.getTripSeqNumbetAsHTML());
+            if (t.getGateEntered() != 0) {
+                this.setTicket("t_station_id", t.getGateEnteredAsHTML());
+                this.setTicket("t_station", t.getTurnstileDescAsHTML(c));
+            } else if (t.getEntranceEntered() !=0) {
+                this.setTicket("t_station_id", t.getEntrancrEnteredAsHTML());
+                this.setTicket("t_station", t.getStationDescAsHTML(c));
+            }
+            this.setTicket("t_transport_type", t.getTransportTypeAsHTML(c));
+        }
+        this.setTicket("t_layout", t.getTicketLayoutAsHTML());
+        this.setTicket("t_app_id", t.getTicketAppIDAsHTML());
+        this.setTicket("t_type_id", t.getTicketTypeAsHTML());
+        this.setTicket("t_hash", t.getHashAsHexString());
+        this.setTicket("t_number", t.getTicketNumberAsHTML());
+        this.setTicket("t_ic_uid", d.getUIDAsHTML());
+        this.setTicket("i_manufacturer", d.getManufacturerAsHTML());
+        this.setTicket("i_chip_names", d.getChipNamesAsHTML());
+        this.setTicket("i_std_bytes", d.getChipCapacityAsHTML());
+        this.setTicket("i_read_pages", d.getPagesReadAsHTML());
+        this.setTicket("i_read_bytes", d.getBytesReadAsHTML());
+        this.setTicket("i_uid_hi", d.getUIDHiasHTML());
+        this.setTicket("i_uid_lo", d.getUIDLoasHTML());
+        this.setTicket("i_bcc0", d.getBCC0AsHTML());
+        this.setTicket("i_bcc1", d.getBCC1AsHTML());
+        this.setTicket("i_crc_status", d.getUIDCRCStatusAsHTML());
+        this.setTicket("i_otp", d.getOTPAsHTML());
+        if (d.isSAKNotEmpty())
+            this.setIC("i_sak",d.getSAKAsHTML());
+        if (d.isATQANotEmpty())
+            this.setIC("i_atqa",d.getATQAAsHTML());
+        if (d.isVERSIONNotEmpty())
+            this.setIC("i_get_version", d.getVERSIONAsHTML());
+        if (d.isCountersNotEmpty())
+            this.setIC("i_counters", d.getCountersAsHTML());
+        if (d.isSIGNNotEmpty())
+            this.setIC("i_read_sig", d.getSIGNAsHTML());
+        if (d.isAtechListNotEmpty())
+            this.setIC("i_tech",d.getATechAsHTML());
+        this.setDump(d.getDumpAsHTMLString());
+        this.displayUI(wv);
+
+    }
 }

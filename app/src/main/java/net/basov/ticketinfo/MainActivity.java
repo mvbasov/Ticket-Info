@@ -67,13 +67,7 @@ public class MainActivity extends Activity {
     private NFCaDump d;
     private String[][] techList;
     private static Context c;
-    private String welcome_json;
-    private String msg_json;
-    private String ticket_json;
-    private String ticket_visibility_json;
-    private String ic_json;
-    private String ic_visibility_json;
-    private String header_json;
+    private String title;
 
     private UI ui;
 
@@ -105,7 +99,6 @@ public class MainActivity extends Activity {
              */
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             int git_describe_id = getResources().getIdentifier("git_describe", "string", getPackageName());
-            String title;
             if (git_describe_id == 0)
                 title = getResources().getString(R.string.app_name)
                         + " "
@@ -275,47 +268,8 @@ public class MainActivity extends Activity {
                             //sb.append(dump.getDumpAsDetailedString());
                             // REDESIGN
                             //text.setText(sb.toString());
-                            ui.setTicketHeader("h_state", t.getTicketStateAsHTML());
-                            ui.setTicketHeader("h_number", t.getTicketNumberAsHTML());
-                            ui.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
-                            if (t.getPassesLeft() != 0)
-                                ui.setTicket("t_trips_left",
-                                        String.format("%d", t.getPassesLeft()));
-                            if ((t.getGateEntered() != 0) || (t.getEntranceEntered() != 0)) {
-                                ui.setTicket("t_trip_seq_number",
-                                     String.format("%d", t.getTripSeqNumber()));
-                            }
-                            ui.setTicket("t_layout", t.getTicketLayoutAsHTML());
-                            ui.setTicket("t_app_id", t.getTicketAppIDAsHTML());
-                            ui.setTicket("t_type_id", t.getTicketTypeAsHTML());
-                            ui.setTicket("t_hash", t.getHashAsHexString());
-                            ui.setTicket("t_number", t.getTicketNumberAsHTML());
-                            ui.setTicket("t_ic_uid", d.getUIDAsHTML());
-                            ui.setTicket("i_manufacturer", d.getManufacturerAsHTML());
-                            ui.setTicket("i_chip_names", d.getChipNamesAsHTML());
-                            ui.setTicket("i_std_bytes", d.getChipCapacityAsHTML());
-                            ui.setTicket("i_read_pages", d.getPagesReadAsHTML());
-                            ui.setTicket("i_read_bytes", d.getBytesReadAsHTML());
-                            ui.setTicket("i_uid_hi", d.getUIDHiasHTML());
-                            ui.setTicket("i_uid_lo", d.getUIDLoasHTML());
-                            ui.setTicket("i_bcc0", d.getBCC0AsHTML());
-                            ui.setTicket("i_bcc1", d.getBCC1AsHTML());
-                            ui.setTicket("i_crc_status", d.getUIDCRCStatusAsHTML());
-                            ui.setTicket("i_otp", d.getOTPAsHTML());
-                            if (d.isSAKNotEmpty())
-                                ui.setIC("i_sak",d.getSAKAsHTML());
-                            if (d.isATQANotEmpty())
-                                ui.setIC("i_atqa",d.getATQAAsHTML());
-                            if (d.isVERSIONNotEmpty())
-                                ui.setIC("i_get_version", d.getVERSIONAsHTML());
-                            if (d.isCountersNotEmpty())
-                                ui.setIC("i_counters", d.getCountersAsHTML());
-                            if (d.isSIGNNotEmpty())
-                                ui.setIC("i_read_sig", d.getSIGNAsHTML());
-                            if (d.isAtechListNotEmpty())
-                                ui.setIC("i_tech",d.getATechAsHTML());
-                            ui.setDump(d.getDumpAsHTMLString());
-                            ui.displayUI(mainUI_WV);
+
+                            ui.displayTicketInfo(d, t, mainUI_WV, c);
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
@@ -373,15 +327,16 @@ public class MainActivity extends Activity {
                     } else {
                         sb.append(t.getTicketAsString(c));
                     }
-                    sb.append(d.getMemoryInfoAsString());
-                    sb.append(d.getUIDCheckAsString());
-                    sb.append(d.getIC_InfoAsString());
-                    sb.append(d.getDetectedICTypeAsString());
-                    sb.append(d.getDumpAsDetailedString());
+                    //sb.append(d.getMemoryInfoAsString());
+                    //sb.append(d.getUIDCheckAsString());
+                    //sb.append(d.getIC_InfoAsString());
+                    //sb.append(d.getDetectedICTypeAsString());
+                    //sb.append(d.getDumpAsDetailedString());
                     // REDESIGN
                     //text.setText(sb.toString());
-                    ui.setDump(d.getDumpAsDetailedString());
-                    ui.displayUI(mainUI_WV);
+
+                    ui.displayTicketInfo(d, t, mainUI_WV, c);
+
                 }
             }
         } else {

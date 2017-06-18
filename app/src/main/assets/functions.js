@@ -23,7 +23,7 @@ function jreplace(jcontent) {
        if (document.getElementById(key))
            document.getElementById(key).innerHTML = jobj[key];
        else if (!key.localeCompare("visibility"))
-           for(var v in jobj.visibility){
+           for (var v in jobj.visibility) {
                if (document.getElementById(v))
                    document.getElementById(v).style.display = "block";
                else
