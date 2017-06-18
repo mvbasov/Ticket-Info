@@ -8,8 +8,8 @@ public class StringTools {
 
     public static String escapeCharsForJSON(String src) {
         return src
-                .replaceAll("'", "\\\\'");
-                //.replaceAll("\"", "\\\"");
+                .replace("'", "&#39;")
+                .replace("\"", "&#34;");
     }
 
 }

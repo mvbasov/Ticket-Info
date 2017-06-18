@@ -2020,12 +2020,12 @@ public class Ticket {
     }
 
     public String getGateEnteredAsHTML() {
-        return String.format("1$%04d [0x%1$04x]", getGateEntered());
+        return String.format("%1$d [0x%1$04x]", getGateEntered());
 
     }
 
     public String getEntrancrEnteredAsHTML() {
-        return String.format("%1$04d [0x%1$04x]", getEntranceEntered());
+        return String.format("%1$d [0x%1$04x]", getEntranceEntered());
 
     }
 
@@ -2092,19 +2092,19 @@ public class Ticket {
     }
 
     public String getStationDescAsHTML(Context c) {
-//        return Lang.transliterate(
-//                Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c))
-//        );
-        return
-            Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c));
+        return Lang.transliterate(
+                Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c))
+        );
+//        return
+//            Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c));
     }
 
     public String getTurnstileDescAsHTML(Context c) {
-//        return Lang.transliterate(
-//                Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c))
-//        );
-        return
-            Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c));
+        return Lang.transliterate(
+                Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c))
+        );
+//        return
+//            Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c));
     }
 
 }

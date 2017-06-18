@@ -84,7 +84,7 @@ public class UI {
 
     public void setTicketHeader(String field, String content) {
         try {
-            header_json.put(field, content);
+            header_json.put(field, StringTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -92,7 +92,7 @@ public class UI {
 
     public void setDump(String content) {
         try {
-            dump_json.put("d_content", content);
+            dump_json.put("d_content", StringTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -100,7 +100,7 @@ public class UI {
 
     public void setTicket(String field, String content) {
         try {
-            ticket_json.put(field, content);
+            ticket_json.put(field, StringTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -111,7 +111,7 @@ public class UI {
 
     public void setIC(String field, String content) {
         try {
-            ic_json.put(field, content);
+            ic_json.put(field, StringTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -122,7 +122,7 @@ public class UI {
 
     public void setWelcome(String field, String message) {
         try {
-            welcome_json.put(field, message);
+            welcome_json.put(field, StringTools.escapeCharsForJSON(message));
         } catch (JSONException e) {
             e.printStackTrace();
         }
