@@ -18,7 +18,7 @@ public class TextTools {
         return src
                 .replace("\n", "\\n")
                 .replace("'", "&#39;")
-                .replace("\"", "&#34;");
+                .replace("\"", "\\\"");
     }
 
 }

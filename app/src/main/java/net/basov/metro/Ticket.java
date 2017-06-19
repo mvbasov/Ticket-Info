@@ -538,9 +538,9 @@ public class Ticket {
      */
     private int mHash = 0;
 
-    private final static DateFormat DF = new SimpleDateFormat("dd.MM.yyyy");
-    private final static DateFormat TF = new SimpleDateFormat("HH:mm");
-    private final static DateFormat DTF = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    public final static DateFormat DF = new SimpleDateFormat("dd.MM.yyyy");
+    public final static DateFormat TF = new SimpleDateFormat("HH:mm");
+    public final static DateFormat DTF = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
     /**
      * Only create object.
@@ -1478,7 +1478,58 @@ public class Ticket {
      */
     public int getValidDays() { return mValidDays; }
 
+    public void detectTicketState() {
+        Calendar tmpCal = null;
+
+        setTicketState(TS_READY);
+        if (getPassesLeft() == 0) {
+            setTicketState(TS_EMPTY);
+        } else if (mIssued == null ) {
+            if (mStartUseBefore.before(getTimeToCompare())) {
+                setTicketState(TS_EXPIRED);
+            }
+        } else {
+            tmpCal = (Calendar) mIssued.clone();
+            tmpCal.add(Calendar.DATE, getValidDays());
+            if (tmpCal.before(getTimeToCompare()) &&
+                    getTicketClass() != C_UNLIM_DAYS) {
+                setTicketState(TS_EXPIRED);
+            }
+            if (getPassesLeft() == getPassesTotal())
+                setTicketState(TS_NEVER_USED);
+        }
+
+
+        if (getTicketClass() == C_UNLIM_DAYS) {
+            if (mIssued == null ) {
+                if (mStartUseBefore.after(tmpCal)) {
+                    setTicketState(TS_EXPIRED);
+                } else {
+                    setTicketState(TS_NEVER_USED);
+                }
+            } else {
+
+                tmpCal = (Calendar) mIssued.clone();
+                tmpCal.add(Calendar.HOUR, 24 * getValidDays());
+
+                if (DEBUG_TIME)
+                    Log.d(TAG, String.format("Compare: %s\n", DDF.format(tmpCal.getTime())));
+
+                if (tmpCal.compareTo(getTimeToCompare()) < 0) {
+                    setTicketState(TS_EXPIRED);
+                } else if (mTimeToNextTrip > 0) {
+                    //sb.append("\n\tW A I T\n");
+                }
+                if (tmpCal.after(getTimeToCompare())
+                        && getTripSeqNumber() == 0)
+                    setTicketState(TS_NEVER_USED);
+            }
+        }
+    }
+
     public int getTicketState() { return mTicketState; }
+
+    public void setTicketState(@TicketState int ts) { mTicketState = ts; }
 
 /* Internal functions */
 
@@ -1993,7 +2044,7 @@ public class Ticket {
         }
     }
 
-/* WebView UI related functions */
+    /* WebView UI related functions */
     public String getTicketNumberAsHTML() {
         return String.format("%010d", getTicketNumber());
     }
@@ -2001,20 +2052,28 @@ public class Ticket {
     public String getTicketStateAsHTML() {
         switch (getTicketState()){
             case TS_UNKNOWN:
-                return "Unknown";
+                return "<font color=\"Violet\">Unknown</font>";
             case TS_NEVER_USED:
-                return "Newer Used";
+                return "<font color=\"Lime\">Newer Used</font>";
             case TS_READY:
-                return "Ready to use";
+                return "<font color=\"Green\">Ready to use</font>";
             case TS_IN_TRIP:
-                return "In trip";
+                return "<font color=\"Blue\">In trip</font>";
             case TS_EMPTY:
-                return "Empty";
+                return "<font color=\"Red\">Empty</font>";
             case TS_EXPIRED:
-                return "Expired";
+                return "<font color=\"Red\">Expired</font>";
             default:
-                return "???";
+                return "<font color=\"Violet\">???</font>";
         }
+    }
+
+    public String getValidDaysAsHTML() { return String.format("%d", getValidDays()); }
+
+    public String getStartUseBeforeASHTML() {
+        return String.format("%s",
+                DF.format(mStartUseBefore.getTime())
+        );
     }
 
     public String getTicketTypeAsHTML() {

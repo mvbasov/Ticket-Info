@@ -25,7 +25,6 @@
 package net.basov.ticketinfo;
 
 import android.content.Context;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -36,6 +35,9 @@ import net.basov.util.TextTools;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import ru.valle.tickets.ui.Decode;
@@ -58,6 +60,12 @@ public class UI {
     {
         visibilityMap = new HashMap<String, String>();
         visibilityMap.put("w_msg", "vw_msg");
+        visibilityMap.put("t_from_datetime", "vt_from_to_datetime");
+        visibilityMap.put("t_to_datetime", "vt_from_to_datetime");
+        visibilityMap.put("t_from_date", "vt_from_to_date");
+        visibilityMap.put("t_to_date", "vt_from_to_date");
+        visibilityMap.put("t_start_use_before", "vt_start_use_before");
+        visibilityMap.put("t_start_use_till", "vt_start_use_till");
         visibilityMap.put("t_file_name", "vt_file_note");
         visibilityMap.put("t_note_text", "vt_note");
         visibilityMap.put("t_trips_left", "vt_trips_left");
@@ -223,13 +231,43 @@ public class UI {
     }
 
     public void displayTicketInfo(NFCaDump d, Ticket t, WebView wv, Context c) {
+        if (t.getTicketState() == Ticket.TS_UNKNOWN)
+            t.detectTicketState();
         this.setTicketHeader("h_state", t.getTicketStateAsHTML());
         this.setTicketHeader("h_number", t.getTicketNumberAsHTML());
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
+        if (t.getValidDays() != 0) {
+            this.setTicket("t_valid_days",t.getValidDaysAsHTML());
+        }
+
+        if (t.getIssued() != null) {
+            Calendar tmpCal = (Calendar) t.getIssued().clone();
+            if (t.getTicketClass() == Ticket.C_UNLIM_DAYS){
+                tmpCal.add(Calendar.DATE, t.getValidDays());
+                this.setTicket("t_from_datetime",
+                        String.format("%s",Ticket.DTF.format(t.getIssued().getTime())));
+                this.setTicket("t_to_datetime",
+                        String.format("%s",Ticket.DTF.format(tmpCal.getTime())));
+
+            } else {
+                tmpCal.add(Calendar.DATE, t.getValidDays() - 1);
+                this.setTicket("t_from_date",
+                        String.format("%s",Ticket.DF.format(t.getIssued().getTime())));
+                this.setTicket("t_to_date",
+                        String.format("%s",Ticket.DF.format(tmpCal.getTime())));
+            }
+        } else if (t.getStartUseBefore() != null) {
+            this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
+        }
+
         if (t.getPassesLeft() > 0)
             this.setTicket("t_trips_left", t.getPassesLeftAsHTML());
         if ((t.getTurnstileEntered() != 0) || (t.getEntranceEntered() != 0)) {
             this.setTicket("t_trip_seq_number", t.getTripSeqNumbetAsHTML());
+            this.setTicket("t_trip_start_date",
+                    Ticket.DF.format(t.getTripStart().getTime()));
+            this.setTicket("t_trip_start_time",
+                    Ticket.TF.format(t.getTripStart().getTime()));
             if (t.getTurnstileEntered() != 0) {
                 this.setTicket("t_station_id", t.getTurnstileEnteredAsHTML());
                 this.setTicket("t_station", t.getTurnstileDescAsHTML(c));
