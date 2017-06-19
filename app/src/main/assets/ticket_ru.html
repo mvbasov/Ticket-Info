@@ -100,7 +100,7 @@ span.d_internal { color: aqua }
 <body onload="openTab('Ticket', 'btnTicket'); debug();">
     <h3>
         &#8470; <span id="h_number">XXXXXXXXXX</span>
-        &emsp;&emsp;&emsp;
+        &emsp;
         <span id="h_state">Xxxxx</span>
     </h3>
     <div>
@@ -114,35 +114,35 @@ span.d_internal { color: aqua }
 
         <h3><span id="t_desc">xxxxxxxxxx</span></h3>
 
-            <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
+            <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
                 <pre>
-Осталось поездок:<font color="green"><span id="t_trips_left">x</span></font></pre>
+Осталось <font color="green"><span id="t_trips_left">x</span></font> поездок</pre>
             </div>
 
         <div class="f_frame">
         <!-- ticket info frame -->
             <pre>
-Действителен дней: <span id="t_valid_days">x</span></pre>
+Действителен <span id="t_valid_days">x</span> дней</pre>
 
             <div id="vt_from_to_datetime" style="display:none">
                 <pre>
-  from  <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
-    to  <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
+   с <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
+  по <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
             </div>
 
             <div id="vt_from_to_date" style="display:none">
                 <pre>
-  from  <span id="t_from_date">xx.xx.xxxx</span> to <span id="t_to_date">xx.xx.xxxx</span></pre>
+  с <span id="t_from_date">xx.xx.xxxx</span> по <span id="t_to_date">xx.xx.xxxx</span></pre>
             </div>
 
             <div id="vt_start_use_till" style="display:none">
                 <pre>
-Start use till: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
+Начать использовать по: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
             </div>
 
             <div id="vt_start_use_before" style="display:none">
                 <pre>
-Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
             </div>
 
             <div id="vt_trip" class="fragment" style="display:none">
@@ -189,7 +189,8 @@ IC UID: <span id="t_ic_uid">xxxxxxxxxxxxxxxx</span>
   xxxx</span></pre>
 <hr/>
             <pre>
-4 байтных страниц прочитано: <span id="i_read_pages">xx</span> (всего <span id="i_read_bytes">xxx</span> байт)</pre>
+4 байтных страниц прочитано: <span id="i_read_pages">xx</span>
+  (всего <span id="i_read_bytes">xxx</span> байт)</pre>
         </div>
 
         <div id="i_uid_otp" class="frame">

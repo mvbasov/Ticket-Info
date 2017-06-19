@@ -1,5 +1,5 @@
 --- ticket.html	2017-06-19 22:17:56.459630701 +0300
-+++ ticket_ru.html	2017-06-19 22:18:15.611679415 +0300
++++ ticket_ru.html	2017-06-19 22:57:21.624326967 +0300
 @@ -9,7 +9,7 @@
      <script> var DEBUG = true; </script>
      -->
@@ -9,7 +9,12 @@
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
  
-@@ -104,9 +104,9 @@
+@@ -100,13 +100,13 @@
+ <body onload="openTab('Ticket', 'btnTicket'); debug();">
+     <h3>
+         &#8470; <span id="h_number">XXXXXXXXXX</span>
+-        &emsp;&emsp;&emsp;
++        &emsp;
          <span id="h_state">Xxxxx</span>
      </h3>
      <div>
@@ -21,23 +26,50 @@
          <button class="btn" id="btnSettings" onclick="openTab('Dump', 'btnSettings')">&#128736;</button>
      </div>
  
-@@ -116,13 +116,13 @@
+@@ -114,43 +114,43 @@
  
-             <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
+         <h3><span id="t_desc">xxxxxxxxxx</span></h3>
+ 
+-            <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
++            <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
                  <pre>
 -Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
-+Осталось поездок:<font color="green"><span id="t_trips_left">x</span></font></pre>
++Осталось <font color="green"><span id="t_trips_left">x</span></font> поездок</pre>
              </div>
  
          <div class="f_frame">
          <!-- ticket info frame -->
              <pre>
 -Valid in days: <span id="t_valid_days">x</span></pre>
-+Действителен дней: <span id="t_valid_days">x</span></pre>
++Действителен <span id="t_valid_days">x</span> дней</pre>
  
              <div id="vt_from_to_datetime" style="display:none">
                  <pre>
-@@ -149,8 +149,8 @@
+-  from  <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
+-    to  <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
++   с <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
++  по <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
+             </div>
+ 
+             <div id="vt_from_to_date" style="display:none">
+                 <pre>
+-  from  <span id="t_from_date">xx.xx.xxxx</span> to <span id="t_to_date">xx.xx.xxxx</span></pre>
++  с <span id="t_from_date">xx.xx.xxxx</span> по <span id="t_to_date">xx.xx.xxxx</span></pre>
+             </div>
+ 
+             <div id="vt_start_use_till" style="display:none">
+                 <pre>
+-Start use till: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
++Начать использовать по: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
+             </div>
+ 
+             <div id="vt_start_use_before" style="display:none">
+                 <pre>
+-Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
++Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+             </div>
+ 
+             <div id="vt_trip" class="fragment" style="display:none">
              <!-- ticket trip information fragment -->
              <!-- + nested fragment: ticket station name fragment -->
  <hr/>
@@ -48,7 +80,7 @@
              </div>
          </div>
  
-@@ -183,13 +183,13 @@
+@@ -183,13 +183,14 @@
          <div id="i_general" class="f_frame">
          <!-- IC general info frame -->
              <pre>
@@ -61,11 +93,12 @@
  <hr/>
              <pre>
 -4 bytes pages read: <span id="i_read_pages">xx</span> (total <span id="i_read_bytes">xxx</span> bytes)</pre>
-+4 байтных страниц прочитано: <span id="i_read_pages">xx</span> (всего <span id="i_read_bytes">xxx</span> байт)</pre>
++4 байтных страниц прочитано: <span id="i_read_pages">xx</span>
++  (всего <span id="i_read_bytes">xxx</span> байт)</pre>
          </div>
  
          <div id="i_uid_otp" class="frame">
-@@ -216,7 +216,7 @@
+@@ -216,7 +217,7 @@
              <!-- IC counters fragment -->
  <hr/>
                  <pre>

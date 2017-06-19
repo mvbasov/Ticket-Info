@@ -329,6 +329,10 @@ public class MainActivity extends Activity {
                     } else {
                         t = new Ticket(d);
                     }
+                    t.setFileName(
+                            rcvUri.getLastPathSegment()
+                                .replace(Ticket.FILE_EXT,"")
+                    );
                     if (d.getRemark().length() != 0){
                         //sb.append("File: ");
                         //sb.append(rcvUri.getLastPathSegment());
