@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="welcome_ui_file">start.html</string>
+    <string name="ticket_ui_file">ticket.html</string>
     <string name="app_name">Ticket info</string>
     <string name="ticket_is_reading">Ticket reading…</string>
     <string name="ticket_read_error">Unable to read the ticket</string>
@@ -40,4 +42,10 @@
     <string name="menu_dump" translatable="false">Dump</string>
     <string name="menu_debug" translatable="false">Debug</string>
     <string name="mt_unknown">UnlnownMetro</string>
+    <string name="ts_unknown">Unknown</string>
+    <string name="ts_never_used">Newer Used</string>
+    <string name="ts_ready">Ready to use</string>
+    <string name="ts_in_trip">In trip</string>
+    <string name="ts_empty">Empty</string>
+    <string name="ts_expired">Expired</string>
 </resources>

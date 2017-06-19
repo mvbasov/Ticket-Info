@@ -36,4 +36,12 @@
     <string name="tt_ground">Наземный</string>
     <string name="tt_unknown">Тип неизвестен</string>
     <string name="menu_settings">Настройки</string>
+    <string name="ticket_ui_file">ticket_ru.html</string>
+    <string name="welcome_ui_file">start_ru.html</string>
+    <string name="ts_unknown">Неизветсно</string>
+    <string name="ts_never_used">Не использовался</string>
+    <string name="ts_ready">Годен</string>
+    <string name="ts_in_trip">Поездка идёт</string>
+    <string name="ts_empty">Пустой</string>
+    <string name="ts_expired">Просрочен</string>
 </resources>

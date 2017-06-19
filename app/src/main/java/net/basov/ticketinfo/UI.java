@@ -194,7 +194,7 @@ public class UI {
         }
     }
 
-    public void displayWelcome(final WebView wv) {
+    public void displayWelcome(final WebView wv, Context c) {
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -206,10 +206,10 @@ public class UI {
                 wv.clearCache(true);
             }
         });
-        wv.loadUrl("file:///android_asset/start.html");
+        wv.loadUrl("file:///android_asset/" + c.getString(R.string.welcome_ui_file));
     }
 
-    public void displayUI(final WebView wv) {
+    public void displayUI(final WebView wv, Context c) {
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -227,13 +227,13 @@ public class UI {
                 //Log.d("iiii", ic_json.toString());
             }
         });
-        wv.loadUrl("file:///android_asset/webview_ui.html");
+        wv.loadUrl("file:///android_asset/" + c.getString(R.string.ticket_ui_file));
     }
 
     public void displayTicketInfo(NFCaDump d, Ticket t, WebView wv, Context c) {
         if (t.getTicketState() == Ticket.TS_UNKNOWN)
             t.detectTicketState();
-        this.setTicketHeader("h_state", t.getTicketStateAsHTML());
+        this.setTicketHeader("h_state", t.getTicketStateAsHTML(c));
         this.setTicketHeader("h_number", t.getTicketNumberAsHTML());
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
         if (t.getValidDays() != 0) {
@@ -312,7 +312,7 @@ public class UI {
         if (d.isAtechListNotEmpty())
             this.setIC("i_tech",d.getATechAsHTML());
         this.setDump(d.getDumpAsHTMLString());
-        this.displayUI(wv);
+        this.displayUI(wv, c);
 
     }
 }

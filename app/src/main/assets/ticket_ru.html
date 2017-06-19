@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <!-- create patch for localization with the following command:
+diff -Naur ticket.html ticket_ru.html >ticket_to_ru.patch
+    -->
+    <!--
+    <script> var DEBUG = true; </script>
+    -->
+    
+    <title>Информация о билете</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <style>
+body {
+    background-color: LightYellow;
+}
+pre {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+h3 {
+    margin-top: 0.75em;
+    margin-bottom: 0.5em;
+}
+button {
+    width: 24%;
+    height: 100%;
+    border-radius: 7px;
+}
+div.tab {
+    border: 2px solid black;
+    border-radius: 7px;
+    margin-top: 0.5em;
+    padding: 0.3em;
+    background-color: LightCyan;
+    height:82vh;
+    overflow-y: scroll;
+}
+div.f_frame{
+    border: 1px solid black;
+    border-radius: 7px;
+    padding: 0.5em;
+    margin-top: 0.5em;
+}
+div.frame {
+    border: 1px solid black;
+    border-radius: 7px;
+    padding: 0.5em;
+    margin-top: 0.5em;
+}
+.fragment {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    outline: none;
+    border: 0px solid red;
+}
+#Dump {
+    vertical-align: middle;
+    display: table;
+    border-collapse: separate;
+    border-spacing: 6px;
+    padding: 0;
+}
+#d_content {
+    width: 50%;
+    border: 1px solid black;
+    border-radius: 7px;
+    display: table-cell;
+    padding: 0.5em;
+}
+#dump_legend_cont {
+    width: 50%;
+    display: table-cell;
+}
+#dump_legend {
+    border: 1px solid black;
+    border-radius: 7px;
+    padding: 0.5em;
+}
+span.d_factory { color: blue }
+span.d_ro { color: green }
+span.d_wr { color: red }
+span.d_partial { color: brown }
+span.d_otp { color: violet }
+span.d_auth { color: orange }
+span.d_special { color: lime }
+span.d_internal { color: aqua }
+    </style>
+
+    <script type="text/javascript" src="functions.js"></script>
+    <script type="text/javascript" src="debug.js"></script>
+
+</head>
+<body onload="openTab('Ticket', 'btnTicket'); debug();">
+    <h3>
+        &#8470; <span id="h_number">XXXXXXXXXX</span>
+        &emsp;&emsp;&emsp;
+        <span id="h_state">Xxxxx</span>
+    </h3>
+    <div>
+        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
+        <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">IC</button>
+        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Дамп</button>
+        <button class="btn" id="btnSettings" onclick="openTab('Dump', 'btnSettings')">&#128736;</button>
+    </div>
+
+    <div id="Ticket" class="tab" style="display:none">
+
+        <h3><span id="t_desc">xxxxxxxxxx</span></h3>
+
+            <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
+                <pre>
+Осталось поездок:<font color="green"><span id="t_trips_left">x</span></font></pre>
+            </div>
+
+        <div class="f_frame">
+        <!-- ticket info frame -->
+            <pre>
+Действителен дней: <span id="t_valid_days">x</span></pre>
+
+            <div id="vt_from_to_datetime" style="display:none">
+                <pre>
+  from  <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
+    to  <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
+            </div>
+
+            <div id="vt_from_to_date" style="display:none">
+                <pre>
+  from  <span id="t_from_date">xx.xx.xxxx</span> to <span id="t_to_date">xx.xx.xxxx</span></pre>
+            </div>
+
+            <div id="vt_start_use_till" style="display:none">
+                <pre>
+Start use till: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
+            </div>
+
+            <div id="vt_start_use_before" style="display:none">
+                <pre>
+Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+            </div>
+
+            <div id="vt_trip" class="fragment" style="display:none">
+            <!-- ticket trip information fragment -->
+            <!-- + nested fragment: ticket station name fragment -->
+<hr/>
+<pre>Поездка №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> в <span id="t_trip_start_time">xx:xx</span>,
+<div class="fragment" id="vt_station" style="display:none">  со станции <span id="t_station">xxxxxxxxx</span></div>  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
+            </div>
+        </div>
+
+        <div id="vt_file_note" class="frame" style="display:none">
+        <!-- ticket note frame -->
+<pre>File name: <span id="t_file_name">xxxxxx.txt</span></pre>
+            <div id="vt_note" class="fragment" style="display:none">
+<hr/>
+                <pre id="t_note_text">
+xxx
+xxx</pre>
+            </div>
+        </div>
+
+        <div class="frame">
+        <!-- ticket layout frame -->
+            <pre>
+Layout: <span id="t_layout">xx (0xx)</span>
+App ID: <span id="t_app_id">xxx (0xxxx)</span>
+Ticket type: <span id="t_type_id">xxx (0xxxx)</span>
+Hash: <span id="t_hash">xxxxxxxx</span>
+Ticket number: <span id="t_number">xxxxxxxxxx</span>
+IC UID: <span id="t_ic_uid">xxxxxxxxxxxxxxxx</span>
+            </pre>
+        </div>
+
+    </div>
+
+    <div id="IC" class="tab" style="display:none">
+        <div id="i_general" class="f_frame">
+        <!-- IC general info frame -->
+            <pre>
+Производитель: <span id="i_manufacturer">Xxxxx</span>
+Микросхема: (<span id="i_std_bytes">xxx</span> байт)
+<span id="i_chip_names">  xxxx
+  xxxx</span></pre>
+<hr/>
+            <pre>
+4 байтных страниц прочитано: <span id="i_read_pages">xx</span> (всего <span id="i_read_bytes">xxx</span> байт)</pre>
+        </div>
+
+        <div id="i_uid_otp" class="frame">
+        <!-- IC UID, UID CRC, OTP frame -->
+            <pre>
+UID: <span id="i_uid_hi">xxxxxxxx</span> <span id="i_uid_lo">xxxxxxxx</span>
+  BCC0: <span id="i_bcc0">xx</span>, BCC1: <span id="i_bcc1">xx</span> (<span id="i_crc_status">CRC xx</span>)
+OTP: <span id="i_otp">xxx<span></pre>
+        </div>
+
+        <div id="i_ext_info" class="frame">
+        <!-- IC extended info frame -->
+            <pre>
+ATQA: <span id="i_atqa">xx xx</span>
+SAK: <span id="i_sak">xx</span></pre>
+            <div id="vi_get_version" class="fragment" style="display:none">
+            <!-- IC GET_VERSION command result fragment -->
+<hr/>
+                <pre>
+GET_VERSION:
+  <span id="i_get_version">xx xx xx ...</span></pre>
+            </div>
+            <div id="vi_counters" class="fragment" style="display:none">
+            <!-- IC counters fragment -->
+<hr/>
+                <pre>
+Счётчики(hex):
+<span id="i_counters">  0: 000000</span></pre>
+            </div>
+            <div id="vi_read_sig" class="fragment" style="display:none">
+            <!-- IC READ_SIG command result fragment -->
+<hr/>
+                <pre>
+READ_SIG:
+<span id="i_read_sig">  00000000000000000000000000000000</span></pre>
+            </div>
+        </div>
+
+        <div id="i_a_tech" class="frame">
+        <!-- IC Android technologes frame -->
+            <pre>
+Android technologies: 
+  <span id="i_tech">xxxx</span></pre>
+        </div>
+    </div>
+
+    <div id="Dump" class="tab" style="display:none">
+        <pre id="d_content">
+00:<span class="d_factory">f</span>: 34 91 45 68 
+01:<span class="d_factory">f</span>: a9 a1 b0 96 
+02:<span class="d_partial">p</span>: 2e 00 70 08 
+xxxx
+28:<span class="d_special">s</span>: 00 00 00 00 
+---
+[!]Last block
+valid pages: 1
+        </pre>
+        <div id="dump_legend_cont">
+            <pre id="dump_legend">
+Dump legend:
+<hr/>:u: 
+   unknown
+:<span class="d_factory">f</span>: 
+   factory locked
+:<span class="d_ro">r</span>:
+   read only
+:<span class="d_partial">p</span>:
+   partially
+   writable
+:<span class="d_otp">o</span>:
+   One Time 
+   Programming
+   (OTP)
+:<span class="d_wr">w</span>:
+   writable
+:<span class="d_auth">a</span>:
+   authentication 
+   require 
+   for write
+:<span class="d_special">s</span>:
+   special
+:<span class="d_internal">i</span>:
+   reserved for 
+   internal use
+            </pre>
+        </div>
+    </div>
+
+</body>
+
+</html>

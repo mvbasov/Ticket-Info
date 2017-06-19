@@ -2044,27 +2044,41 @@ public class Ticket {
         }
     }
 
-    /* WebView UI related functions */
+/* WebView UI related functions */
     public String getTicketNumberAsHTML() {
         return String.format("%010d", getTicketNumber());
     }
 
-    public String getTicketStateAsHTML() {
+    public String getTicketStateAsHTML(Context cont) {
         switch (getTicketState()){
             case TS_UNKNOWN:
-                return "<font color=\"Violet\">Unknown</font>";
+                return "<font color=\"Violet\">"
+                        + cont.getString(R.string.ts_unknown)
+                        + "</font>";
             case TS_NEVER_USED:
-                return "<font color=\"Lime\">Newer Used</font>";
+                return "<font color=\"Lime\">"
+                        + cont.getString(R.string.ts_never_used)
+                        + "</font>";
             case TS_READY:
-                return "<font color=\"Green\">Ready to use</font>";
+                return "<font color=\"Green\">"
+                        + cont.getString(R.string.ts_ready)
+                        + "</font>";
             case TS_IN_TRIP:
-                return "<font color=\"Blue\">In trip</font>";
+                return "<font color=\"Blue\">"
+                        + cont.getString(R.string.ts_in_trip)
+                        + "</font>";
             case TS_EMPTY:
-                return "<font color=\"Red\">Empty</font>";
+                return "<font color=\"Red\">"
+                        + cont.getString(R.string.ts_empty)
+                        + "</font>";
             case TS_EXPIRED:
-                return "<font color=\"Red\">Expired</font>";
+                return "<font color=\"Red\">"
+                        + cont.getString(R.string.ts_expired)
+                        + "</font>";
             default:
-                return "<font color=\"Violet\">???</font>";
+                return "<font color=\"Violet\">"
+                        + "???"
+                        + "</font>";
         }
     }
 

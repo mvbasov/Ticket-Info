@@ -77,6 +77,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         /* Set locale for debug
+        */
         String languageToLoad = "ru"; // your language
         Locale locale = new Locale(languageToLoad);
         Locale.setDefault(locale);
@@ -84,7 +85,6 @@ public class MainActivity extends Activity {
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
-        */
 
         c = this;
         d = new NFCaDump();
@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
             }
 
             ui.setWelcome("w_header", title);
-            ui.displayWelcome(mainUI_WV);
+            ui.displayWelcome(mainUI_WV, c);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
@@ -184,7 +184,7 @@ public class MainActivity extends Activity {
                 final NfcA nfca = NfcA.get(tag);
 
                 ui.setWelcome("w_msg", getString(R.string.ticket_is_reading));
-                ui.displayWelcome(mainUI_WV);
+                ui.displayWelcome(mainUI_WV, c);
 
                 new AsyncTask<NfcA, Void, NFCaDump>() {
 
@@ -289,7 +289,7 @@ public class MainActivity extends Activity {
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
-                            ui.displayWelcome(mainUI_WV);
+                            ui.displayWelcome(mainUI_WV, c);
                             Log.e(TAG, "dump err");
                         }
                     }
@@ -297,7 +297,7 @@ public class MainActivity extends Activity {
 
             } catch (Throwable th) {
                 ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
-                ui.displayWelcome(mainUI_WV);
+                ui.displayWelcome(mainUI_WV, c);
                 Log.e(TAG, "read err", th);
             }
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
@@ -357,7 +357,7 @@ public class MainActivity extends Activity {
             }
         } else {
             ui.setWelcome("w_msg", getString(R.string.ticket_disclaimer));
-            ui.displayWelcome(mainUI_WV);
+            ui.displayWelcome(mainUI_WV, c);
         }
     }
     public static Context getAppContext() {

@@ -1,0 +1,76 @@
+--- ticket.html	2017-06-19 22:17:56.459630701 +0300
++++ ticket_ru.html	2017-06-19 22:18:15.611679415 +0300
+@@ -9,7 +9,7 @@
+     <script> var DEBUG = true; </script>
+     -->
+     
+-    <title>Ticket info</title>
++    <title>Информация о билете</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+ 
+@@ -104,9 +104,9 @@
+         <span id="h_state">Xxxxx</span>
+     </h3>
+     <div>
+-        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Ticket</button>
++        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
+         <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">IC</button>
+-        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Dump</button>
++        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Дамп</button>
+         <button class="btn" id="btnSettings" onclick="openTab('Dump', 'btnSettings')">&#128736;</button>
+     </div>
+ 
+@@ -116,13 +116,13 @@
+ 
+             <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
+                 <pre>
+-Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
++Осталось поездок:<font color="green"><span id="t_trips_left">x</span></font></pre>
+             </div>
+ 
+         <div class="f_frame">
+         <!-- ticket info frame -->
+             <pre>
+-Valid in days: <span id="t_valid_days">x</span></pre>
++Действителен дней: <span id="t_valid_days">x</span></pre>
+ 
+             <div id="vt_from_to_datetime" style="display:none">
+                 <pre>
+@@ -149,8 +149,8 @@
+             <!-- ticket trip information fragment -->
+             <!-- + nested fragment: ticket station name fragment -->
+ <hr/>
+-<pre>Trip №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> at <span id="t_trip_start_time">xx:xx</span>,
+-<div class="fragment" id="vt_station" style="display:none">  on station <span id="t_station">xxxxxxxxx</span></div>  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
++<pre>Поездка №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> в <span id="t_trip_start_time">xx:xx</span>,
++<div class="fragment" id="vt_station" style="display:none">  со станции <span id="t_station">xxxxxxxxx</span></div>  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
+             </div>
+         </div>
+ 
+@@ -183,13 +183,13 @@
+         <div id="i_general" class="f_frame">
+         <!-- IC general info frame -->
+             <pre>
+-Chip manufacturer: <span id="i_manufacturer">Xxxxx</span>
+-Chip: (<span id="i_std_bytes">xxx</span> bytes)
++Производитель: <span id="i_manufacturer">Xxxxx</span>
++Микросхема: (<span id="i_std_bytes">xxx</span> байт)
+ <span id="i_chip_names">  xxxx
+   xxxx</span></pre>
+ <hr/>
+             <pre>
+-4 bytes pages read: <span id="i_read_pages">xx</span> (total <span id="i_read_bytes">xxx</span> bytes)</pre>
++4 байтных страниц прочитано: <span id="i_read_pages">xx</span> (всего <span id="i_read_bytes">xxx</span> байт)</pre>
+         </div>
+ 
+         <div id="i_uid_otp" class="frame">
+@@ -216,7 +216,7 @@
+             <!-- IC counters fragment -->
+ <hr/>
+                 <pre>
+-Counters(hex):
++Счётчики(hex):
+ <span id="i_counters">  0: 000000</span></pre>
+             </div>
+             <div id="vi_read_sig" class="fragment" style="display:none">
