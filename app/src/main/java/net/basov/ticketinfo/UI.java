@@ -264,10 +264,12 @@ public class UI {
             this.setTicket("t_trips_left", t.getPassesLeftAsHTML());
         if ((t.getTurnstileEntered() != 0) || (t.getEntranceEntered() != 0)) {
             this.setTicket("t_trip_seq_number", t.getTripSeqNumbetAsHTML());
-            this.setTicket("t_trip_start_date",
-                    Ticket.DF.format(t.getTripStart().getTime()));
-            this.setTicket("t_trip_start_time",
-                    Ticket.TF.format(t.getTripStart().getTime()));
+            if (t.getTripStart() != null) {
+                this.setTicket("t_trip_start_date",
+                        Ticket.DF.format(t.getTripStart().getTime()));
+                this.setTicket("t_trip_start_time",
+                        Ticket.TF.format(t.getTripStart().getTime()));
+            }
             if (t.getTurnstileEntered() != 0) {
                 this.setTicket("t_station_id", t.getTurnstileEnteredAsHTML());
                 this.setTicket("t_station", t.getTurnstileDescAsHTML(c));
