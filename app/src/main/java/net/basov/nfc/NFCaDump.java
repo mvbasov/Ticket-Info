@@ -1079,11 +1079,11 @@ public class NFCaDump {
             for (int j = 0; j < 4; j++) {
                 sb.append(String.format("%02x ", getPage(i)[j]));
             }
-            sb.append("\\n");
+            sb.append("\n");
         }
         // warning, because fuzzy algorithm used
         if (getLastBlockValidPages() != 4)
-            sb.append(String.format("---\\n[!]Last block\\nvalid pages: %d\\n",
+            sb.append(String.format("---\n[!]Last block\nvalid pages: %d\n",
                     getLastBlockValidPages()));
 
         return sb.toString();
@@ -1095,7 +1095,7 @@ public class NFCaDump {
             String prefix = "android.nfc.tech.";
             for (int i = 0; i < getAndTechList().size(); i++) {
                 if (i != 0) {
-                    sb.append(",\\n  ");
+                    sb.append(",\n  ");
                 }
                 sb.append(getAndTechList().get(i).substring(prefix.length()));
             }
@@ -1130,7 +1130,7 @@ public class NFCaDump {
             for (int j = (getCountersNumber() - 1); j >= 0; j--) {
                 sb.append(String.format("%02x", getCounter(i)[j]));
             }
-            sb.append("\\n");
+            sb.append("\n");
         }
         return sb.toString();
     }
@@ -1140,7 +1140,7 @@ public class NFCaDump {
         sb.append("  ");
         for (int i = getSIGN().length; i > 0; i--) {
             sb.append(String.format("%02x", getSIGN()[i - 1]));
-            if (i == 16 + 1) sb.append("\\n  ");
+            if (i == 16 + 1) sb.append("\n  ");
         }
         return sb.toString();
     }
@@ -1192,7 +1192,7 @@ public class NFCaDump {
     public String getManufacturerAsHTML() {
         switch (getPage(0)[0]) {
             case 0x04:
-                return "NXP Semiconductors\\n  (Philips) Germany";
+                return "NXP Semiconductors\n  (Philips) Germany";
             case 0x34:
                 return "JSC Micron Russia";
             default:
@@ -1204,15 +1204,15 @@ public class NFCaDump {
         if (IC_Type == IC_UNKNOWN) detectIC_Type();
         switch (getIC_Type()) {
             case IC_MF0ICU1:
-                return "  (probably) MF0ICU1\\n  [Mifare Ultralight]";
+                return "  (probably) MF0ICU1\n  [Mifare Ultralight]";
             case IC_MF0UL11:
-                return "  MF0UL(H)11\\n  [Mifare Ultralight EV1]";
+                return "  MF0UL(H)11\n  [Mifare Ultralight EV1]";
             case IC_MF0UL21:
-                return "  MF0UL(H)21\\n  [Mifare Ultralight EV1]";
+                return "  MF0UL(H)21\n  [Mifare Ultralight EV1]";
             case IC_MIK640D:
-                return "  (probably) MIK64PTAS\\n   aka MIK640D";
+                return "  (probably) MIK64PTAS\n   aka MIK640D";
             case IC_MIK1312ED:
-                return "  MIK1312ED\\n  aka К5016ВГ4Н4\\n  aka K5016XC1M1H4";
+                return "  MIK1312ED\n  aka К5016ВГ4Н4\n  aka K5016XC1M1H4";
             default:
                 return "Unknown";
         }

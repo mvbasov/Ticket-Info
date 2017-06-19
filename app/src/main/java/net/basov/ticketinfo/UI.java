@@ -31,7 +31,7 @@ import android.webkit.WebViewClient;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
-import net.basov.util.StringTools;
+import net.basov.util.TextTools;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +58,8 @@ public class UI {
     {
         visibilityMap = new HashMap<String, String>();
         visibilityMap.put("w_msg", "vw_msg");
+        visibilityMap.put("t_file_name", "vt_file_note");
+        visibilityMap.put("t_note_text", "vt_note");
         visibilityMap.put("t_trips_left", "vt_trips_left");
         visibilityMap.put("t_trip_seq_number", "vt_trip");
         visibilityMap.put("t_station", "vt_station");
@@ -84,7 +86,7 @@ public class UI {
 
     public void setTicketHeader(String field, String content) {
         try {
-            header_json.put(field, StringTools.escapeCharsForJSON(content));
+            header_json.put(field, TextTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -92,7 +94,7 @@ public class UI {
 
     public void setDump(String content) {
         try {
-            dump_json.put("d_content", StringTools.escapeCharsForJSON(content));
+            dump_json.put("d_content", TextTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -100,7 +102,7 @@ public class UI {
 
     public void setTicket(String field, String content) {
         try {
-            ticket_json.put(field, StringTools.escapeCharsForJSON(content));
+            ticket_json.put(field, TextTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -111,7 +113,7 @@ public class UI {
 
     public void setIC(String field, String content) {
         try {
-            ic_json.put(field, StringTools.escapeCharsForJSON(content));
+            ic_json.put(field, TextTools.escapeCharsForJSON(content));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -122,7 +124,7 @@ public class UI {
 
     public void setWelcome(String field, String message) {
         try {
-            welcome_json.put(field, StringTools.escapeCharsForJSON(message));
+            welcome_json.put(field, TextTools.escapeCharsForJSON(message));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -224,12 +226,12 @@ public class UI {
         this.setTicketHeader("h_state", t.getTicketStateAsHTML());
         this.setTicketHeader("h_number", t.getTicketNumberAsHTML());
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
-        if (t.getPassesLeft() != 0)
+        if (t.getPassesLeft() > 0)
             this.setTicket("t_trips_left", t.getPassesLeftAsHTML());
-        if ((t.getGateEntered() != 0) || (t.getEntranceEntered() != 0)) {
+        if ((t.getTurnstileEntered() != 0) || (t.getEntranceEntered() != 0)) {
             this.setTicket("t_trip_seq_number", t.getTripSeqNumbetAsHTML());
-            if (t.getGateEntered() != 0) {
-                this.setTicket("t_station_id", t.getGateEnteredAsHTML());
+            if (t.getTurnstileEntered() != 0) {
+                this.setTicket("t_station_id", t.getTurnstileEnteredAsHTML());
                 this.setTicket("t_station", t.getTurnstileDescAsHTML(c));
             } else if (t.getEntranceEntered() !=0) {
                 this.setTicket("t_station_id", t.getEntrancrEnteredAsHTML());
@@ -237,6 +239,9 @@ public class UI {
             }
             this.setTicket("t_transport_type", t.getTransportTypeAsHTML(c));
         }
+        this.setTicket("t_file_name", t.getFileName()+Ticket.FILE_EXT);
+        if (d.getRemark().length() > 0)
+            this.setTicket("t_note_text", d.getRemark());
         this.setTicket("t_layout", t.getTicketLayoutAsHTML());
         this.setTicket("t_app_id", t.getTicketAppIDAsHTML());
         this.setTicket("t_type_id", t.getTicketTypeAsHTML());

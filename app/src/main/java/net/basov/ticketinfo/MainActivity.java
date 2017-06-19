@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -53,8 +54,7 @@ import net.basov.util.FileIO;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import ru.valle.tickets.ui.Decode;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
 
@@ -75,14 +75,27 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* Set locale for debug
+        String languageToLoad = "ru"; // your language
+        Locale locale = new Locale(languageToLoad);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config,
+                getBaseContext().getResources().getDisplayMetrics());
+        */
+
         c = this;
         d = new NFCaDump();
         ui = new UI();
+
         setContentView(R.layout.webview_ui);
         mainUI_WV = (WebView) findViewById(R.id.webview);
         WebSettings webSettings = mainUI_WV.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
         /* Enable chome remote debuging for WebView (Ctrl-Shift-I) */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE))
@@ -223,21 +236,23 @@ public class MainActivity extends Activity {
                         if (dump != null) {
                             ui.dataClean();
                             Ticket t = new Ticket(dump);
-                            StringBuilder sb = new StringBuilder();
+                            //StringBuilder sb = new StringBuilder();
 
                             if (dump.getPagesNumber() < 12) {
 
-                                sb.append("!!! Card read partially.\n");
-                                sb.append("!!! Decoding ticket information impossible.\n");
-                                sb.append("!!! Try to read again.\n");
-                                sb.append("- - - -\n");
+                                //sb.append("!!! Card read partially.\n");
+                                //sb.append("!!! Decoding ticket information impossible.\n");
+                                //sb.append("!!! Try to read again.\n");
+                                //sb.append("- - - -\n");
 
                             } else {
+                                t.setFileName(
+                                        Ticket.createDumpFileName(t));
                                 if (FileIO.writeAutoDump(dump)) {
-                                    sb.append("Dump saved\n");
+                                    //sb.append("Dump saved\n");
                                     Toast toast = Toast.makeText(c, "Dump saved.", Toast.LENGTH_LONG);
                                     toast.show();
-                                    sb.append("\n- - - -\n");
+                                    //sb.append("\n- - - -\n");
                                 } else {
                                     try {
                                         NFCaDump d_tmp = new NFCaDump();
@@ -246,19 +261,20 @@ public class MainActivity extends Activity {
                                                 .getAbsolutePath();
                                         String fName = storage +
                                                 "/AutoDumps/" +
-                                                Ticket.createDumpFileName(t) +
-                                                ".txt";
+                                                t.getFileName() +
+                                                Ticket.FILE_EXT;
                                         if (FileIO.ReadDump(d_tmp, fName)) {
-                                            sb.append("Existing dump comment:\n");
-                                            sb.append(d_tmp.getRemark());
-                                            sb.append("\n- - - -\n");
+                                            //sb.append("Existing dump comment:\n");
+                                            //sb.append(d_tmp.getRemark());
+                                            //sb.append("\n- - - -\n");
+                                            dump.setRemark(d_tmp.getRemark());
 
                                         }
                                     } catch (NullPointerException e) {
-                                        sb.append("Dump exist but not readable\n");
+                                        //sb.append("Dump exist but not readable\n");
                                     }
                                 }
-                                sb.append(t.getTicketAsString(c));
+                                //sb.append(t.getTicketAsString(c));
                             }
 
                             //sb.append(dump.getMemoryInfoAsString());
@@ -269,7 +285,7 @@ public class MainActivity extends Activity {
                             // REDESIGN
                             //text.setText(sb.toString());
 
-                            ui.displayTicketInfo(d, t, mainUI_WV, c);
+                            ui.displayTicketInfo(dump, t, mainUI_WV, c);
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
@@ -299,7 +315,7 @@ public class MainActivity extends Activity {
             if (rcvUri != null) {
                 FileIO.ReadDump(d, rcvUri.getPath());
                 if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
-                    StringBuilder sb = new StringBuilder();
+                    //StringBuilder sb = new StringBuilder();
                     Ticket t;
                     if (d.getDDD() != null) {
                         ArrayList<Integer> tmpDump = new ArrayList<Integer>();
@@ -314,18 +330,18 @@ public class MainActivity extends Activity {
                         t = new Ticket(d);
                     }
                     if (d.getRemark().length() != 0){
-                        sb.append("File: ");
-                        sb.append(rcvUri.getLastPathSegment());
-                        sb.append("\n");
-                        sb.append(d.getRemark());
-                        sb.append("\n- - - -\n");
+                        //sb.append("File: ");
+                        //sb.append(rcvUri.getLastPathSegment());
+                        //sb.append("\n");
+                        //sb.append(d.getRemark());
+                        //sb.append("\n- - - -\n");
                     }
                     if (d.getPagesNumber() < 12) {
-                        sb.append("!!! Dump partial.\n");
-                        sb.append("!!! Decoding ticket information impossible.\n");
-                        sb.append("- - - -\n");
+                        //sb.append("!!! Dump partial.\n");
+                        //sb.append("!!! Decoding ticket information impossible.\n");
+                        //sb.append("- - - -\n");
                     } else {
-                        sb.append(t.getTicketAsString(c));
+                        //sb.append(t.getTicketAsString(c));
                     }
                     //sb.append(d.getMemoryInfoAsString());
                     //sb.append(d.getUIDCheckAsString());
@@ -348,12 +364,4 @@ public class MainActivity extends Activity {
         return c;
     }
 
-    // TODO: move to more logicaly sutable place. Introduced to debug UID print.
-    //http://stackoverflow.com/a/13006907
-    public static String byteArrayToHexString(byte[] a) {
-        StringBuilder sb = new StringBuilder(a.length * 2);
-        for(byte b: a)
-            sb.append(String.format("%02x", b));
-        return sb.toString();
-    }
 }

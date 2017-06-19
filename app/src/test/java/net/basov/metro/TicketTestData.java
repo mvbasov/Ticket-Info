@@ -105,7 +105,7 @@ public class TicketTestData {
         TDS.setPassesTotal(-1);
         TDS.setValidDays(30);
         TDS.setTripSeqNumber(9);
-        TDS.setGateEntered(10673);
+        TDS.setTurnstileEntered(10673);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(-1);
@@ -158,7 +158,7 @@ public class TicketTestData {
         TDS.setPassesTotal(1);
         TDS.setValidDays(65);
         TDS.setTripSeqNumber(1);
-        TDS.setGateEntered(2011);
+        TDS.setTurnstileEntered(2011);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(0);
@@ -211,7 +211,7 @@ public class TicketTestData {
         TDS.setPassesTotal(2);
         TDS.setValidDays(5);
         TDS.setTripSeqNumber(1);
-        TDS.setGateEntered(2003);
+        TDS.setTurnstileEntered(2003);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(1);
@@ -264,7 +264,7 @@ public class TicketTestData {
         TDS.setPassesTotal(5);
         TDS.setValidDays(45);
         TDS.setTripSeqNumber(4);
-        TDS.setGateEntered(1501);
+        TDS.setTurnstileEntered(1501);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(1);
@@ -317,7 +317,7 @@ public class TicketTestData {
         TDS.setPassesTotal(10);
         TDS.setValidDays(45);
         TDS.setTripSeqNumber(8);
-        TDS.setGateEntered(609);
+        TDS.setTurnstileEntered(609);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(2);
@@ -370,7 +370,7 @@ public class TicketTestData {
         TDS.setPassesTotal(20);
         TDS.setValidDays(45);
         TDS.setTripSeqNumber(20);
-        TDS.setGateEntered(2194);
+        TDS.setTurnstileEntered(2194);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(0);
@@ -423,7 +423,7 @@ public class TicketTestData {
         TDS.setPassesTotal(60);
         TDS.setValidDays(45);
         TDS.setTripSeqNumber(59);
-        TDS.setGateEntered(1596);
+        TDS.setTurnstileEntered(1596);
         TDS.setPassTransportType(Ticket.TT_METRO);
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setPassesLeft(1);
@@ -534,7 +534,7 @@ public class TicketTestData {
         TDS.setPassMetroType(Ticket.MT_METRO);
         TDS.setIssued(getCldr(2016, Calendar.JANUARY, 25, 0, 0));
         TDS.setFirstUseTime(13 * 60 + 21);
-        TDS.setGateEntered(13486);
+        TDS.setTurnstileEntered(13486);
         TDS.setStartUseBefore(getCldr(2016, Calendar.FEBRUARY, 3, 0, 0));
         TDS.setTripStart(getCldr(2016, Calendar.JANUARY, 25, 13, 21));
 
@@ -581,7 +581,7 @@ public class TicketTestData {
         TDS.setPassesTotal(1);
         TDS.setValidDays(5);
         TDS.setTripSeqNumber(1);
-        TDS.setGateEntered(137);
+        TDS.setTurnstileEntered(137);
         TDS.setPassTransportType(Ticket.TT_GROUND);
         TDS.setPassMetroType(Ticket.MT_UNKNOWN);
         TDS.setPassesLeft(0);

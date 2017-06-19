@@ -53,12 +53,11 @@ public class FileIO {
         File sdcard;
         String fNamePrefix = "AutoDumps/";
         String fName;
-        String dummy = "files";
         try {
 
             sdcard = MainActivity.getAppContext().getExternalFilesDir(null);
             fName = "/" + fNamePrefix + "/" + dumpFileName;
-            fileW = new File(sdcard, fName + ".txt");
+            fileW = new File(sdcard, fName + Ticket.FILE_EXT);
             if (!fileW.getParentFile().exists())
                 fileW.getParentFile().mkdirs();
             if (!fileW.exists()) {

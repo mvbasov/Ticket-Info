@@ -121,10 +121,10 @@ public class TicketTest {
     }
 
     @Test
-    public void testGetGateEntered() throws Exception {
+    public void testGetTurnstileEntered() throws Exception {
         Assert.assertEquals(
-                this.expectedTicket.getGateEntered(),
-                this.realTicket.getGateEntered()
+                this.expectedTicket.getTurnstileEntered(),
+                this.realTicket.getTurnstileEntered()
         );
     }
 

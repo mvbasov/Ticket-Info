@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import net.basov.ticketinfo.R;
+
 import ru.valle.tickets.ui.Decode;
 import ru.valle.tickets.ui.Lang;
 
@@ -68,6 +69,9 @@ public class Ticket {
     public static final DateFormat DDF = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     // Constants definition
+
+    public static final String FILE_EXT = ".txt";
+
 
     /* Used transport types */
     @Retention(RetentionPolicy.SOURCE)
@@ -293,7 +297,9 @@ public class Ticket {
      * Usefull for test datatsets.
      */
     private String mName;
-    
+
+    private String mFileName;
+
     private String mDDDRem;
     
     /**
@@ -454,7 +460,7 @@ public class Ticket {
      * This value valid only for 0x08 and 0x0d layouts.
      * One underground station has several turnstiles (gates) in each entrance
      */
-    private int mGateEntered = 0;
+    private int mTurnstileEntered = 0;
 
     /**
      * Last entered station entrance id.
@@ -637,6 +643,10 @@ public class Ticket {
         return dName.toString();
     }
 
+    public void setFileName(String fn) { mFileName = fn; }
+
+    public String getFileName() { return mFileName; }
+
     /**
      * Process mDump field and generate other fields content
      */
@@ -688,7 +698,7 @@ public class Ticket {
                     mStartUseTill.add(Calendar.MINUTE, tmp);
                     mFirstUseTime = tmp;
                 }
-                mGateEntered = mDump.get(9) & 0x0000ffff;
+                mTurnstileEntered = mDump.get(9) & 0x0000ffff;
                 tmp = (mDump.get(11) & 0xffff0000) >>> 16;
                 if (tmp != 0) {
                     mTripStart = Calendar.getInstance();
@@ -1001,7 +1011,7 @@ public class Ticket {
         
         switch (getLayout()) {
             case 8:
-                if ( getGateEntered() != 0) {
+                if ( getTurnstileEntered() != 0) {
                     sb.append(c.getString(R.string.last_trip));
                     if (getTripSeqNumber() > 0) {
                         sb.append(" №");
@@ -1010,13 +1020,13 @@ public class Ticket {
                     sb.append(":\n  ");
 
                     sb.append(c.getString(R.string.station_last_enter)).append(": ");
-                    sb.append(getGateDesc(c, getGateEntered())).append('\n');
+                    sb.append(getTurnstileDesc(c, getTurnstileEntered())).append('\n');
                 }
                 sb.append("\n- - - -\n");
                 sb.append("Layout 8 (0x8).").append('\n');
                 break;
             case 13:
-                if (getGateEntered() != 0) {
+                if (getTurnstileEntered() != 0) {
 
                     sb.append(c.getString(R.string.last_trip));
                     if (getTripSeqNumber() > 0) {
@@ -1029,7 +1039,7 @@ public class Ticket {
                     sb.append(TF.format(mTripStart.getTime()));
                     sb.append(",\n  ");
                     sb.append(c.getString(R.string.station_last_enter)).append(" ");
-                    sb.append(getGateDesc(c, getGateEntered()));
+                    sb.append(getTurnstileDesc(c, getTurnstileEntered()));
                     sb.append('\n');
 
 // TODO: Translate messages
@@ -1281,16 +1291,16 @@ public class Ticket {
 
     public int getTripSeqNumber() { return mTripSeqNumber; }
 
-    public void setGateEntered(int gateEntered) {
-        mGateEntered = gateEntered;
+    public void setTurnstileEntered(int turnstileEntered) {
+        mTurnstileEntered = turnstileEntered;
     }
 
     /**
      * This trip current entered gate
-     * @return {@link Ticket#mGateEntered} gate id
+     * @return {@link Ticket#mTurnstileEntered} gate id
      */
-    public int getGateEntered() {
-        return mGateEntered;
+    public int getTurnstileEntered() {
+        return mTurnstileEntered;
     }
 
     public void setEntranceEntered(int entranceEntered) {
@@ -1494,7 +1504,7 @@ public class Ticket {
      * @param id gate id
      * @return Gate description as string
      */
-    private String getGateDesc(Context c, int id) {
+    private String getTurnstileDesc(Context c, int id) {
         String trType ="";
         switch (getPassTransportType()) {
             case TT_METRO:
@@ -2019,8 +2029,8 @@ public class Ticket {
         return String.format("%1$d (0x%1$02x)", getLayout());
     }
 
-    public String getGateEnteredAsHTML() {
-        return String.format("%1$d [0x%1$04x]", getGateEntered());
+    public String getTurnstileEnteredAsHTML() {
+        return String.format("%1$d [0x%1$04x]", getTurnstileEntered());
 
     }
 
@@ -2101,10 +2111,10 @@ public class Ticket {
 
     public String getTurnstileDescAsHTML(Context c) {
         return Lang.transliterate(
-                Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c))
+                Lookup.findStationInfoByTsId(getTurnstileEntered()+"", getDataFileURIasString(c))
         );
 //        return
-//            Lookup.findStationInfoByTsId(getGateEntered()+"", getDataFileURIasString(c));
+//            Lookup.findStationInfoByTsId(getTurnstileEntered()+"", getDataFileURIasString(c));
     }
 
 }
