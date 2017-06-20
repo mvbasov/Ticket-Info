@@ -25,6 +25,7 @@
 package net.basov.ticketinfo;
 
 import android.content.Context;
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -71,6 +72,7 @@ public class UI {
         visibilityMap.put("t_trips_left", "vt_trips_left");
         visibilityMap.put("t_trip_seq_number", "vt_trip");
         visibilityMap.put("t_station", "vt_station");
+        visibilityMap.put("t_90m_details", "vt_90m_details");
         visibilityMap.put("i_get_version", "vi_get_version");
         visibilityMap.put("i_counters", "vi_counters");
         visibilityMap.put("i_read_sig", "vi_read_sig");
@@ -278,6 +280,41 @@ public class UI {
                 this.setTicket("t_station", t.getStationDescAsHTML(c));
             }
             this.setTicket("t_transport_type", t.getTransportTypeAsHTML(c));
+        }
+        // TODO: move to web interface
+        if (t.getTicketClass() == Ticket.C_90UNIVERSAL) {
+            StringBuilder sb = new StringBuilder();
+
+            if (t.getT90TripTimeLeft() > 0) {
+                sb.append("  "+c.getString(R.string.t90m_trip_time_left)+": ");
+                sb.append(t.getReadableTime(t.getT90TripTimeLeft()));
+            } else {
+                sb.append("  "+c.getString(R.string.t90m_trip_time_finished));
+            }
+            sb.append('\n');
+            sb.append("  "+c.getString(R.string.t90m_metro_trip_is)+" ");
+            if (t.getT90MCount() > 0) {
+                sb.append(c.getString(R.string.t90m_metro_used));
+            } else {
+                sb.append(c.getString(R.string.t90m_metro_trip_possible));
+            }
+            switch (t.getLayout()){
+                case 13:
+                    sb.append("  "+c.getString(R.string.t90m_ground_count)+": ");
+                    sb.append(t.getT90GCount()).append('\n');
+                    sb.append("  "+c.getString(R.string.t90m_change_time)+": ");
+                    sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
+                    sb.append('\n');
+                    break;
+                case 10:
+                    sb.append('\n');
+                    sb.append("  "+c.getString(R.string.t90m_change_time)+": ");
+                    sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
+                    sb.append(String.format(" (%02d min)", t.getT90RelChangeTime()));
+                    sb.append('\n');
+                    break;
+            }
+            this.setTicket("t_90m_details", sb.toString());
         }
         this.setTicket("t_file_name", t.getFileName()+Ticket.FILE_EXT);
         if (d.getRemark().length() > 0)

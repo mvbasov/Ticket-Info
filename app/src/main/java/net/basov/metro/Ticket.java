@@ -1430,6 +1430,8 @@ public class Ticket {
         mT90RelChangeTime = t90RelChangeTime;
     }
 
+    public int getT90RelChangeTime() { return mT90RelChangeTime; }
+
     /**
      *
      * @return Last change time in minutes related to trip start
@@ -1439,6 +1441,8 @@ public class Ticket {
     public int getT90MCount() {
         return mT90MCount;
     }
+
+    public int getT90GCount() { return mT90GCount; }
 
     public void setT90MCount(int t90MCount) {
         mT90MCount = t90MCount;
@@ -1471,6 +1475,8 @@ public class Ticket {
     public void setT90ChangeTime(Calendar t90ChangeTime) {
         mT90ChangeTime = t90ChangeTime;
     }
+
+    public int getT90TripTimeLeft() { return mT90TripTimeLeft; }
 
     /**
      *
@@ -1963,7 +1969,7 @@ public class Ticket {
      * @param time minutes from midnight
      * @return Hours and minutes in readable form
      */
-    private String getReadableTime(int time){
+    public String getReadableTime(int time){
         return String.format("%02d:%02d",
                 time / 60,
                 time % 60);

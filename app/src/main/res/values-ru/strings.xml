@@ -44,4 +44,11 @@
     <string name="ts_in_trip">Поездка идёт</string>
     <string name="ts_empty">Пустой</string>
     <string name="ts_expired">Просрочен</string>
+    <string name="t90m_change_time">Время пересадки</string>
+    <string name="t90m_ground_count">Наземных поездок</string>
+    <string name="t90m_metro_trip_is">Поездка на метро</string>
+    <string name="t90m_metro_trip_possible">возможна</string>
+    <string name="t90m_metro_used">использована</string>
+    <string name="t90m_trip_time_finished">Время поездки закончилось</string>
+    <string name="t90m_trip_time_left">До конца поездки осталось</string>
 </resources>
