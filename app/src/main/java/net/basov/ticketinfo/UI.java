@@ -61,7 +61,9 @@ public class UI {
     static
     {
         visibilityMap = new HashMap<String, String>();
+        visibilityMap.put("w_debug", "vw_debug");
         visibilityMap.put("w_msg", "vw_msg");
+        visibilityMap.put("t_debug", "tv_debug");
         visibilityMap.put("t_from_datetime", "vt_from_to_datetime");
         visibilityMap.put("t_to_datetime", "vt_from_to_datetime");
         visibilityMap.put("t_from_date", "vt_from_to_date");
@@ -73,6 +75,7 @@ public class UI {
         visibilityMap.put("t_trips_left", "vt_trips_left");
         visibilityMap.put("t_trip_seq_number", "vt_trip");
         visibilityMap.put("t_station", "vt_station");
+        visibilityMap.put("t_90m_header_fake", "vt_90m_header");
         visibilityMap.put("t_90m_details", "vt_90m_details");
         visibilityMap.put("i_get_version", "vi_get_version");
         visibilityMap.put("i_counters", "vi_counters");
@@ -293,37 +296,44 @@ public class UI {
         }
         // TODO: move to web interface
         if (t.getTicketClass() == Ticket.C_90UNIVERSAL) {
+            this.setTicket("t_90m_header_fake","  ");
             StringBuilder sb = new StringBuilder();
-
             if (t.getT90TripTimeLeft() > 0) {
-                sb.append("  "+c.getString(R.string.t90m_trip_time_left)+": ");
+                sb.append("  ");
+                sb.append(c.getString(R.string.t90m_trip_time_left));
+                sb.append(": ");
                 sb.append(t.getReadableTime(t.getT90TripTimeLeft()));
             } else {
-                sb.append("  "+c.getString(R.string.t90m_trip_time_finished));
+                sb.append("  ");
+                sb.append(c.getString(R.string.t90m_trip_time_finished));
             }
             sb.append('\n');
-            sb.append("  "+c.getString(R.string.t90m_metro_trip_is)+" ");
+            sb.append("  ");
+            sb.append(c.getString(R.string.t90m_metro_trip_is));
+            sb.append(" ");
             if (t.getT90MCount() > 0) {
                 sb.append(c.getString(R.string.t90m_metro_used));
             } else {
                 sb.append(c.getString(R.string.t90m_metro_trip_possible));
             }
+            sb.append('\n');
             switch (t.getLayout()){
                 case 13:
-                    sb.append("  "+c.getString(R.string.t90m_ground_count)+": ");
-                    sb.append(t.getT90GCount()).append('\n');
-                    sb.append("  "+c.getString(R.string.t90m_change_time)+": ");
-                    sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
+                    sb.append("  ");
+                    sb.append(c.getString(R.string.t90m_ground_count));
+                    sb.append(": ");
+                    sb.append(t.getT90GCount());
                     sb.append('\n');
                     break;
                 case 10:
-                    sb.append('\n');
-                    sb.append("  "+c.getString(R.string.t90m_change_time)+": ");
-                    sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
-                    sb.append(String.format(" (%02d min)", t.getT90RelChangeTime()));
-                    sb.append('\n');
                     break;
             }
+            sb.append("  ");
+            sb.append(c.getString(R.string.t90m_change_time));
+            sb.append(": ");
+            sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
+            sb.append(String.format(" (%02d min)", t.getT90RelChangeTime()));
+            sb.append('\n');
             this.setTicket("t_90m_details", sb.toString());
         }
         this.setTicket("t_file_name", t.getFileName()+Ticket.FILE_EXT);

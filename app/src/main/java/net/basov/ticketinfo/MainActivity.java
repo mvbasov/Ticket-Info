@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
     static final int NFC_DIALOG_REQUEST_CODE = 653;
 
     private WebView mainUI_WV;
-    private NfcAdapter adapter = null;
+    private NfcAdapter adapter;
     private PendingIntent pendingIntent;
     private IntentFilter[] filters;
     private NFCaDump d;
@@ -82,7 +82,6 @@ public class MainActivity extends Activity {
 
         // TODO: Create settings screen
         /* Set locale for debug
-        */
         String languageToLoad = "ru"; // your language
         Locale locale = new Locale(languageToLoad);
         Locale.setDefault(locale);
@@ -90,6 +89,7 @@ public class MainActivity extends Activity {
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
+        */
 
         c = this;
         d = new NFCaDump();
@@ -177,11 +177,10 @@ public class MainActivity extends Activity {
 
             alertbox.show();
 
-        } else {
-
-            ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
-
         }
+        // TODO: If I enable it reading saved dump dowsn't operate, but if disabled wrong NFC state displayed
+//        ui.setWelcome("w_debug", "After NFC check");
+//        ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
 
         pendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -212,6 +211,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == NFC_DIALOG_REQUEST_CODE) {
             /* Process NFC enable dialog */
+            ui.setWelcome("w_debug", "onActivity result");
             ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
         }
     }
@@ -373,6 +373,7 @@ public class MainActivity extends Activity {
                 }
             }
         } else {
+            ui.setWelcome("w_debug", "Intent");
             ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
         }
     }

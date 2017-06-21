@@ -111,7 +111,9 @@ span.d_internal { color: aqua }
     </div>
 
     <div id="Ticket" class="tab" style="display:none">
-
+        <div id="tv_debug" class="fragment" style="display:none">
+            <span id="t_debug">some debug text</span>
+        </div>
         <h3><span id="t_desc">xxxxxxxxxx</span></h3>
 
             <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
@@ -148,16 +150,26 @@ span.d_internal { color: aqua }
             <div id="vt_trip" class="fragment" style="display:none">
             <!-- ticket trip information fragment -->
             <!-- + nested fragment: ticket station name fragment -->
-<hr/>
-<pre>Поездка №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> в <span id="t_trip_start_time">xx:xx</span>,
-<div class="fragment" id="vt_station" style="display:none">  со станции <span id="t_station" style="white-space: pre-wrap">xxxxxxxxx</span></div>  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
-            </div>
-            <div id="vt_90m_details" class="fragment" style="display:none">
+                <hr/>
                 <pre>
-Детали 90 минутной поездки:
+Поездка №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> в <span id="t_trip_start_time">xx:xx</span>,</pre>
+                <div id="vt_90m_header" class="fragment" style="display:none">
+                    <pre>
+<span id="t_90m_header_fake"></span>Детали 90 минутной поездки:</pre>
+                </div>
+                <div class="fragment" id="vt_station" style="display:none">
+                    <pre>
+  со станции <span id="t_station" style="white-space: pre-wrap">xxxxxxxxx</span></pre>
+                </div>
+                <div>
+                    <pre>
+  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
+                </div>
+                <div id="vt_90m_details" class="fragment" style="display:none">
+                    <pre>
 <span id="t_90m_details">x</span></pre>
+                </div>
             </div>
-
         </div>
 
         <div id="vt_file_note" class="frame" style="display:none">
@@ -182,8 +194,7 @@ Ticket number: <span id="t_number">xxxxxxxxxx</span>
 IC UID: <span id="t_ic_uid">xxxxxxxxxxxxxxxx</span>
             </pre>
         </div>
-
-    </div>
+    </div><!-- class="tab" id="Ticket" -->
 
     <div id="IC" class="tab" style="display:none">
         <div id="i_general" class="f_frame">

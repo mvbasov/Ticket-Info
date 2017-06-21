@@ -111,10 +111,12 @@ span.d_internal { color: aqua }
     </div>
 
     <div id="Ticket" class="tab" style="display:none">
-
+        <div id="tv_debug" class="fragment" style="display:none">
+            <span id="t_debug">some debug text</span>
+        </div>
         <h3><span id="t_desc">xxxxxxxxxx</span></h3>
 
-            <div id="vt_trips_left" style="display:none; font-size:1.25em" class="fragment">
+            <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
                 <pre>
 Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
             </div>
@@ -148,14 +150,25 @@ Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
             <div id="vt_trip" class="fragment" style="display:none">
             <!-- ticket trip information fragment -->
             <!-- + nested fragment: ticket station name fragment -->
-<hr/>
-<pre>Trip №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> at <span id="t_trip_start_time">xx:xx</span>,
-<div class="fragment" id="vt_station" style="display:none">  on station <span id="t_station">xxxxxxxxx</span></div>  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
-            </div>
-            <div id="vt_90m_details" class="fragment" style="display:none">
+                <hr/>
                 <pre>
-90 minutes trip details:
+Trip №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> at <span id="t_trip_start_time">xx:xx</span>,</pre>
+                <div id="vt_90m_header" class="fragment" style="display:none">
+                    <pre>
+<span id="t_90m_header_fake"></span>90 minutes trip details:</pre>
+                </div>
+                <div class="fragment" id="vt_station" style="display:none">
+                    <pre>
+  on station <span id="t_station" style="white-space: pre-wrap">xxxxxxxxx</span></pre>
+                </div>
+                <div>
+                    <pre>
+  id: <span id="t_station_id">xxxx[0xxxxx]</span> (<span id="t_transport_type">xxxx</span>)</pre>
+                </div>
+                <div id="vt_90m_details" class="fragment" style="display:none">
+                    <pre>
 <span id="t_90m_details">x</span></pre>
+                </div>
             </div>
         </div>
 
@@ -164,7 +177,7 @@ Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
 <pre>File name: <span id="t_file_name">xxxxxx.txt</span></pre>
             <div id="vt_note" class="fragment" style="display:none">
 <hr/>
-                <pre id="t_note_text">
+                <pre id="t_note_text" style="white-space: pre-wrap">
 xxx
 xxx</pre>
             </div>
@@ -181,8 +194,7 @@ Ticket number: <span id="t_number">xxxxxxxxxx</span>
 IC UID: <span id="t_ic_uid">xxxxxxxxxxxxxxxx</span>
             </pre>
         </div>
-
-    </div>
+    </div><!-- class="tab" id="Ticket" -->
 
     <div id="IC" class="tab" style="display:none">
         <div id="i_general" class="f_frame">
@@ -194,7 +206,8 @@ Chip: (<span id="i_std_bytes">xxx</span> bytes)
   xxxx</span></pre>
 <hr/>
             <pre>
-4 bytes pages read: <span id="i_read_pages">xx</span> (total <span id="i_read_bytes">xxx</span> bytes)</pre>
+4 байтных страниц прочитано: <span id="i_read_pages">xx</span>
+  (всего <span id="i_read_bytes">xxx</span> байт)</pre>
         </div>
 
         <div id="i_uid_otp" class="frame">

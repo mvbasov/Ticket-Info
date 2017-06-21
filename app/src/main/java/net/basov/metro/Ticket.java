@@ -624,10 +624,10 @@ public class Ticket {
                     dName.append(String.format("-%02d", ticket.getTripSeqNumber()));                     
                     dName.append(getTCsuffix(ticket));
                     if (ticket.getLayout() == 0x0d) {
-                        dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
+                        dName.append(String.format(".%02d", ticket.getT90RelChangeTime()));
                         dName.append(String.format(".%1d", ticket.getT90ChangeCount()));
                     } else if (ticket.getLayout() == 0x0a) {
-                        dName.append(String.format(".%02d", ticket.getRelTransportChangeTimeMinutes()));
+                        dName.append(String.format(".%02d", ticket.getT90RelChangeTime()));
                     }
                     break;
                 default:
@@ -764,7 +764,7 @@ public class Ticket {
                 mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) & 0x0fff00000) >>> 20);
                 if (mTicketClass == C_UNLIM_DAYS && mPassesLeft != 0)
                      // mPassesLeft == 0 is unused flag for day limited tickets
-                    mFirstUseTime = ((mDump.get(6) & 0x000ffffe) >>> 1) % (24 * 60);;
+                    mFirstUseTime = ((mDump.get(6) & 0x000ffffe) >>> 1) % (24 * 60);
 
                 mEntranceEntered = (mDump.get(8) & 0x00ffff00) >>> 8;
 
@@ -1436,7 +1436,6 @@ public class Ticket {
      *
      * @return Last change time in minutes related to trip start
      */
-    public int getRelTransportChangeTimeMinutes() { return mT90RelChangeTime; }
 
     public int getT90MCount() {
         return mT90MCount;
