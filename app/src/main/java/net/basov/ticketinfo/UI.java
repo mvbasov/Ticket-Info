@@ -25,6 +25,7 @@
 package net.basov.ticketinfo;
 
 import android.content.Context;
+import android.nfc.NfcAdapter;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -194,6 +195,15 @@ public class UI {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void displayWelcomeByNFC(Context c, NfcAdapter adapter, WebView wv) {
+        if (adapter == null || ! adapter.isEnabled()){
+            setWelcome("w_msg", c.getString(R.string.welcome_without_nfc));
+        } else {
+            setWelcome("w_msg", c.getString(R.string.welcome_with_nfc));
+        }
+        displayWelcome(wv, c);
     }
 
     public void displayWelcome(final WebView wv, Context c) {

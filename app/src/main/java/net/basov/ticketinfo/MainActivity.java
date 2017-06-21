@@ -29,8 +29,10 @@ package net.basov.ticketinfo;
  * New version of UI based on WebView
  */
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
@@ -43,6 +45,7 @@ import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
@@ -59,9 +62,10 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     static final String TAG = "tickets";
+    static final int NFC_DIALOG_REQUEST_CODE = 653;
 
     private WebView mainUI_WV;
-    private NfcAdapter adapter;
+    private NfcAdapter adapter = null;
     private PendingIntent pendingIntent;
     private IntentFilter[] filters;
     private NFCaDump d;
@@ -76,6 +80,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // TODO: Create settings screen
         /* Set locale for debug
         */
         String languageToLoad = "ru"; // your language
@@ -137,8 +142,47 @@ public class MainActivity extends Activity {
         }
 
         onNewIntent(getIntent());
-// TODO: Check NFC is switched on
+
+/*
+  Check is NFC adapter present and switched on
+  */
         adapter = NfcAdapter.getDefaultAdapter(this);
+        if ((adapter != null) && !adapter.isEnabled()) {
+
+            AlertDialog.Builder alertbox = new AlertDialog.Builder(c);
+            alertbox.setTitle("Info");
+            alertbox.setMessage(getString(R.string.nfc_enable_dialog));
+            alertbox.setPositiveButton("Turn On", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                        startActivityForResult(intent, NFC_DIALOG_REQUEST_CODE);
+                    } else {
+                        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                        startActivityForResult(intent, NFC_DIALOG_REQUEST_CODE);
+                    }
+                }
+
+            });
+
+            alertbox.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+            alertbox.show();
+
+        } else {
+
+            ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
+
+        }
+
         pendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
@@ -162,6 +206,14 @@ public class MainActivity extends Activity {
     public void onPause() {
         super.onPause();
         adapter.disableForegroundDispatch(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == NFC_DIALOG_REQUEST_CODE) {
+            /* Process NFC enable dialog */
+            ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
+        }
     }
 
     @Override
@@ -236,23 +288,15 @@ public class MainActivity extends Activity {
                         if (dump != null) {
                             ui.dataClean();
                             Ticket t = new Ticket(dump);
-                            //StringBuilder sb = new StringBuilder();
 
                             if (dump.getPagesNumber() < 12) {
-
-                                //sb.append("!!! Card read partially.\n");
-                                //sb.append("!!! Decoding ticket information impossible.\n");
-                                //sb.append("!!! Try to read again.\n");
-                                //sb.append("- - - -\n");
-
+                                // TODO: display somthig interesting
                             } else {
                                 t.setFileName(
                                         Ticket.createDumpFileName(t));
                                 if (FileIO.writeAutoDump(dump)) {
-                                    //sb.append("Dump saved\n");
                                     Toast toast = Toast.makeText(c, "Dump saved.", Toast.LENGTH_LONG);
                                     toast.show();
-                                    //sb.append("\n- - - -\n");
                                 } else {
                                     try {
                                         NFCaDump d_tmp = new NFCaDump();
@@ -264,26 +308,14 @@ public class MainActivity extends Activity {
                                                 t.getFileName() +
                                                 Ticket.FILE_EXT;
                                         if (FileIO.ReadDump(d_tmp, fName)) {
-                                            //sb.append("Existing dump comment:\n");
-                                            //sb.append(d_tmp.getRemark());
-                                            //sb.append("\n- - - -\n");
                                             dump.setRemark(d_tmp.getRemark());
 
                                         }
                                     } catch (NullPointerException e) {
-                                        //sb.append("Dump exist but not readable\n");
+                                        // TODO: display somthig interesting
                                     }
                                 }
-                                //sb.append(t.getTicketAsString(c));
                             }
-
-                            //sb.append(dump.getMemoryInfoAsString());
-                            //sb.append(dump.getUIDCheckAsString());
-                            //sb.append(dump.getIC_InfoAsString());
-                            //sb.append(dump.getDetectedICTypeAsString());
-                            //sb.append(dump.getDumpAsDetailedString());
-                            // REDESIGN
-                            //text.setText(sb.toString());
 
                             ui.displayTicketInfo(dump, t, mainUI_WV, c);
 
@@ -315,7 +347,6 @@ public class MainActivity extends Activity {
             if (rcvUri != null) {
                 FileIO.ReadDump(d, rcvUri.getPath());
                 if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
-                    //StringBuilder sb = new StringBuilder();
                     Ticket t;
                     if (d.getDDD() != null) {
                         ArrayList<Integer> tmpDump = new ArrayList<Integer>();
@@ -333,35 +364,16 @@ public class MainActivity extends Activity {
                             rcvUri.getLastPathSegment()
                                 .replace(Ticket.FILE_EXT,"")
                     );
-                    if (d.getRemark().length() != 0){
-                        //sb.append("File: ");
-                        //sb.append(rcvUri.getLastPathSegment());
-                        //sb.append("\n");
-                        //sb.append(d.getRemark());
-                        //sb.append("\n- - - -\n");
-                    }
                     if (d.getPagesNumber() < 12) {
-                        //sb.append("!!! Dump partial.\n");
-                        //sb.append("!!! Decoding ticket information impossible.\n");
-                        //sb.append("- - - -\n");
-                    } else {
-                        //sb.append(t.getTicketAsString(c));
+                        // TODO: display something interesting
                     }
-                    //sb.append(d.getMemoryInfoAsString());
-                    //sb.append(d.getUIDCheckAsString());
-                    //sb.append(d.getIC_InfoAsString());
-                    //sb.append(d.getDetectedICTypeAsString());
-                    //sb.append(d.getDumpAsDetailedString());
-                    // REDESIGN
-                    //text.setText(sb.toString());
 
                     ui.displayTicketInfo(d, t, mainUI_WV, c);
 
                 }
             }
         } else {
-            ui.setWelcome("w_msg", getString(R.string.ticket_disclaimer));
-            ui.displayWelcome(mainUI_WV, c);
+            ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
         }
     }
     public static Context getAppContext() {

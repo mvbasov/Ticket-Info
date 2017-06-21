@@ -5,7 +5,6 @@
     <string name="app_name">Ticket info</string>
     <string name="ticket_is_reading">Ticket reading…</string>
     <string name="ticket_read_error">Unable to read the ticket</string>
-    <string name="ticket_disclaimer">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
     <string name="ticket_num">Ticket number</string>
     <string name="passes_left">Trips left</string>
     <string name="valid">Valid</string>
@@ -51,8 +50,11 @@
     <string name="t90m_trip_time_left">Time left</string>
     <string name="t90m_trip_time_finished">Trip time ended</string>
     <string name="t90m_metro_trip_is">Metro trip</string>
-    <string name="t90m_metro_used">is already done</string>
-    <string name="t90m_metro_trip_possible">available</string>
+    <string name="t90m_metro_used">used</string>
+    <string name="t90m_metro_trip_possible">doesn\'t used</string>
     <string name="t90m_ground_count">Ground count</string>
     <string name="t90m_change_time">Change time</string>
+    <string name="nfc_enable_dialog">NFC is disabled. Turn it on by settings and press back to return to application.</string>
+    <string name="welcome_with_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from any file manager with this application.</string>
+    <string name="welcome_without_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
 </resources>
