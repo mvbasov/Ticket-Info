@@ -260,20 +260,22 @@ public class UI {
         }
 
         if (t.getIssued() != null) {
-            Calendar tmpCal = (Calendar) t.getIssued().clone();
+            Calendar fromCal = (Calendar) t.getIssued().clone();
+            Calendar toCal = (Calendar) t.getIssued().clone();
+            toCal.add(Calendar.DATE, t.getValidDays() - 1);
             if (t.getTicketClass() == Ticket.C_UNLIM_DAYS){
-                tmpCal.add(Calendar.DATE, t.getValidDays());
+                fromCal.add(Calendar.MINUTE, t.getFirstUseTime());
+                toCal.add(Calendar.MINUTE, t.getFirstUseTime());
                 this.setTicket("t_from_datetime",
-                        String.format("%s",Ticket.DTF.format(t.getIssued().getTime())));
+                        String.format("%s",Ticket.DTF.format(fromCal.getTime())));
                 this.setTicket("t_to_datetime",
-                        String.format("%s",Ticket.DTF.format(tmpCal.getTime())));
+                        String.format("%s",Ticket.DTF.format(toCal.getTime())));
 
             } else {
-                tmpCal.add(Calendar.DATE, t.getValidDays() - 1);
                 this.setTicket("t_from_date",
                         String.format("%s",Ticket.DF.format(t.getIssued().getTime())));
                 this.setTicket("t_to_date",
-                        String.format("%s",Ticket.DF.format(tmpCal.getTime())));
+                        String.format("%s",Ticket.DF.format(toCal.getTime())));
             }
         } else if (t.getStartUseBefore() != null) {
             this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
