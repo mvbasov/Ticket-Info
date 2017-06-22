@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
@@ -45,8 +46,10 @@ import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.widget.Toast;
@@ -79,18 +82,22 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: Create settings screen
-        /* Set locale for debug
-        String languageToLoad = "ru"; // your language
-        Locale locale = new Locale(languageToLoad);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.locale = locale;
-        getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
-        */
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String appLangPref = sharedPref.getString("appLang", "en");
+        switch (appLangPref) {
+            case "ru":
+            case "en":
+                Locale locale = new Locale(appLangPref);
+                Locale.setDefault(locale);
+                Configuration config = new Configuration();
+                config.locale = locale;
+                getBaseContext().getResources().updateConfiguration(config,
+                        getBaseContext().getResources().getDisplayMetrics());
+                break;
+            default:
+                break;
+        }
 
-        //c = this;
         d = new NFCaDump();
         ui = new UI();
 
@@ -99,6 +106,7 @@ public class MainActivity extends Activity {
         WebSettings webSettings = mainUI_WV.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        mainUI_WV.addJavascriptInterface(new WebViewJSCallback(this), "Android");
 
         /* Enable chome remote debuging for WebView (Ctrl-Shift-I) */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -133,6 +141,7 @@ public class MainActivity extends Activity {
                             + pInfo.versionName;
             }
 
+            ui.setWelcome("w_debug", "Inside get package name try");
             ui.setWelcome("w_header", title);
             ui.displayWelcome(mainUI_WV);
 
@@ -372,3 +381,4 @@ public class MainActivity extends Activity {
         }
     }
 }
+

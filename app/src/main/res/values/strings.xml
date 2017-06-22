@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="pref_lang_def">ru</string>
     <string name="welcome_ui_file">start.html</string>
     <string name="ticket_ui_file">ticket.html</string>
     <string name="app_name">Ticket info</string>
@@ -60,4 +61,5 @@
     <string name="nfc_dialog_cancel_btn">Close</string>
     <string name="welcome_with_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from any file manager with this application.</string>
     <string name="welcome_without_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
+    <string name="prefTitle">pref_screen_title</string>
 </resources>

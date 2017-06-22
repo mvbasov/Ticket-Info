@@ -35,4 +35,6 @@ function jreplace(jcontent) {
    }
 }
 
-
+function aCallback () {
+    Android.launchPreferences();
+}

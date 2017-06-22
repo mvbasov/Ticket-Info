@@ -36,6 +36,14 @@
 			<meta-data android:name="android.nfc.action.TECH_DISCOVERED"
     				android:resource="@xml/nfc_tech_filter" />
 		</activity>
+		<activity android:name=".AppPreferencesActivity"
+            android:label="@string/prefTitle"
+            android:screenOrientation="nosensor">
+            <intent-filer>
+                <action android:name=".Preferences" />
+                <category android:name="android.intent.category.PREFERENCE" />
+            </intent-filer>
+		</activity>
 	</application>
 	<uses-permission android:name="android.permission.NFC" />
 	<uses-feature android:name="android.hardware.nfc" android:required="false" />

@@ -26,6 +26,8 @@
 package net.basov.metro;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import net.basov.nfc.NFCaDump;
@@ -2180,19 +2182,31 @@ public class Ticket {
     }
 
     public String getStationDescAsHTML(Context c) {
-        return Lang.transliterate(
-                Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c))
-        );
-//        return
-//            Lookup.findStationById(getEntranceEntered()+"", getDataFileURIasString(c));
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+        boolean needTransliterate = sharedPref.getBoolean("transliterateFlag", false);
+
+        if (needTransliterate) {
+            return Lang.transliterate(
+                    Lookup.findStationById(getEntranceEntered() + "", getDataFileURIasString(c))
+            );
+        } else {
+            return
+                    Lookup.findStationById(getEntranceEntered() + "", getDataFileURIasString(c));
+        }
     }
 
     public String getTurnstileDescAsHTML(Context c) {
-        return Lang.transliterate(
-                Lookup.findStationInfoByTsId(getTurnstileEntered()+"", getDataFileURIasString(c))
-        );
-//        return
-//            Lookup.findStationInfoByTsId(getTurnstileEntered()+"", getDataFileURIasString(c));
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+        boolean needTransliterate = sharedPref.getBoolean("transliterateFlag", false);
+
+        if (needTransliterate) {
+            return Lang.transliterate(
+                    Lookup.findStationInfoByTsId(getTurnstileEntered() + "", getDataFileURIasString(c))
+            );
+        } else {
+            return
+                    Lookup.findStationInfoByTsId(getTurnstileEntered() + "", getDataFileURIasString(c));
+        }
     }
 
 }

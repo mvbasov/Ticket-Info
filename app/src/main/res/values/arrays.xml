@@ -6,4 +6,16 @@
     <item>trips</item>
     <item>trips</item>
   </string-array>
+
+  <string-array name="listLangNames">
+    <item>Russian</item>
+    <item>English</item>
+    <item>System default</item>
+  </string-array>
+
+  <string-array name="listLangValues">
+    <item>ru</item>
+    <item>en</item>
+    <item>default</item>
+  </string-array>
 </resources>
