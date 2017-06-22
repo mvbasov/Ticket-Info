@@ -54,7 +54,10 @@
     <string name="t90m_metro_trip_possible">doesn\'t used</string>
     <string name="t90m_ground_count">Ground count</string>
     <string name="t90m_change_time">Change time</string>
-    <string name="nfc_enable_dialog">NFC is disabled. Turn it on by settings and press back to return to application.</string>
+    <string name="nfc_enable_dialog_title">NFC is disabled</string>
+    <string name="nfc_enable_dialog">Turn NFC on by settings and press back to return to application.</string>
+    <string name="nfc_dialog_go_btn">Turn On</string>
+    <string name="nfc_dialog_cancel_btn">Close</string>
     <string name="welcome_with_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from any file manager with this application.</string>
     <string name="welcome_without_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
 </resources>

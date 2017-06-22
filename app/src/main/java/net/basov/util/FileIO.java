@@ -26,6 +26,8 @@
 
 package net.basov.util;
 
+import android.content.Context;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,7 +44,7 @@ public class FileIO {
 
     static final String TAG = "tickets";
 
-    public static boolean writeAutoDump(NFCaDump dump) {
+    public static boolean writeAutoDump(NFCaDump dump, Context c) {
         File fileW;
         boolean rc = false;
         Ticket ticket = new Ticket(dump);
@@ -55,7 +57,7 @@ public class FileIO {
         String fName;
         try {
 
-            sdcard = MainActivity.getAppContext().getExternalFilesDir(null);
+            sdcard = c.getExternalFilesDir(null);
             fName = "/" + fNamePrefix + "/" + dumpFileName;
             fileW = new File(sdcard, fName + Ticket.FILE_EXT);
             if (!fileW.getParentFile().exists())

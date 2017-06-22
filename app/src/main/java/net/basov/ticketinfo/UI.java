@@ -200,16 +200,17 @@ public class UI {
         }
     }
 
-    public void displayWelcomeByNFC(Context c, NfcAdapter adapter, WebView wv) {
+    public void displayWelcomeByNFC(NfcAdapter adapter, WebView wv) {
+        Context c = wv.getContext();
         if (adapter == null || ! adapter.isEnabled()){
             setWelcome("w_msg", c.getString(R.string.welcome_without_nfc));
         } else {
             setWelcome("w_msg", c.getString(R.string.welcome_with_nfc));
         }
-        displayWelcome(wv, c);
+        displayWelcome(wv);
     }
 
-    public void displayWelcome(final WebView wv, Context c) {
+    public void displayWelcome(final WebView wv) {
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -221,10 +222,11 @@ public class UI {
                 wv.clearCache(true);
             }
         });
+        Context c = wv.getContext();
         wv.loadUrl("file:///android_asset/" + c.getString(R.string.welcome_ui_file));
     }
 
-    public void displayUI(final WebView wv, Context c) {
+    public void displayUI(final WebView wv) {
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -242,10 +244,12 @@ public class UI {
                 //Log.d("iiii", ic_json.toString());
             }
         });
+        Context c = wv.getContext();
         wv.loadUrl("file:///android_asset/" + c.getString(R.string.ticket_ui_file));
     }
 
-    public void displayTicketInfo(NFCaDump d, Ticket t, WebView wv, Context c) {
+    public void displayTicketInfo(NFCaDump d, Ticket t, WebView wv) {
+        Context c = wv.getContext();
         if (t.getTicketState() == Ticket.TS_UNKNOWN)
             t.detectTicketState();
         this.setTicketHeader("h_state", t.getTicketStateAsHTML(c));
@@ -369,7 +373,7 @@ public class UI {
         if (d.isAtechListNotEmpty())
             this.setIC("i_tech",d.getATechAsHTML());
         this.setDump(d.getDumpAsHTMLString());
-        this.displayUI(wv, c);
+        this.displayUI(wv);
 
     }
 }

@@ -70,7 +70,6 @@ public class MainActivity extends Activity {
     private IntentFilter[] filters;
     private NFCaDump d;
     private String[][] techList;
-    private static Context c;
     private String title;
 
     private UI ui;
@@ -91,7 +90,7 @@ public class MainActivity extends Activity {
                 getBaseContext().getResources().getDisplayMetrics());
         */
 
-        c = this;
+        //c = this;
         d = new NFCaDump();
         ui = new UI();
 
@@ -135,7 +134,7 @@ public class MainActivity extends Activity {
             }
 
             ui.setWelcome("w_header", title);
-            ui.displayWelcome(mainUI_WV, c);
+            ui.displayWelcome(mainUI_WV);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
@@ -149,25 +148,20 @@ public class MainActivity extends Activity {
         adapter = NfcAdapter.getDefaultAdapter(this);
         if ((adapter != null) && !adapter.isEnabled()) {
 
-            AlertDialog.Builder alertbox = new AlertDialog.Builder(c);
-            alertbox.setTitle("Info");
-            alertbox.setMessage(getString(R.string.nfc_enable_dialog));
-            alertbox.setPositiveButton("Turn On", new DialogInterface.OnClickListener() {
+            AlertDialog.Builder nfcEnableDialog = new AlertDialog.Builder(MainActivity.this);
+            nfcEnableDialog.setTitle(R.string.nfc_enable_dialog_title);
+            nfcEnableDialog.setMessage(getString(R.string.nfc_enable_dialog));
+            nfcEnableDialog.setPositiveButton(R.string.nfc_dialog_go_btn, new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-                        startActivityForResult(intent, NFC_DIALOG_REQUEST_CODE);
-                    } else {
-                        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-                        startActivityForResult(intent, NFC_DIALOG_REQUEST_CODE);
-                    }
+                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                startActivityForResult(intent, NFC_DIALOG_REQUEST_CODE);
                 }
 
             });
 
-            alertbox.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            nfcEnableDialog.setNegativeButton(R.string.nfc_dialog_cancel_btn, new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -175,7 +169,7 @@ public class MainActivity extends Activity {
                 }
             });
 
-            alertbox.show();
+            nfcEnableDialog.show();
 
         }
         // TODO: If I enable it reading saved dump dowsn't operate, but if disabled wrong NFC state displayed
@@ -212,7 +206,7 @@ public class MainActivity extends Activity {
         if (requestCode == NFC_DIALOG_REQUEST_CODE) {
             /* Process NFC enable dialog */
             ui.setWelcome("w_debug", "onActivity result");
-            ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
+            ui.displayWelcomeByNFC(adapter, mainUI_WV);
         }
     }
 
@@ -236,7 +230,7 @@ public class MainActivity extends Activity {
                 final NfcA nfca = NfcA.get(tag);
 
                 ui.setWelcome("w_msg", getString(R.string.ticket_is_reading));
-                ui.displayWelcome(mainUI_WV, c);
+                ui.displayWelcome(mainUI_WV);
 
                 new AsyncTask<NfcA, Void, NFCaDump>() {
 
@@ -294,13 +288,13 @@ public class MainActivity extends Activity {
                             } else {
                                 t.setFileName(
                                         Ticket.createDumpFileName(t));
-                                if (FileIO.writeAutoDump(dump)) {
-                                    Toast toast = Toast.makeText(c, "Dump saved.", Toast.LENGTH_LONG);
+                                if (FileIO.writeAutoDump(dump, MainActivity.this)) {
+                                    Toast toast = Toast.makeText(MainActivity.this, "Dump saved.", Toast.LENGTH_LONG);
                                     toast.show();
                                 } else {
                                     try {
                                         NFCaDump d_tmp = new NFCaDump();
-                                        String storage = MainActivity.getAppContext()
+                                        String storage = MainActivity.this
                                                 .getExternalFilesDir(null)
                                                 .getAbsolutePath();
                                         String fName = storage +
@@ -317,11 +311,11 @@ public class MainActivity extends Activity {
                                 }
                             }
 
-                            ui.displayTicketInfo(dump, t, mainUI_WV, c);
+                            ui.displayTicketInfo(dump, t, mainUI_WV);
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
-                            ui.displayWelcome(mainUI_WV, c);
+                            ui.displayWelcome(mainUI_WV);
                             Log.e(TAG, "dump err");
                         }
                     }
@@ -329,7 +323,7 @@ public class MainActivity extends Activity {
 
             } catch (Throwable th) {
                 ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
-                ui.displayWelcome(mainUI_WV, c);
+                ui.displayWelcome(mainUI_WV);
                 Log.e(TAG, "read err", th);
             }
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
@@ -368,17 +362,13 @@ public class MainActivity extends Activity {
                         // TODO: display something interesting
                     }
 
-                    ui.displayTicketInfo(d, t, mainUI_WV, c);
+                    ui.displayTicketInfo(d, t, mainUI_WV);
 
                 }
             }
         } else {
             ui.setWelcome("w_debug", "Intent");
-            ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
+            ui.displayWelcomeByNFC(adapter, mainUI_WV);
         }
     }
-    public static Context getAppContext() {
-        return c;
-    }
-
 }

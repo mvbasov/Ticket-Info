@@ -50,8 +50,11 @@
     <string name="t90m_metro_used">использована</string>
     <string name="t90m_trip_time_finished">Время поездки закончилось</string>
     <string name="t90m_trip_time_left">До конца поездки осталось</string>
-    <string name="nfc_enable_dialog">NFC адаптер выключен. Включите его через настройки и с помощью кнопки
-    "назад" вернитесь в приложние.</string>
+    <string name="nfc_enable_dialog_title">NFC адаптер выключен</string>
+    <string name="nfc_enable_dialog">Включите NFC через настройки и с помощью кнопки "назад"
+        вернитесь в приложние.</string>
+    <string name="nfc_dialog_go_btn">Включить</string>
+    <string name="nfc_dialog_cancel_btn">Отказаться</string>
     <string name="welcome_with_nfc">Поднесите билет к NFC антенне или откройте сохранённый дамп с помощью файлового менеджера</string>
     <string name="welcome_without_nfc">NFC адаптер на найден или выключен. Откройте сохранённый дамп с помощью файлового менеджера</string>
 </resources>
