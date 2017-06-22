@@ -49,10 +49,10 @@
     <string name="ts_empty">Empty</string>
     <string name="ts_expired">Expired</string>
     <string name="t90m_trip_time_left">Time left</string>
-    <string name="t90m_trip_time_finished">Trip time ended</string>
+    <string name="t90m_trip_time_finished">The time of the trip is over</string>
     <string name="t90m_metro_trip_is">Metro trip</string>
     <string name="t90m_metro_used">used</string>
-    <string name="t90m_metro_trip_possible">doesn\'t used</string>
+    <string name="t90m_metro_trip_possible">not used</string>
     <string name="t90m_ground_count">Ground count</string>
     <string name="t90m_change_time">Change time</string>
     <string name="nfc_enable_dialog_title">NFC is disabled</string>

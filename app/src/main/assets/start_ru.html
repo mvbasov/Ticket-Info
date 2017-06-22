@@ -13,6 +13,12 @@
 body {
     background-color: LightYellow;
 }
+#wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20vh;
+}
     </style>
 
     <script type="text/javascript" src="functions.js"></script>
@@ -29,7 +35,7 @@ body {
         <span id="w_header">Информация о билете</span>
     </h3>
     <div id="vw_msg" style="display:none"><span id="w_msg">Шаблон не заполнен</span></div>
-    <div><button class="btn" id="btnSettings" onclick="aCallback()">Настройки</button></div>
+    <div id="wrapper"><button class="btn" id="btnSettings" onclick="aCallback()">Настройки</button></div>
 </body>
 
 </html>

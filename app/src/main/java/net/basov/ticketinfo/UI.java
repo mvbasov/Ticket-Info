@@ -335,12 +335,14 @@ public class UI {
                 case 10:
                     break;
             }
-            sb.append("  ");
-            sb.append(c.getString(R.string.t90m_change_time));
-            sb.append(": ");
-            sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
-            sb.append(String.format(" (%02d min)", t.getT90RelChangeTime()));
-            sb.append('\n');
+            if (t.getT90RelChangeTime() != 0) {
+                sb.append("  ");
+                sb.append(c.getString(R.string.t90m_change_time));
+                sb.append(": ");
+                sb.append(Ticket.TF.format(t.getT90ChangeTime().getTime()));
+                sb.append(String.format(" (%02d min)", t.getT90RelChangeTime()));
+                sb.append('\n');
+            }
             this.setTicket("t_90m_details", sb.toString());
         }
         this.setTicket("t_file_name", t.getFileName()+Ticket.FILE_EXT);

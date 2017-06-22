@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <ListPreference     android:title="Interface language"
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:title="Interface language"
         android:summary="Select application interface language"
         android:key="appLang"
         android:defaultValue="@string/pref_lang_def"
         android:entries="@array/listLangNames"
         android:entryValues="@array/listLangValues" />
-    <CheckBoxPreference android:title="Transliterate stations names"
+    <CheckBoxPreference
+        android:title="Transliterate stations names"
         android:defaultValue="false"
         android:key="transliterateFlag" />
 </PreferenceScreen>
