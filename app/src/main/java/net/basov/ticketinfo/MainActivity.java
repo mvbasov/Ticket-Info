@@ -143,7 +143,7 @@ public class MainActivity extends Activity {
                             + pInfo.versionName;
             }
 
-            ui.setWelcome("w_debug", "<font color=\"red\">Inside get package name try</font>");
+            //ui.setWelcome("w_debug", "<font color=\"red\">Inside get package name try</font>");
             ui.setWelcome("w_header", title);
             ui.displayWelcome(mainUI_WV);
 
@@ -166,7 +166,7 @@ public class MainActivity extends Activity {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
                 startActivityForResult(intent, NFC_DIALOG_REQUEST_CODE);
                 }
 
@@ -229,7 +229,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == NFC_DIALOG_REQUEST_CODE) {
             /* Process NFC enable dialog */
-            ui.setWelcome("w_debug", "<font color=\"red\">onActivity result</font>");
+            //ui.setWelcome("w_debug", "<font color=\"red\">onActivity result</font>");
             ui.displayWelcomeByNFC(adapter, mainUI_WV);
         }
     }
@@ -400,7 +400,7 @@ public class MainActivity extends Activity {
                 }
             }
         } else {
-            ui.setWelcome("w_debug", "<font color=\"red\">Intent</font>");
+            //ui.setWelcome("w_debug", "<font color=\"red\">Intent</font>");
             ui.displayWelcomeByNFC(adapter, mainUI_WV);
         }
     }

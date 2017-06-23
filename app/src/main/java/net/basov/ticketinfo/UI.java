@@ -208,7 +208,7 @@ public class UI {
         } else {
             setWelcome("w_msg", c.getString(R.string.welcome_with_nfc));
         }
-        setWelcome("w_debug", "<font color=\"red\">Inside Welcome by NFC</font>");
+        //setWelcome("w_debug", "<font color=\"red\">Inside Welcome by NFC</font>");
         displayWelcome(wv);
     }
 
