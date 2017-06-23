@@ -62,9 +62,7 @@ public class AppPreferencesActivity extends PreferenceActivity implements
 //                    default:
 //                        break;
 //                }
-//                Intent intent = getIntent();
-//                finish();
-//                startActivity(intent);
+//                //recreate();
 //            }
         }
     }

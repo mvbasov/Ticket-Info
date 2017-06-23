@@ -205,10 +205,13 @@ public class MainActivity extends Activity {
         super.onResume();
         adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
 
-//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-//        String resumeLang = sharedPref.getString("appLang", "en");
-//        if (!currentLang.equals(resumeLang))
-//            recreate();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String resumeLang = sharedPref.getString("appLang", "en");
+        if (!currentLang.equals(resumeLang)) {
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
 
     }
 
@@ -217,8 +220,8 @@ public class MainActivity extends Activity {
         super.onPause();
         adapter.disableForegroundDispatch(this);
 
-//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-//        currentLang = sharedPref.getString("appLang", "en");
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        currentLang = sharedPref.getString("appLang", "en");
 
     }
 
@@ -386,7 +389,7 @@ public class MainActivity extends Activity {
                     }
                     if (t.isDebugTimeSet()) {
                         ui.setTicket("t_debug",
-                                "<font color=\"Red\">Debug time is: " +
+                                "<font color=\"Violet\">Debug time is: " +
                                 Ticket.DTF.format(t.getTimeToCompare().getTime()) +
                                 "</font>"
                         );
