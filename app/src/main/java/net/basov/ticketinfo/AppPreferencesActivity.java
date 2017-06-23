@@ -46,24 +46,24 @@ public class AppPreferencesActivity extends PreferenceActivity implements
         if (pref instanceof ListPreference) {
             ListPreference etp = (ListPreference) pref;
             pref.setSummary(etp.getEntry());
-//            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-//            String appLangPref = sharedPref.getString("appLang", "en");
-//            if ("appLang".equals(key)) {
-//                switch (appLangPref) {
-//                    case "ru":
-//                    case "en":
-//                        Locale locale = new Locale(appLangPref);
-//                        Locale.setDefault(locale);
-//                        Configuration config = new Configuration();
-//                        config.locale = locale;
-//                        getBaseContext().getResources().updateConfiguration(config,
-//                                getBaseContext().getResources().getDisplayMetrics());
-//                        break;
-//                    default:
-//                        break;
-//                }
-//                //recreate();
-//            }
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            String appLangPref = sharedPref.getString("appLang", "en");
+            if ("appLang".equals(key)) {
+                switch (appLangPref) {
+                    case "ru":
+                    case "en":
+                        Locale locale = new Locale(appLangPref);
+                        Locale.setDefault(locale);
+                        Configuration config = new Configuration();
+                        config.locale = locale;
+                        getBaseContext().getResources().updateConfiguration(config,
+                                getBaseContext().getResources().getDisplayMetrics());
+                        break;
+                    default:
+                        break;
+                }
+                recreate();
+            }
         }
     }
 
