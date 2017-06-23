@@ -1,5 +1,5 @@
---- ticket.html	2017-06-21 22:40:49.792624013 +0300
-+++ ticket_ru.html	2017-06-21 22:18:15.559803731 +0300
+--- ticket.html	2017-06-23 21:07:21.305661397 +0300
++++ ticket_ru.html	2017-06-23 21:07:16.209643591 +0300
 @@ -9,7 +9,7 @@
      <script> var DEBUG = true; </script>
      -->
@@ -9,7 +9,7 @@
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
  
-@@ -100,13 +100,13 @@
+@@ -69,14 +69,14 @@
  <body onload="openTab('Ticket', 'btnTicket'); debug();">
      <h3>
          &#8470; <span id="h_number">XXXXXXXXXX</span>
@@ -22,11 +22,13 @@
 +        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
          <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">IC</button>
 -        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Dump</button>
+-        <button class="btn" id="btnSettings" onclick="aCallback()">Settings</button>
 +        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Дамп</button>
-         <button class="btn" id="btnSettings" onclick="openTab('Dump', 'btnSettings')">&#128736;</button>
++        <button class="btn" id="btnSettings" onclick="aCallback()">Настройки</button>
      </div>
  
-@@ -118,33 +118,33 @@
+     <div id="Ticket" class="tab" style="display:none">
+@@ -87,33 +87,33 @@
  
              <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
                  <pre>
@@ -67,7 +69,7 @@
              </div>
  
              <div id="vt_trip" class="fragment" style="display:none">
-@@ -152,14 +152,14 @@
+@@ -121,14 +121,14 @@
              <!-- + nested fragment: ticket station name fragment -->
                  <hr/>
                  <pre>
@@ -85,7 +87,7 @@
                  </div>
                  <div>
                      <pre>
-@@ -200,8 +200,8 @@
+@@ -174,14 +174,14 @@
          <div id="i_general" class="f_frame">
          <!-- IC general info frame -->
              <pre>
@@ -96,7 +98,15 @@
  <span id="i_chip_names">  xxxx
    xxxx</span></pre>
  <hr/>
-@@ -234,7 +234,7 @@
+             <pre>
+-4 bytes pages read: <span id="i_read_pages">xx</span>
+-  (total <span id="i_read_bytes">xxx</span> bytes)</pre>
++4 байтных страниц прочитано: <span id="i_read_pages">xx</span>
++  (всего <span id="i_read_bytes">xxx</span> байт)</pre>
+         </div>
+ 
+         <div id="i_uid_otp" class="frame">
+@@ -208,7 +208,7 @@
              <!-- IC counters fragment -->
  <hr/>
                  <pre>

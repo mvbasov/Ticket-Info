@@ -300,7 +300,9 @@ public class Ticket {
      */
     private String mName;
 
-    private String mFileName;
+    private String mFileName = "";
+
+    private String mRealFileName = "";
 
     private String mDDDRem;
     
@@ -648,6 +650,10 @@ public class Ticket {
     public void setFileName(String fn) { mFileName = fn; }
 
     public String getFileName() { return mFileName; }
+
+    public void setRealFileName(String fn) { mRealFileName = fn; }
+
+    public String getRealFileName() { return mRealFileName; }
 
     /**
      * Process mDump field and generate other fields content
@@ -1952,6 +1958,8 @@ public class Ticket {
     public Calendar getTimeToCompare() {
         return mTimeToCompare;
     }
+
+    public boolean isDebugTimeSet() { return DEBUG_TIME;}
 
     /**
      * Get Calendar object which set to start of the day.

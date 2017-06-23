@@ -70,6 +70,7 @@ public class UI {
         visibilityMap.put("t_to_date", "vt_from_to_date");
         visibilityMap.put("t_start_use_before", "vt_start_use_before");
         visibilityMap.put("t_start_use_till", "vt_start_use_till");
+        visibilityMap.put("t_real_file_name", "vt_real_file_name");
         visibilityMap.put("t_file_name", "vt_file_note");
         visibilityMap.put("t_note_text", "vt_note");
         visibilityMap.put("t_trips_left", "vt_trips_left");
@@ -207,7 +208,7 @@ public class UI {
         } else {
             setWelcome("w_msg", c.getString(R.string.welcome_with_nfc));
         }
-        setWelcome("w_debug", "Inside Welcome by NFC");
+        setWelcome("w_debug", "<font color=\"red\">Inside Welcome by NFC</font>");
         displayWelcome(wv);
     }
 
@@ -263,7 +264,7 @@ public class UI {
         if (t.getIssued() != null) {
             Calendar fromCal = (Calendar) t.getIssued().clone();
             Calendar toCal = (Calendar) t.getIssued().clone();
-            toCal.add(Calendar.DATE, t.getValidDays() - 1);
+            toCal.add(Calendar.DATE, t.getValidDays());
             if (t.getTicketClass() == Ticket.C_UNLIM_DAYS){
                 fromCal.add(Calendar.MINUTE, t.getFirstUseTime());
                 toCal.add(Calendar.MINUTE, t.getFirstUseTime());
@@ -346,6 +347,8 @@ public class UI {
             this.setTicket("t_90m_details", sb.toString());
         }
         this.setTicket("t_file_name", t.getFileName()+Ticket.FILE_EXT);
+        if (! t.getRealFileName().equals(t.getFileName()+Ticket.FILE_EXT))
+            this.setTicket("t_real_file_name", t.getRealFileName());
         if (d.getRemark().length() > 0)
             this.setTicket("t_note_text", d.getRemark());
         this.setTicket("t_layout", t.getTicketLayoutAsHTML());

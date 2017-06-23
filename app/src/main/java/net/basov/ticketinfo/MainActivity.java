@@ -74,6 +74,7 @@ public class MainActivity extends Activity {
     private NFCaDump d;
     private String[][] techList;
     private String title;
+    private String currentLang;
 
     private UI ui;
 
@@ -97,6 +98,7 @@ public class MainActivity extends Activity {
             default:
                 break;
         }
+        currentLang = appLangPref;
 
         d = new NFCaDump();
         ui = new UI();
@@ -141,7 +143,7 @@ public class MainActivity extends Activity {
                             + pInfo.versionName;
             }
 
-            ui.setWelcome("w_debug", "Inside get package name try");
+            ui.setWelcome("w_debug", "<font color=\"red\">Inside get package name try</font>");
             ui.setWelcome("w_header", title);
             ui.displayWelcome(mainUI_WV);
 
@@ -182,7 +184,7 @@ public class MainActivity extends Activity {
 
         }
         // TODO: If I enable it reading saved dump dowsn't operate, but if disabled wrong NFC state displayed
-//        ui.setWelcome("w_debug", "After NFC check");
+//        ui.setWelcome("w_debug", "<font colo=\"red\">After NFC check</font>");
 //        ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
 
         pendingIntent = PendingIntent.getActivity(this, 0,
@@ -202,19 +204,29 @@ public class MainActivity extends Activity {
     public void onResume() {
         super.onResume();
         adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
+
+//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+//        String resumeLang = sharedPref.getString("appLang", "en");
+//        if (!currentLang.equals(resumeLang))
+//            recreate();
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
         adapter.disableForegroundDispatch(this);
+
+//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+//        currentLang = sharedPref.getString("appLang", "en");
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == NFC_DIALOG_REQUEST_CODE) {
             /* Process NFC enable dialog */
-            ui.setWelcome("w_debug", "onActivity result");
+            ui.setWelcome("w_debug", "<font color=\"red\">onActivity result</font>");
             ui.displayWelcomeByNFC(adapter, mainUI_WV);
         }
     }
@@ -363,12 +375,21 @@ public class MainActivity extends Activity {
                     } else {
                         t = new Ticket(d);
                     }
-                    t.setFileName(
+                    t.setRealFileName(
                             rcvUri.getLastPathSegment()
-                                .replace(Ticket.FILE_EXT,"")
+                    );
+                    t.setFileName(
+                            Ticket.createDumpFileName(t)
                     );
                     if (d.getPagesNumber() < 12) {
                         // TODO: display something interesting
+                    }
+                    if (t.isDebugTimeSet()) {
+                        ui.setTicket("t_debug",
+                                "<font color=\"Red\">Debug time is: " +
+                                Ticket.DTF.format(t.getTimeToCompare().getTime()) +
+                                "</font>"
+                        );
                     }
 
                     ui.displayTicketInfo(d, t, mainUI_WV);
@@ -376,7 +397,7 @@ public class MainActivity extends Activity {
                 }
             }
         } else {
-            ui.setWelcome("w_debug", "Intent");
+            ui.setWelcome("w_debug", "<font color=\"red\">Intent</font>");
             ui.displayWelcomeByNFC(adapter, mainUI_WV);
         }
     }

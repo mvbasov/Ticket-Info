@@ -58,4 +58,8 @@
     <string name="welcome_with_nfc">Поднесите билет к NFC антенне или откройте сохранённый дамп с помощью файлового менеджера</string>
     <string name="welcome_without_nfc">NFC адаптер на найден или выключен. Откройте сохранённый дамп с помощью файлового менеджера</string>
     <string name="prefTitle">pref_screen_title</string>
+    <string name="t90_minutes">90 минут</string>
+    <string name="pref_lang_def">ru</string>
+    <string name="ws_ground">продан на земле</string>
+    <string name="ws_metro">продан в метро</string>
 </resources>

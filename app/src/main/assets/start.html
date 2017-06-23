@@ -9,15 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
+    <link rel="stylesheet" type="text/css" href="common.css">
     <style>
-body {
-    background-color: LightYellow;
-}
 #wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20vh;
+  //height: 20vh;
 }
     </style>
 
@@ -26,11 +24,19 @@ body {
 
 </head>
 <body onload="debug();">
+
+    <div id="vw_debug" class="frame" style="display:none">
+        <span id="w_debug">some debug text</span>
+    </div>
+
     <h3>
         <span id="w_header">TIW</span>
     </h3>
-    <div id="vw_msg" style="display:none"><span id="w_msg">Some message</span></div>
-    <div id="wrapper"><button class="btn" id="btnSettings" onclick="aCallback()">Settings</button></div>
+    <div id="vw_msg" style="display:none" class="frame"><span id="w_msg">Some message</span></div>
+    <div class="frame">
+        <div class="fragment">To see and change application settings press button below:</div>
+        <div id="wrapper" class="fragment"><button class="btn" id="btnSettings" onclick="aCallback()">Settings</button></div>
+    </div>
 
 </body>
 

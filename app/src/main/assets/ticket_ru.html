@@ -13,18 +13,8 @@ diff -Naur ticket.html ticket_ru.html >ticket_to_ru.patch
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
+    <link rel="stylesheet" type="text/css" href="common.css">
     <style>
-body {
-    background-color: LightYellow;
-}
-pre {
-    margin-top: 0;
-    margin-bottom: 0;
-}
-h3 {
-    margin-top: 0.75em;
-    margin-bottom: 0.5em;
-}
 button {
     width: 24%;
     height: 100%;
@@ -38,27 +28,6 @@ div.tab {
     background-color: LightCyan;
     height:82vh;
     overflow-y: scroll;
-}
-div.f_frame{
-    border: 1px solid black;
-    border-radius: 7px;
-    padding: 0.5em;
-    margin-top: 0.5em;
-}
-div.frame {
-    border: 1px solid black;
-    border-radius: 7px;
-    padding: 0.5em;
-    margin-top: 0.5em;
-}
-.fragment {
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-    outline: none;
-    border: 0px solid red;
 }
 #Dump {
     vertical-align: middle;
@@ -111,15 +80,17 @@ span.d_internal { color: aqua }
     </div>
 
     <div id="Ticket" class="tab" style="display:none">
-        <div id="tv_debug" class="fragment" style="display:none">
+
+        <div id="tv_debug" class="frame" style="display:none">
             <span id="t_debug">some debug text</span>
         </div>
+
         <h3><span id="t_desc">xxxxxxxxxx</span></h3>
 
-            <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
+        <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
                 <pre>
 Осталось <font color="green"><span id="t_trips_left">x</span></font> поездок</pre>
-            </div>
+        </div>
 
         <div class="f_frame">
         <!-- ticket info frame -->
@@ -174,7 +145,12 @@ span.d_internal { color: aqua }
 
         <div id="vt_file_note" class="frame" style="display:none">
         <!-- ticket note frame -->
-<pre>File name: <span id="t_file_name">xxxxxx.txt</span></pre>
+            <pre>
+File name: <span id="t_file_name">xxxxxx.txt</span></pre>
+            <div id="vt_real_file_name" class="fragment" style="display:none">
+                <pre>
+Real file name: <span id="t_real_file_name">yyyyy.txt</span></pre>
+            </div>
             <div id="vt_note" class="fragment" style="display:none">
 <hr/>
                 <pre id="t_note_text" style="white-space: pre-wrap">

@@ -4,7 +4,7 @@
     <string name="welcome_ui_file">start.html</string>
     <string name="ticket_ui_file">ticket.html</string>
     <string name="app_name">Ticket info</string>
-    <string name="ticket_is_reading">Ticket reading…</string>
+    <string name="ticket_is_reading">Ticket reading</string>
     <string name="ticket_read_error">Unable to read the ticket</string>
     <string name="ticket_num">Ticket number</string>
     <string name="passes_left">Trips left</string>
@@ -62,4 +62,7 @@
     <string name="welcome_with_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from any file manager with this application.</string>
     <string name="welcome_without_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
     <string name="prefTitle">pref_screen_title</string>
+    <string name="t90_minutes">90 minutes</string>
+    <string name="ws_ground">sell on ground</string>
+    <string name="ws_metro">sell in metro</string>
 </resources>
