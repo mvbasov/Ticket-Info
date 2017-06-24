@@ -59,7 +59,7 @@
     <string name="nfc_enable_dialog">Turn NFC on by settings and press back to return to application.</string>
     <string name="nfc_dialog_go_btn">Turn On</string>
     <string name="nfc_dialog_cancel_btn">Close</string>
-    <string name="welcome_without_nfc"><![CDATA[<strike>NFC disabled or t exists. Open saved dump by sharing it from any file manager with this application.</strike>]]></string>
+    <string name="welcome_without_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from any file manager with this application.</string>
     <string name="welcome_with_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
     <string name="prefTitle">pref_screen_title</string>
     <string name="t90_minutes">90 minutes</string>

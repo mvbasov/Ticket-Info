@@ -230,7 +230,7 @@ public class MainActivity extends Activity {
         if (requestCode == NFC_DIALOG_REQUEST_CODE) {
             /* Process NFC enable dialog */
             //ui.setWelcome("w_debug", "<font color=\"red\">onActivity result</font>");
-            ui.displayWelcomeByNFC(adapter, mainUI_WV);
+            ui.displayWelcomeByNFC(mainUI_WV);
         }
     }
 
@@ -401,7 +401,7 @@ public class MainActivity extends Activity {
             }
         } else {
             //ui.setWelcome("w_debug", "<font color=\"red\">Intent</font>");
-            ui.displayWelcomeByNFC(adapter, mainUI_WV);
+            ui.displayWelcomeByNFC(mainUI_WV);
         }
     }
 }

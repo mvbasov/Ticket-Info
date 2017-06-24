@@ -201,12 +201,21 @@ public class UI {
         }
     }
 
-    public void displayWelcomeByNFC(NfcAdapter adapter, WebView wv) {
+    public void displayWelcomeByNFC(WebView wv) {
         Context c = wv.getContext();
+        NfcAdapter adapter = NfcAdapter.getDefaultAdapter(c);
         if (adapter == null || ! adapter.isEnabled()){
-            setWelcome("w_msg", c.getString(R.string.welcome_without_nfc));
+            setWelcome("w_msg", 
+                    "<font color=\"darkred\">"
+                    + c.getString(R.string.welcome_without_nfc)
+                    + "<font>"
+                );
         } else {
-            setWelcome("w_msg", c.getString(R.string.welcome_with_nfc));
+            setWelcome("w_msg",
+                    "<font color=\"darkgreen\">"
+                    + c.getString(R.string.welcome_with_nfc)
+                    + "<font>"
+            );
         }
         //setWelcome("w_debug", "<font color=\"red\">Inside Welcome by NFC</font>");
         displayWelcome(wv);
