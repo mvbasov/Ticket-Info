@@ -13,7 +13,7 @@
     <item>System default</item>
   </string-array>
 
-  <string-array name="listLangValues">
+  <string-array name="listLangValues" translatable="false">
     <item>ru</item>
     <item>en</item>
     <item>default</item>

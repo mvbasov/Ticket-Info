@@ -39,10 +39,10 @@
 		<activity android:name=".AppPreferencesActivity"
             android:label="@string/prefTitle"
             android:screenOrientation="nosensor">
-            <intent-filer>
+            <intent-filter>
                 <action android:name=".Preferences" />
                 <category android:name="android.intent.category.PREFERENCE" />
-            </intent-filer>
+            </intent-filter>
 		</activity>
 	</application>
 	<uses-permission android:name="android.permission.NFC" />
