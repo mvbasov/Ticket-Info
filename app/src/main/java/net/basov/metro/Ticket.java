@@ -278,12 +278,12 @@ public class Ticket {
         value = {TS_UNKNOWN, TS_NEVER_USED, TS_READY,TS_IN_TRIP, TS_EMPTY, TS_EXPIRED}
     )
     public @interface TicketState {}
-    public static final int TS_UNKNOWN = 0;
-    public static final int TS_NEVER_USED = 1;
-    public static final int TS_READY = 1 << 1;
-    public static final int TS_IN_TRIP = 1 << 2;
-    public static final int TS_EMPTY = 1 << 3;
-    public static final int TS_EXPIRED = 1 << 4;
+    public static final int TS_UNKNOWN = 1;
+    public static final int TS_NEVER_USED = 2;
+    public static final int TS_READY = 4;
+    public static final int TS_IN_TRIP = 8;
+    public static final int TS_EMPTY = 16;
+    public static final int TS_EXPIRED = 32;
 
     // Data fields definition
 
@@ -1497,26 +1497,27 @@ public class Ticket {
         setTicketState(TS_READY);
         if (getPassesLeft() == 0) {
             setTicketState(TS_EMPTY);
-        } else if (mIssued == null ) {
+            unsetTicketState(TS_READY);
+        } else if (mIssued == null && mStartUseBefore != null) {
             if (mStartUseBefore.before(getTimeToCompare())) {
                 setTicketState(TS_EXPIRED);
+                unsetTicketState(TS_READY);
             }
-        } else {
+        } else if (mIssued != null){
             tmpCal = (Calendar) mIssued.clone();
             tmpCal.add(Calendar.DATE, getValidDays());
             if (tmpCal.before(getTimeToCompare()) &&
                     getTicketClass() != C_UNLIM_DAYS) {
                 setTicketState(TS_EXPIRED);
+                unsetTicketState(TS_READY);
             }
-            if (getPassesLeft() == getPassesTotal())
-                setTicketState(TS_NEVER_USED);
         }
-
 
         if (getTicketClass() == C_UNLIM_DAYS) {
             if (mIssued == null ) {
                 if (mStartUseBefore.after(tmpCal)) {
                     setTicketState(TS_EXPIRED);
+                    unsetTicketState(TS_READY);
                 } else {
                     setTicketState(TS_NEVER_USED);
                 }
@@ -1530,6 +1531,7 @@ public class Ticket {
 
                 if (tmpCal.compareTo(getTimeToCompare()) < 0) {
                     setTicketState(TS_EXPIRED);
+                    unsetTicketState(TS_READY);
                 } else if (mTimeToNextTrip > 0) {
                     //sb.append("\n\tW A I T\n");
                 }
@@ -1538,11 +1540,25 @@ public class Ticket {
                     setTicketState(TS_NEVER_USED);
             }
         }
+
+        if (getTripSeqNumber() == 0)
+            setTicketState(TS_NEVER_USED);
+
     }
 
     public int getTicketState() { return mTicketState; }
 
-    public void setTicketState(@TicketState int ts) { mTicketState = ts; }
+    public void setTicketState(@TicketState int ts) {
+        if ((ts & TS_UNKNOWN) != 0)
+            mTicketState = ts;
+        else {
+            //mTicketState ^= TS_UNKNOWN;  // toggle bit
+            mTicketState &= ~TS_UNKNOWN; // clear bit
+            mTicketState |= ts;
+        }
+    }
+
+    public void unsetTicketState(@TicketState int ts) { mTicketState &= ~ts; }
 
 /* Internal functions */
 
@@ -2065,36 +2081,65 @@ public class Ticket {
     }
 
     public String getTicketStateAsHTML(Context cont) {
-        switch (getTicketState()){
-            case TS_UNKNOWN:
-                return "<font color=\"Violet\">"
-                        + cont.getString(R.string.ts_unknown)
-                        + "</font>";
-            case TS_NEVER_USED:
-                return "<font color=\"Lime\">"
-                        + cont.getString(R.string.ts_never_used)
-                        + "</font>";
-            case TS_READY:
-                return "<font color=\"Green\">"
-                        + cont.getString(R.string.ts_ready)
-                        + "</font>";
-            case TS_IN_TRIP:
-                return "<font color=\"Blue\">"
-                        + cont.getString(R.string.ts_in_trip)
-                        + "</font>";
-            case TS_EMPTY:
-                return "<font color=\"Red\">"
-                        + cont.getString(R.string.ts_empty)
-                        + "</font>";
-            case TS_EXPIRED:
-                return "<font color=\"Red\">"
-                        + cont.getString(R.string.ts_expired)
-                        + "</font>";
-            default:
-                return "<font color=\"Violet\">"
-                        + "???"
-                        + "</font>";
+        StringBuilder sb = new StringBuilder();
+        int ts = getTicketState();
+        if ((ts & TS_UNKNOWN) == TS_UNKNOWN) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("<font color=\"Violet\">"
+                    + cont.getString(R.string.ts_unknown)
+                    + "</font>"
+            );
         }
+        if ((ts & TS_NEVER_USED) == TS_NEVER_USED) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("<font color=\"Lime\">"
+                    + cont.getString(R.string.ts_never_used)
+                    + "</font>"
+            );
+        }
+        if ((ts & TS_READY) == TS_READY) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("<font color=\"Green\">"
+                    + cont.getString(R.string.ts_ready)
+                    + "</font>"
+            );
+        }
+        if ((ts & TS_IN_TRIP) == TS_IN_TRIP) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("<font color=\"Blue\">"
+                    + cont.getString(R.string.ts_in_trip)
+                    + "</font>"
+            );
+        }
+        if ((ts & TS_EMPTY) == TS_EMPTY) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("<font color=\"Red\">"
+                    + cont.getString(R.string.ts_empty)
+                    + "</font>"
+            );
+        }
+        if ((ts & TS_EXPIRED) == TS_EXPIRED) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("<font color=\"Red\">"
+                    + cont.getString(R.string.ts_expired)
+                    + "</font>"
+            );
+        }
+//        else {
+//            if (sb.length() != 0)
+//                sb.append(", ");
+//            sb.append("<font color=\"Violet\">"
+//                    + String.format("??? 0x%02x", ts)
+//                    + "</font>"
+//            );
+//        }
+        return sb.toString();
     }
 
     public String getValidDaysAsHTML() { return String.format("%d", getValidDays()); }
