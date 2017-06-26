@@ -619,9 +619,11 @@ public class Ticket {
                     dName.append(String.format("-%03d",ticket.getTripSeqNumber()));
                     dName.append(getTCsuffix(ticket));
                     break;
-                case Ticket.TO_VESB:
-                    dName.append("-su");
-                    dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
+                case Ticket.C_OLD_SPECIAL:
+                    if (ticket.getTicketType() == Ticket.TO_VESB) {
+                        dName.append("-su");
+                        dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
+                    }
                     break;
                 case Ticket.C_90UNIVERSAL:
                     dName.append(String.format("-%02d", ticket.getPassesTotal()));

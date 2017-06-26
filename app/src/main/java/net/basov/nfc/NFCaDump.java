@@ -415,6 +415,31 @@ public class NFCaDump {
         }
     }
 
+    private String getAccessAsHTML(byte ac) {
+        switch (ac) {
+            case AC_UNKNOWN:
+                return "u";
+            case AC_FACTORY_LOCKED:
+                return "<span class=\"d_factory\">f</span>";
+            case AC_READ_ONLY:
+                return "<span class=\"d_ro\">r</span>";
+            case AC_PARTIAL_WRITE:
+                return "<span class=\"d_partial\">p</span>";
+            case AC_WRITE:
+                return "<span class=\"d_wr\">w</span>";
+            case AC_OTP:
+                return "<span class=\"d_otp\">o</span>";
+            case AC_SPECIAL:
+                return "<span class=\"d_special\">s</span>";
+            case AC_INTERNAL_USE:
+                return "<span class=\"d_internal\">i</span>";
+            case AC_AUTH_REQUIRE:
+                return "<span class=\"d_auth\">a</span>";
+            default:
+                return "?";
+        }
+    }
+
 /* IC detection functions */
 
     private void detectIC_Type() {
@@ -1075,7 +1100,7 @@ public class NFCaDump {
     public String getDumpAsHTMLString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < getPagesNumber() - (4 - getLastBlockValidPages()); i++) {
-            sb.append(String.format("%02x:%s: ", i, getAccessAsString(getPageAssess(i))));
+            sb.append(String.format("%02x:%s: ", i, getAccessAsHTML(getPageAssess(i))));
             for (int j = 0; j < 4; j++) {
                 sb.append(String.format("%02x ", getPage(i)[j]));
             }
