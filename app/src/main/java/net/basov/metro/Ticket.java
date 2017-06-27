@@ -430,6 +430,11 @@ public class Ticket {
      */
     private int mFirstUseTime;
     /**
+     * Date when ticket 1-st time used.
+     * Actual for day limited tickets
+     */
+    private Calendar mUseTillDate;
+    /**
      * Ticket blank "Use before" date
      */
     private Calendar mStartUseBefore = null;
@@ -701,13 +706,21 @@ public class Ticket {
                 }
                 tmp = (mDump.get(6) & 0x0000fff0) >>> 5;
                 if (tmp != 0 ) {
-// TODO: Check hear. If field contain only minutes frm mIssued
-                    mStartUseTill = Calendar.getInstance();
-                    mStartUseTill.clear();
-                    mStartUseTill.set(1991, Calendar.DECEMBER, 31);
-                    mStartUseTill.add(Calendar.MINUTE, tmp);
+// TODO: Check hear. If field contain only minutes from mIssued
+// TODO: Find where StartUseTill for 0x0d layout day limited tickets (probably it equal StartUseBefore)
+//                    mStartUseTill = Calendar.getInstance();
+//                    mStartUseTill.clear();
+//                    mStartUseTill.set(1991, Calendar.DECEMBER, 31);
+//                    mStartUseTill.add(Calendar.MINUTE, tmp);
                     mFirstUseTime = tmp;
+                    mUseTillDate = (Calendar) mIssued.clone();
+                    mUseTillDate.add(Calendar.DATE, getValidDays());
+                } else if (getTicketClass() == C_UNLIM_DAYS) {
+                    mStartUseTill = (Calendar) mStartUseBefore.clone();
+                    mStartUseTill.add(Calendar.MINUTE, (24 * 60) -1 );
+                    //mStartUseBefore = null;
                 }
+
                 mTurnstileEntered = mDump.get(9) & 0x0000ffff;
                 tmp = (mDump.get(11) & 0xffff0000) >>> 16;
                 if (tmp != 0) {
@@ -771,10 +784,13 @@ public class Ticket {
                 mIssued = Calendar.getInstance();
                 mIssued.clear();
                 mIssued.set(2015, Calendar.DECEMBER, 31);
-                mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) & 0x0fff00000) >>> 20);
-                if (mTicketClass == C_UNLIM_DAYS && mPassesLeft != 0)
-                     // mPassesLeft == 0 is unused flag for day limited tickets
+                mIssued.add(Calendar.DAY_OF_MONTH, (mDump.get(6) & 0xfff00000) >>> 20);
+                if (mTicketClass == C_UNLIM_DAYS && mPassesLeft != 0) {
+                    // mPassesLeft == 0 is unused flag for day limited tickets
                     mFirstUseTime = ((mDump.get(6) & 0x000ffffe) >>> 1) % (24 * 60);
+                    mUseTillDate = (Calendar) mIssued.clone();
+                    mUseTillDate.add(Calendar.DATE, ((mDump.get(6) & 0x000ffffe) >>> 1) / (24 * 60));
+                }
 
                 mEntranceEntered = (mDump.get(8) & 0x00ffff00) >>> 8;
 
@@ -818,8 +834,11 @@ public class Ticket {
                     }
                     if (mT90TripTimeLeft < 0) mT90TripTimeLeft = 0;
                 } else if (getTicketClass() == C_UNLIM_DAYS) {
-                    mStartUseTill = (Calendar) mIssued.clone();
-                    mStartUseTill.add(Calendar.MINUTE, getValidDays() * 24 * 60);
+                    if (getPassesLeft() == 0) {
+                        int tmpDLUnusedValidDays = ((mDump.get(6) & 0x000ffffe) >>> 1);
+                        mStartUseTill = (Calendar) mIssued.clone();
+                        mStartUseTill.add(Calendar.MINUTE, tmpDLUnusedValidDays - 1 );
+                    }
                     if(getTripSeqNumber() == 0) setTypeRelatedInfo();
 // TODO: Check. Is it right place to to make day limited tickets time correct.
 // TODO: May be better way to do this at display time
@@ -1252,6 +1271,10 @@ public class Ticket {
         return mStartUseBefore;
     }
 
+    public void setStartUseTill(Calendar startUseTill) { mStartUseTill = startUseTill; }
+
+    public Calendar getStartUseTill() { return  mStartUseTill; }
+
     public void setIssued(Calendar issued) {
         mIssued = issued;
     }
@@ -1271,6 +1294,14 @@ public class Ticket {
 
     public void setFirstUseTime(int firstUseTime) {
         mFirstUseTime = firstUseTime;
+    }
+
+    public Calendar getUseTillDate() {
+        return mUseTillDate;
+    }
+
+    public void setUseTillDate(Calendar UseTillDate) {
+        mUseTillDate = UseTillDate;
     }
 
     public void setTripStart(Calendar tripStart) {

@@ -271,25 +271,40 @@ public class UI {
         }
 
         if (t.getIssued() != null) {
-            Calendar fromCal = (Calendar) t.getIssued().clone();
-            Calendar toCal = (Calendar) t.getIssued().clone();
-            toCal.add(Calendar.DATE, t.getValidDays());
             if (t.getTicketClass() == Ticket.C_UNLIM_DAYS){
-                fromCal.add(Calendar.MINUTE, t.getFirstUseTime());
-                toCal.add(Calendar.MINUTE, t.getFirstUseTime());
-                this.setTicket("t_from_datetime",
-                        String.format("%s",Ticket.DTF.format(fromCal.getTime())));
-                this.setTicket("t_to_datetime",
-                        String.format("%s",Ticket.DTF.format(toCal.getTime())));
+                if (t.getTripSeqNumber() != 0 && t.getUseTillDate() != null) {
+                    Calendar toCal = (Calendar) t.getUseTillDate().clone();
+                    toCal.add(Calendar.MINUTE, t.getFirstUseTime());
+                    Calendar fromCal = (Calendar) toCal.clone();
+                    fromCal.add(Calendar.DATE, -1 * t.getValidDays());
+                    this.setTicket("t_from_datetime",
+                            String.format("%s", Ticket.DTF.format(fromCal.getTime())));
+                    this.setTicket("t_to_datetime",
+                            String.format("%s", Ticket.DTF.format(toCal.getTime())));
+                } else if (t.getStartUseTill() != null) {
+                    this.setTicket("t_start_use_till",
+                            Ticket.DTF.format(t.getStartUseTill().getTime())
+                    );
+                }
 
             } else {
+                Calendar toCal = (Calendar) t.getIssued().clone();
+                toCal.add(Calendar.DATE, t.getValidDays());
                 this.setTicket("t_from_date",
                         String.format("%s",Ticket.DF.format(t.getIssued().getTime())));
                 this.setTicket("t_to_date",
                         String.format("%s",Ticket.DF.format(toCal.getTime())));
             }
-        } else if (t.getStartUseBefore() != null) {
-            this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
+        } else if (t.getTicketClass() != Ticket.C_UNLIM_DAYS) {
+            if (t.getStartUseBefore() != null) {
+                this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
+            }
+        }
+
+        if (t.getStartUseTill() != null && t.getTicketClass() == Ticket.C_UNLIM_DAYS) {
+            this.setTicket("t_start_use_till",
+                    Ticket.DTF.format(t.getStartUseTill().getTime())
+            );
         }
 
         if (t.getPassesLeft() > 0)

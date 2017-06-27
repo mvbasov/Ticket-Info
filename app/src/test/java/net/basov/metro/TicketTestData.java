@@ -480,25 +480,26 @@ public class TicketTestData {
         TDS.setLayout(13);
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL7D);
-        TDS.setStartUseBefore(getCldr(2016, Calendar.FEBRUARY, 3, 0, 0));
+        TDS.setStartUseBefore(getCldr(2016, Calendar.FEBRUARY, 3, 0, 0)); // TODO: Nafig?
+        TDS.setStartUseTill(getCldr(2016, Calendar.FEBRUARY, 3, 23, 59));
 
         ArrayList<Integer> content = new ArrayList<Integer>();
-        content.add(0x3493a689);
-        content.add(0x717dfb66);
-        content.add(0x91e03000);
-        content.add(0x00000000);
-        content.add(0x45db4001);
-        content.add(0x23324d00);
-        content.add(0x22600000);
-        content.add(0x22600000);
-        content.add(0x00000080);
-        content.add(0x00000000);
-        content.add(0x1992f11f);
-        content.add(0x00000000);
-        content.add(0x00000080);
-        content.add(0x00000000);
-        content.add(0x1992f11f);
-        content.add(0x00000000);
+        content.add(0x3493a689); //P0
+        content.add(0x717dfb66); //P1
+        content.add(0x91e03000); //P2
+        content.add(0x00000000); //P3
+        content.add(0x45db4001); //P4
+        content.add(0x23324d00); //P5
+        content.add(0x22600000); //P6
+        content.add(0x22600000); //P7
+        content.add(0x00000080); //P8
+        content.add(0x00000000); //P9
+        content.add(0x1992f11f); //P10
+        content.add(0x00000000); //P11
+        content.add(0x00000080); //P12
+        content.add(0x00000000); //P13
+        content.add(0x1992f11f); //P14
+        content.add(0x00000000); //P15
         TDS.setDump(content);
 
         return TDS;
@@ -535,7 +536,7 @@ public class TicketTestData {
         TDS.setIssued(getCldr(2016, Calendar.JANUARY, 25, 0, 0));
         TDS.setFirstUseTime(13 * 60 + 21);
         TDS.setTurnstileEntered(13486);
-        TDS.setStartUseBefore(getCldr(2016, Calendar.FEBRUARY, 3, 0, 0));
+        TDS.setStartUseBefore(getCldr(2016, Calendar.FEBRUARY, 3, 0, 0)); // TODO: Nafig?
         TDS.setTripStart(getCldr(2016, Calendar.JANUARY, 25, 13, 21));
 
         ArrayList<Integer> content = new ArrayList<Integer>();
@@ -617,7 +618,8 @@ public class TicketTestData {
     /**
      * 0001964479<br/>
      * Unlimited, 3 days<br/>
-     * Valid 3 days (from 26.09.2016 00:00 to 05.10.2016 23:59)<br/>
+     * Valid 3 days<br/>
+     * Start use till 05.10.2016
      * Never used<br/>
      *<br/>
      * Layout 10, AppId 279, Type 435<br/>
@@ -637,6 +639,7 @@ public class TicketTestData {
         TDS.setApp(Ticket.A_UNIVERSAL);
         TDS.setTicketType(Ticket.TN_UL3D);
         TDS.setIssued(getCldr(2016, Calendar.SEPTEMBER, 26, 0, 0));
+        TDS.setStartUseTill(getCldr(2016, Calendar.OCTOBER, 5, 23, 59));
 
         ArrayList<Integer> content = new ArrayList<Integer>();
         content.add(0x34e780db); //P0
@@ -663,7 +666,7 @@ public class TicketTestData {
     /**
      * 0001964479<br/>
      * Unlimited, 3 days<br/>
-     * Valid 3 days (from 26.09.2016 00:00 to 05.10.2016 23:59)<br/>
+     * Valid 3 days (from 04.10.2016 12:42 to 07.10.2016 12:42)<br/>
      * Trip N3 04.10.2016 at 23:25<br/>
      * Station entrance ID 1181 (Metro)<br/>
      *<br/>
@@ -693,7 +696,6 @@ public class TicketTestData {
         // Time related part of test
         TDS.setTimeToCompare(getCldr(2016, Calendar.OCTOBER, 4, 23, 27));
         TDS.setTimeToNextTrip(19);
-
 
         ArrayList<Integer> content = new ArrayList<Integer>();
         content.add(0x34e780db); //P0

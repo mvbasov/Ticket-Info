@@ -60,7 +60,7 @@ public class TicketTest {
     public void testGetStartUseBefore() throws Exception {
         if (this.expectedTicket.getStartUseBefore() != null) {
             Assert.assertEquals(
-                    "Expected: " +
+                    "Expected StartUseBefore: " +
                             Ticket.DDF.format(this.expectedTicket.getStartUseBefore().getTime()) +
                             " Result: " +
                             Ticket.DDF.format(this.realTicket.getStartUseBefore().getTime()),
@@ -68,7 +68,37 @@ public class TicketTest {
                     this.realTicket.getStartUseBefore()
             );
         } else {
-            Assert.assertEquals(null, this.realTicket.getStartUseBefore());
+            if (realTicket.getStartUseBefore() != null) {
+                Assert.assertEquals(
+                        "Expected StartUseBefore: null" +
+                                " Result: " +
+                                Ticket.DDF.format(this.realTicket.getStartUseBefore().getTime()),
+                        null,
+                        this.realTicket.getStartUseBefore());
+            }
+        }
+    }
+
+    @Test
+    public void testGetStartUseTill() throws Exception {
+        if (this.expectedTicket.getStartUseTill() != null) {
+            Assert.assertEquals(
+                    "Expected StartUseTill: " +
+                            Ticket.DDF.format(this.expectedTicket.getStartUseTill().getTime()) +
+                            " Result: " +
+                            Ticket.DDF.format(this.realTicket.getStartUseTill().getTime()),
+                    this.expectedTicket.getStartUseTill(),
+                    this.realTicket.getStartUseTill()
+            );
+        } else {
+            if (realTicket.getStartUseTill() != null) {
+                Assert.assertEquals(
+                        "Expected StartUseTill: null" +
+                                " Result: " +
+                                Ticket.DDF.format(this.realTicket.getStartUseTill().getTime()),
+                        null,
+                        this.realTicket.getStartUseTill());
+            }
         }
     }
 
@@ -140,7 +170,7 @@ public class TicketTest {
     public void testGetIssued() throws Exception {
         if (expectedTicket.getIssued() != null) {
             Assert.assertEquals(
-                    "Expected: " +
+                    "Expected Issued: " +
                             Ticket.DDF.format(this.expectedTicket.getIssued().getTime()) +
                             " Result: " +
                             Ticket.DDF.format(this.realTicket.getIssued().getTime()),
@@ -150,7 +180,7 @@ public class TicketTest {
         } else {
             if (realTicket.getIssued() != null) {
                 Assert.assertEquals(
-                        "Expected: null" +
+                        "Expected Issued: null" +
                                 " Result: " +
                                 Ticket.DDF.format(this.realTicket.getIssued().getTime()),
                         null,
@@ -163,7 +193,7 @@ public class TicketTest {
     public void testGetTripStart() throws Exception {
         if (expectedTicket.getTripStart() != null) {
             Assert.assertEquals(
-                    "Expected: " +
+                    "Expected TripStartTime: " +
                             Ticket.DDF.format(this.expectedTicket.getTripStart().getTime()) +
                             " Result: " +
                             Ticket.DDF.format(this.realTicket.getTripStart().getTime()),
@@ -173,7 +203,7 @@ public class TicketTest {
         } else {
             if (realTicket.getTripStart() != null) {
                 Assert.assertEquals(
-                        "Expected: null" +
+                        "Expected TripStartTime: null" +
                                 " Result: " +
                                 Ticket.DDF.format(this.realTicket.getTripStart().getTime()),
                         null,
