@@ -303,10 +303,11 @@ public class UI {
             if (t.getStartUseBefore() != null) {
                 if (t.getIssued() != null) {
                     Calendar tmpCal = (Calendar) t.getIssued().clone();
-                    //tmpCal.add(Calendar.DATE, t.getValidDays());
+                    tmpCal.add(Calendar.DATE, t.getValidDays());
                     if (t.getStartUseBefore().after(tmpCal))
                         this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
-                }
+                } else
+                    this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
             }
         }
 
