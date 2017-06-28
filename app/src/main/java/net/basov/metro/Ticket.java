@@ -113,7 +113,7 @@ public class Ticket {
             TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_U20, TN_U40, TN_U60,
             TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U60,
             TN_UL1D, TN_UL3D, TN_UL7D,
-            TN_G1, TN_G2, TN_G3_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
+            TN_G1, TN_G1_DRV, TN_G2, TN_G3_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
             TN_GB1_DRV, TN_GAB1
 
     })
@@ -172,6 +172,8 @@ public class Ticket {
 /* New ticket types (layout 0xd and 0xa) */
 
     public static final int TN_G1 = 601; // 1 passes, ground (0002277252)(0002550204, with paper check)
+    // Fake id 10608, because it has same id as used for TN_G3_DRV before 10.10.2016
+    public static final int TN_G1_DRV = 10608; // 1 passes, ground (0002277252)(0002550204, with paper check)
     public static final int TN_G2 = 602; // 2 passes ground (0001585643, with paper check)
     public static final int TN_G3_DRV = 608; // 3 passes, ground, sell by driver (0010197214)
     public static final int TN_G5 = 603; // 5 passes ground (0000060635)(0002550205, with paper check)
@@ -704,6 +706,33 @@ public class Ticket {
                     mStartUseBefore.set(1991, Calendar.DECEMBER, 31);
                     mStartUseBefore.add(Calendar.DATE, tmp);
                 }
+
+
+                /* Historical correction.
+                Tickets with type 608 (0x260) issued after 01.01.2016
+                has another initial passes number (1) then issued before with it type
+                 */
+                if ((mIssued != null  || mStartUseBefore != null) && getTicketType() == TN_G3_DRV) {
+
+                    Calendar tmpCal = Calendar.getInstance();
+                    tmpCal.clear();
+                    tmpCal.set(2016, Calendar.JANUARY, 1, 0, 0, 0);
+                    if (mIssued != null) {
+                        if (getIssued().after(tmpCal)) {
+                            mPassesTotal = 1;
+                            setTicketType(TN_G1_DRV);
+                        }
+                    } else  if (mStartUseBefore != null) {
+                        // TODO: Check how many days TN_G3_DRV valid
+                        tmpCal.add(Calendar.DATE, -90);
+                        if (getStartUseBefore().after(tmpCal)) {
+                            mPassesTotal = 1;
+                            setTicketType(TN_G1_DRV);
+                        }
+                    }
+                }
+
+
                 tmp = (mDump.get(6) & 0x0000fff0) >>> 5;
                 if (tmp != 0 ) {
 // TODO: Check hear. If field contain only minutes from mIssued

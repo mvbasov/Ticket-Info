@@ -63,6 +63,8 @@ public class Decode {
             // New layout 0x0d
             case Ticket.TN_G1: // 1 passes, ground (0002277252)(0002550204, with paper check)
                 return "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
+            case Ticket.TN_G1_DRV: // 1 passes, ground, sell by driver issued after 01.01.2016(0018004940)
+                return "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
             case Ticket.TN_G2: // 2 passes ground (0001585643, with paper check)
                 return "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case Ticket.TN_G3_DRV: // 3 passes, ground, sell by driver (0010197214)
