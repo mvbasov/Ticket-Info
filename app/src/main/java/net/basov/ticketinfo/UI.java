@@ -267,7 +267,7 @@ public class UI {
             t.detectTicketState();
         this.setTicketHeader("h_state", t.getTicketStateAsHTML(c));
         this.setTicketHeader("h_number", t.getTicketNumberAsHTML());
-        this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType()));
+        this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType(), t.getTicketTypeVersion()));
         if (t.getValidDays() != 0) {
             this.setTicket("t_valid_days",t.getValidDaysAsHTML());
         }

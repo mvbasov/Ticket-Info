@@ -32,7 +32,7 @@ import net.basov.ticketinfo.R;
 
 public class Decode {
 
-    public static String descCardType(Context c, int ct) {
+    public static String descCardType(Context c, int ct, int ctv) {
         switch (ct) {
             // Old layout 0x08
             case Ticket.TO_M1:
@@ -63,12 +63,13 @@ public class Decode {
             // New layout 0x0d
             case Ticket.TN_G1: // 1 passes, ground (0002277252)(0002550204, with paper check)
                 return "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
-            case Ticket.TN_G1_DRV: // 1 passes, ground, sell by driver issued after 01.01.2016(0018004940)
-                return "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
             case Ticket.TN_G2: // 2 passes ground (0001585643, with paper check)
                 return "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
-            case Ticket.TN_G3_DRV: // 3 passes, ground, sell by driver (0010197214)
-                return "3 " + Lang.getNounCase(3, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
+            case Ticket.TN_G3_G1_DRV: 
+                if (ctv == 2) // 1 passes, ground, sell by driver issued after 01.01.2016(0018004940)
+                    return "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
+                else// 3 passes, ground, sell by driver (0010197214)
+                    return "3 " + Lang.getNounCase(3, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
             case Ticket.TN_G5: // 5 passes ground (0000060635)(0002550205, with paper check)
                 return "5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case Ticket.TN_G11: // 11 passes ground (0002551460, with paper check)

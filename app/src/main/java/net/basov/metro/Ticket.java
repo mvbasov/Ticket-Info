@@ -113,7 +113,7 @@ public class Ticket {
             TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_U20, TN_U40, TN_U60,
             TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U60,
             TN_UL1D, TN_UL3D, TN_UL7D,
-            TN_G1, TN_G1_DRV, TN_G2, TN_G3_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
+            TN_G1, TN_G2, TN_G3_G1_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
             TN_GB1_DRV, TN_GAB1
 
     })
@@ -172,10 +172,9 @@ public class Ticket {
 /* New ticket types (layout 0xd and 0xa) */
 
     public static final int TN_G1 = 601; // 1 passes, ground (0002277252)(0002550204, with paper check)
-    // Fake id 10608, because it has same id as used for TN_G3_DRV before 10.10.2016
-    public static final int TN_G1_DRV = 10608; // 1 passes, ground (0002277252)(0002550204, with paper check)
     public static final int TN_G2 = 602; // 2 passes ground (0001585643, with paper check)
-    public static final int TN_G3_DRV = 608; // 3 passes, ground, sell by driver (0010197214)
+    // Fake id 10608, because it has same id as used for TN_G3_G1_DRV before 10.10.2016
+    public static final int TN_G3_G1_DRV = 608; // 3 passes, ground, sell by driver (0010197214)
     public static final int TN_G5 = 603; // 5 passes ground (0000060635)(0002550205, with paper check)
     public static final int TN_G11 = 604; // 11 passes ground (0002551460, with paper check)
     public static final int TN_G20 = 605; // 20 passes, ground (0002275051)(0002688466, with paper check)
@@ -369,7 +368,7 @@ public class Ticket {
      *     <li>{@link Ticket#TN_90U60}</li>
      *     <li>{@link Ticket#TN_G1}</li>
      *     <li>{@link Ticket#TN_G2}</li>
-     *     <li>{@link Ticket#TN_G3_DRV}</li>
+     *     <li>{@link Ticket#TN_G3_G1_DRV}</li>
      *     <li>{@link Ticket#TN_G5}</li>
      *     <li>{@link Ticket#TN_G20}</li>
      *     <li>{@link Ticket#TN_G40}</li>
@@ -391,6 +390,7 @@ public class Ticket {
      * </ul>
      */
     private int mTicketType = T_UNKNOWN;
+    private int mTicketTypeVersion = 0;
 
     /**
      * Ticket Class. Possible values:
@@ -712,7 +712,7 @@ public class Ticket {
                 Tickets with type 608 (0x260) issued after 01.01.2016
                 has another initial passes number (1) then issued before with it type
                  */
-                if ((mIssued != null  || mStartUseBefore != null) && getTicketType() == TN_G3_DRV) {
+                if ((mIssued != null  || mStartUseBefore != null) && getTicketType() == TN_G3_G1_DRV) {
 
                     Calendar tmpCal = Calendar.getInstance();
                     tmpCal.clear();
@@ -720,14 +720,16 @@ public class Ticket {
                     if (mIssued != null) {
                         if (getIssued().after(tmpCal)) {
                             mPassesTotal = 1;
-                            setTicketType(TN_G1_DRV);
+                            setTicketType(TN_G3_G1_DRV);
+                            setTicketTypeVersion(2);
                         }
                     } else  if (mStartUseBefore != null) {
                         // TODO: Check how many days TN_G3_DRV valid
-                        tmpCal.add(Calendar.DATE, -90);
+                        tmpCal.add(Calendar.DATE, 120);
                         if (getStartUseBefore().after(tmpCal)) {
                             mPassesTotal = 1;
-                            setTicketType(TN_G1_DRV);
+                            setTicketType(TN_G3_G1_DRV);
+                            setTicketTypeVersion(2);
                         }
                     }
                 }
@@ -901,6 +903,8 @@ public class Ticket {
         mHash = mDump.get(10);
 
     }
+
+    private void setTicketTypeVersion(int p0) { mTicketTypeVersion = p0; }
     
     public void setDDDRem(String dddRem) { this.mDDDRem = dddRem; }
 
@@ -972,7 +976,7 @@ public class Ticket {
             sb.append("!!! mDump not valid or ticket type unknown\n\n");
         }
 
-        sb.append(Decode.descCardType(c, getTicketType())).append('\n');
+        sb.append(Decode.descCardType(c, getTicketType(), getTicketTypeVersion())).append('\n');
         sb.append("\n- - - -\n");
 
         sb.append(c.getString(R.string.ticket_num)).append(' ');
@@ -1195,6 +1199,8 @@ public class Ticket {
         return sb.toString();
     }
 
+    public int getTicketTypeVersion() {return mTicketTypeVersion;}
+
     private void addParserError(String errorString) {
         if (mParserError != null)
             mParserError += ", ";
@@ -1241,7 +1247,7 @@ public class Ticket {
             case TN_90U60:
             case TN_G1:
             case TN_G2:
-            case TN_G3_DRV:
+            case TN_G3_G1_DRV:
             case TN_G5:
             case TN_G11:
             case TN_G20:
@@ -1860,10 +1866,16 @@ public class Ticket {
                 setTicketClass(C_GROUND);
                 mWhereSell = WS_GROUND;
                 break;
-            case TN_G3_DRV:
-                mPassesTotal = 3;
-                setTicketClass(C_GROUND);
-                mWhereSell = WS_DRIVER;
+            case TN_G3_G1_DRV:
+                if (mTicketTypeVersion == 2) {
+                    mPassesTotal = 1;
+                    setTicketClass(C_GROUND);
+                    mWhereSell = WS_DRIVER;
+                } else {
+                    mPassesTotal = 3;
+                    setTicketClass(C_GROUND);
+                    mWhereSell = WS_DRIVER;
+                }
                 break;
             case TN_G5:
                 mPassesTotal = 5;
@@ -2213,7 +2225,10 @@ public class Ticket {
     }
 
     public String getTicketTypeAsHTML() {
-        return String.format("%1$d (0x%1$03x)", getTicketType());
+        String tv = "";
+        if (getTicketTypeVersion() != 0)
+            tv = String.format("(v%d)", getTicketTypeVersion()); 
+        return String.format("%1$d (0x%1$03x)%2$s", getTicketType(), tv);
     }
 
     public String getTicketAppIDAsHTML() {
