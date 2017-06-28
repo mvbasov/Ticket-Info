@@ -94,6 +94,11 @@ Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
 
         <div class="f_frame">
         <!-- ticket info frame -->
+            <div id="vt_start_use_before" style="display:none">
+                <pre>
+Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+            </div>
+
             <pre>
 Valid in days: <span id="t_valid_days">x</span></pre>
 
@@ -113,17 +118,12 @@ Valid in days: <span id="t_valid_days">x</span></pre>
 Start use till: <span id="t_start_use_till">xx.xx.xxxx xx:xx</span></pre>
             </div>
 
-            <div id="vt_start_use_before" style="display:none">
-                <pre>
-Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
-            </div>
-
             <div id="vt_trip" class="fragment" style="display:none">
             <!-- ticket trip information fragment -->
             <!-- + nested fragment: ticket station name fragment -->
                 <hr/>
                 <pre>
-Trip №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> at <span id="t_trip_start_time">xx:xx</span>,</pre>
+Trip №<span id="t_trip_seq_number">x</span><span id="vt_trip_time" style="display:none">:&nbsp;<span id="t_trip_start_date">xx.xx.xxxx</span>&nbsp;at&nbsp;<span id="t_trip_start_time">xx:xx</span>,</span></pre>
                 <div id="vt_90m_header" class="fragment" style="display:none">
                     <pre>
 <span id="t_90m_header_fake"></span>90 minutes trip details:</pre>

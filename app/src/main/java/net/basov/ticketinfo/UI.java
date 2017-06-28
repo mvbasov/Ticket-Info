@@ -73,6 +73,8 @@ public class UI {
         visibilityMap.put("t_real_file_name", "vt_real_file_name");
         visibilityMap.put("t_file_name", "vt_file_note");
         visibilityMap.put("t_note_text", "vt_note");
+        visibilityMap.put("t_trip_start_date", "vt_trip_time");
+        visibilityMap.put("t_trip_start_time", "vt_trip_time");
         visibilityMap.put("t_trips_left", "vt_trips_left");
         visibilityMap.put("t_trip_seq_number", "vt_trip");
         visibilityMap.put("t_station", "vt_station");

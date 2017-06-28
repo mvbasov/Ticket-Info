@@ -24,14 +24,17 @@ function jreplace(jcontent) {
            document.getElementById(key).innerHTML = jobj[key];
        else if (!key.localeCompare("visibility"))
            for (var v in jobj.visibility) {
-               if (document.getElementById(v))
-                   document.getElementById(v).style.display = "block";
-               else
+               var elt = document.getElementById(v);
+               if (elt) {
+                   if (elt.nodeName.toLowerCase() == 'div')
+                       elt.style.display = "block";
+                   else
+                       elt.style.display = "inline";
+               } else
                    console.log("visibility ID "+v+" doesn't exists");
            }
        else
            console.log("ID "+key+" doesn't exists");
-
    }
 }
 

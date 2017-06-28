@@ -94,6 +94,11 @@ span.d_internal { color: aqua }
 
         <div class="f_frame">
         <!-- ticket info frame -->
+            <div id="vt_start_use_before" style="display:none">
+                <pre>
+Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+            </div>
+
             <pre>
 Действителен <span id="t_valid_days">x</span> дней</pre>
 
@@ -113,17 +118,12 @@ span.d_internal { color: aqua }
 Начать использовать по: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
             </div>
 
-            <div id="vt_start_use_before" style="display:none">
-                <pre>
-Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
-            </div>
-
             <div id="vt_trip" class="fragment" style="display:none">
             <!-- ticket trip information fragment -->
             <!-- + nested fragment: ticket station name fragment -->
                 <hr/>
                 <pre>
-Поездка №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> в <span id="t_trip_start_time">xx:xx</span>,</pre>
+Поездка №<span id="t_trip_seq_number">x</span><span id="vt_trip_time" style="display:none">:&nbsp;<span id="t_trip_start_date">xx.xx.xxxx</span>&nbsp;в&nbsp;<span id="t_trip_start_time">xx:xx</span>,</span></pre>
                 <div id="vt_90m_header" class="fragment" style="display:none">
                     <pre>
 <span id="t_90m_header_fake"></span>Детали 90 минутной поездки:</pre>

@@ -1,5 +1,5 @@
---- ticket.html	2017-06-23 21:07:21.305661397 +0300
-+++ ticket_ru.html	2017-06-23 21:07:16.209643591 +0300
+--- ticket.html	2017-06-28 17:37:23.803330592 +0300
++++ ticket_ru.html	2017-06-28 18:24:54.528338743 +0300
 @@ -9,7 +9,7 @@
      <script> var DEBUG = true; </script>
      -->
@@ -28,16 +28,22 @@
      </div>
  
      <div id="Ticket" class="tab" style="display:none">
-@@ -87,33 +87,33 @@
+@@ -89,33 +89,33 @@
  
-             <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
+         <div id="vt_trips_left" style="display:none; font-size:1.5em" class="fragment">
                  <pre>
 -Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
 +Осталось <font color="green"><span id="t_trips_left">x</span></font> поездок</pre>
-             </div>
+         </div>
  
          <div class="f_frame">
          <!-- ticket info frame -->
+             <div id="vt_start_use_before" style="display:none">
+                 <pre>
+-Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
++Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+             </div>
+ 
              <pre>
 -Valid in days: <span id="t_valid_days">x</span></pre>
 +Действителен <span id="t_valid_days">x</span> дней</pre>
@@ -58,23 +64,17 @@
  
              <div id="vt_start_use_till" style="display:none">
                  <pre>
--Start use till: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
+-Start use till: <span id="t_start_use_till">xx.xx.xxxx xx:xx</span></pre>
 +Начать использовать по: <span id="t_start_usei_till">xx.xx.xxxx xx:xx</span></pre>
              </div>
  
-             <div id="vt_start_use_before" style="display:none">
-                 <pre>
--Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
-+Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
-             </div>
- 
              <div id="vt_trip" class="fragment" style="display:none">
-@@ -121,14 +121,14 @@
+@@ -123,14 +123,14 @@
              <!-- + nested fragment: ticket station name fragment -->
                  <hr/>
                  <pre>
--Trip №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> at <span id="t_trip_start_time">xx:xx</span>,</pre>
-+Поездка №<span id="t_trip_seq_number">x</span>: <span id="t_trip_start_date">xx.xx.xxxx</span> в <span id="t_trip_start_time">xx:xx</span>,</pre>
+-Trip №<span id="t_trip_seq_number">x</span><span id="vt_trip_time" style="display:none">:&nbsp;<span id="t_trip_start_date">xx.xx.xxxx</span>&nbsp;at&nbsp;<span id="t_trip_start_time">xx:xx</span>,</span></pre>
++Поездка №<span id="t_trip_seq_number">x</span><span id="vt_trip_time" style="display:none">:&nbsp;<span id="t_trip_start_date">xx.xx.xxxx</span>&nbsp;в&nbsp;<span id="t_trip_start_time">xx:xx</span>,</span></pre>
                  <div id="vt_90m_header" class="fragment" style="display:none">
                      <pre>
 -<span id="t_90m_header_fake"></span>90 minutes trip details:</pre>
@@ -87,7 +87,7 @@
                  </div>
                  <div>
                      <pre>
-@@ -174,14 +174,14 @@
+@@ -176,14 +176,14 @@
          <div id="i_general" class="f_frame">
          <!-- IC general info frame -->
              <pre>
@@ -106,7 +106,7 @@
          </div>
  
          <div id="i_uid_otp" class="frame">
-@@ -208,7 +208,7 @@
+@@ -210,7 +210,7 @@
              <!-- IC counters fragment -->
  <hr/>
                  <pre>
