@@ -111,10 +111,10 @@ public class Ticket {
             TO_BAGGAGE_AND_PASS, TO_BAGGAGE, TO_UL70,
             TO_VESB,
             TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_U20, TN_U40, TN_U60,
-            TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U60,
+            TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U40, TN_90U60,
             TN_UL1D, TN_UL3D, TN_UL7D,
             TN_G1, TN_G2, TN_G3_G1_DRV, TN_G5, TN_G11, TN_G20, TN_G40, TN_G60,
-            TN_GB1_DRV, TN_GAB1
+            TN_GB1_DRV, TN_GB2, TN_GAB1
 
     })
     public @interface TicketType {}
@@ -173,7 +173,10 @@ public class Ticket {
 
     public static final int TN_G1 = 601; // 1 passes, ground (0002277252)(0002550204, with paper check)
     public static final int TN_G2 = 602; // 2 passes ground (0001585643, with paper check)
-    // Fake id 10608, because it has same id as used for TN_G3_G1_DRV before 10.10.2016
+    /**
+     * Ticket with id 608 is 3 pass ground transport ticket sell by ground driver.
+     * After 01.01.2016 with id 608 is 1 pass ground transport ticket sell by ground driver
+     */
     public static final int TN_G3_G1_DRV = 608; // 3 passes, ground, sell by driver (0010197214)
     public static final int TN_G5 = 603; // 5 passes ground (0000060635)(0002550205, with paper check)
     public static final int TN_G11 = 604; // 11 passes ground (0002551460, with paper check)
@@ -390,6 +393,13 @@ public class Ticket {
      * </ul>
      */
     private int mTicketType = T_UNKNOWN;
+
+    /**
+     * Ticket type version.
+     * Introduced to handle {@link Ticket#TN_G3_G1_DRV}
+     * Defaul value 0 mean old (3 pass) ticket
+     * Value 2 mean new (1 pass) ticket
+     */
     private int mTicketTypeVersion = 0;
 
     /**
@@ -1536,7 +1546,7 @@ public class Ticket {
         }
         if (this.mValidDays == 0)
         /**
-         * if not 0 it is day limited and set and set by
+         * if not 0 it is day limited and already set by
          * {@link Ticket#setTypeRelatedInfo()}
          */
 
