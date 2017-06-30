@@ -2,9 +2,9 @@ This is Android application to see what inside Moscow trasportation system ticke
 
 <table>
   <tr>
-    <td> <img src="images/Ticket-Info.3.0b-Ticket.jpg" width="320"/> </td>
-    <td> <img src="images/Ticket-Info.3.0b-IC.jpg" width="320"/> </td>
-    <td> <img src="images/Ticket-Info.3.0b-Dump.jpg" width="320"/> </td>
+    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.0b-Ticket.jpg" width="320"/> </td>
+    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.0b-IC.jpg" width="320"/> </td>
+    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.0b-Dump.jpg" width="320"/> </td>
   </tr>
 </table>
 
