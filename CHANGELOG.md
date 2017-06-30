@@ -1,5 +1,15 @@
 ### Change log.
 
+#### Version 3.00b
+##### Date:   Fri Jun 30 16:50:23 2017 +0300, commit b30c4d3f980266b828eb2dc61f334503fbd64afe
+
+- New user interface
+- Support all "paper" tickets using on present time. (I think it's true :)
+- Replacable metro station DB (XML based)
+- Debug time interface using special DDD: string in dump file
+- Application language and station name transliteration may be switched by settings
+- Various fixes and code cleanup
+
 #### Version 2.08b
 ##### Date:   Wed Sep 28 20:34:59 2016 +0300, commit b5e4018f80ed2f43be6ee2e9c0d6314fe67ecd05
 

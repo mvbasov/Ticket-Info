@@ -45,12 +45,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- New user interface
-- Support all "paper" tickets using on present time. (I think it's true :)
-- Replacable metro station DB (XML based)
-- Debug time interface using special DDD: string in dump file
-- Application language and station name transliteration may be switched by settings
-- Various fixes and code cleanup
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
