@@ -110,6 +110,7 @@ public class Ticket {
             TO_M1, TO_M2, TO_M3, TO_M4, TO_M5, TO_M10, TO_M20, TO_M60,
             TO_BAGGAGE_AND_PASS, TO_BAGGAGE, TO_UL70,
             TO_VESB,
+            TN_BAG,
             TN_U1, TN_U1_DRV, TN_U2, TN_U5, TN_U11, TN_U20, TN_U40, TN_U60,
             TN_90U1, TN_90U1_G, TN_90U2, TN_90U2_G, TN_90U5, TN_90U11, TN_90U20, TN_90U40, TN_90U60,
             TN_UL1D, TN_UL3D, TN_UL7D,
@@ -171,6 +172,7 @@ public class Ticket {
 
 /* New ticket types (layout 0xd and 0xa) */
 
+    public static final int TN_BAG = 167; // Baggage ticket for Metro and Monorail (1599063765 with paper check))
     public static final int TN_G1 = 601; // 1 passes, ground (0002277252)(0002550204, with paper check)
     public static final int TN_G2 = 602; // 2 passes ground (0001585643, with paper check)
     /**
@@ -209,7 +211,9 @@ public class Ticket {
 
     /* Ticket class */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({C_UNKNOWN, C_OLD_METRO, C_OLD_SPECIAL, C_GROUND, C_GROUND_B, C_GROUND_AB, C_UNIVERSAL, C_UNLIM_DAYS, C_90UNIVERSAL})
+    @IntDef({C_UNKNOWN, C_OLD_METRO, C_OLD_SPECIAL, C_GROUND,
+            C_GROUND_B, C_GROUND_AB, C_UNIVERSAL, C_UNLIM_DAYS,
+            C_90UNIVERSAL, C_SPECIAL})
     public @interface TicketClass {}
     /**
      * Unknown ticket class
@@ -251,6 +255,11 @@ public class Ticket {
      * Trip can include one underground and unlimited amount ground passes during 90 minutes
      */
     public static final int C_90UNIVERSAL = C_UNKNOWN + 8;
+    /**
+     * Special propose tickets:
+     * - Baggage for metro an monorail
+     */
+    public static final int C_SPECIAL = C_UNKNOWN + 9;
 
     /* Where sell */
     @Retention(RetentionPolicy.SOURCE)
@@ -413,6 +422,7 @@ public class Ticket {
      *     <li>{@link Ticket#C_GROUND_AB}</li>
      *     <li>{@link Ticket#C_UNIVERSAL}</li>
      *     <li>{@link Ticket#C_90UNIVERSAL}</li>
+     *     <li>{@link Ticket#C_SPECIAL}</li>
      *     <li>{@link Ticket#C_UNLIM_DAYS}</li>
      * </ul>
      */
@@ -628,8 +638,8 @@ public class Ticket {
         StringBuilder dName = new StringBuilder();
         dName.append("");
 
+        dName.append(String.format("%010d", ticket.getTicketNumber()));
         if (ticket.isTicketFormatValid()) {
-            dName.append(String.format("%010d", ticket.getTicketNumber()));
             switch (ticket.getTicketClass()){
                 case Ticket.C_UNLIM_DAYS:
                     dName.append(String.format("-%dd",ticket.getValidDays()));
@@ -640,6 +650,12 @@ public class Ticket {
                     if (ticket.getTicketType() == Ticket.TO_VESB) {
                         dName.append("-su");
                         dName.append(String.format("-%04d", ticket.getTripSeqNumber()));
+                    }
+                    break;
+                case Ticket.C_SPECIAL:
+                    if (ticket.getTicketType() == Ticket.TN_BAG) {
+                        dName.append("-bg");
+                        dName.append(String.format("-%02d", ticket.getTripSeqNumber()));
                     }
                     break;
                 case Ticket.C_90UNIVERSAL:
@@ -660,7 +676,31 @@ public class Ticket {
                     break;
             }
         } else {
-            dName.append("xxxxxxxxxx-xx-xx");
+            int score = 0;
+            if (! isLayoutValid(ticket.getLayout())) {
+                score++;
+                dName.append(String.format("-L%02x", ticket.getLayout()));
+            }
+            if (! isAppValid(ticket.getApp())) {
+                score++;
+                dName.append(String.format("-A%03x", ticket.getApp()));
+            }
+            if (! isTicketTypeValid(ticket.getTicketType())) {
+                score++;
+                dName.append(String.format("-T%03x", ticket.getTicketType()));
+            }
+
+            if (score == 3) {
+                // Create IC UID and crc16 based file name for other cases
+                dName = new StringBuilder();
+                dName.append(String.format("%08x%08x",
+                        ticket.getDump().get(0),
+                        ticket.getDump().get(1)
+                        )
+                );
+                dName.append("-");
+                dName.append(Ticket.getDumpCRC16AsHexString(ticket.getDump()));
+            }
         }
 
         return dName.toString();
@@ -1233,6 +1273,13 @@ public class Ticket {
     }
 
     public void setTicketType(@TicketType int ticketType) {
+        if( ! isTicketTypeValid(ticketType))
+                addParserError("Wrong type");
+
+        this.mTicketType = ticketType;
+    }
+
+    public static boolean isTicketTypeValid(int ticketType) {
         switch (ticketType) {
             case TO_BAGGAGE:
             case TO_BAGGAGE_AND_PASS:
@@ -1246,6 +1293,7 @@ public class Ticket {
             case TO_M60:
             case TO_UL70:
             case TO_VESB:
+            case TN_BAG:
             case TN_90U1:
             case TN_90U1_G:
             case TN_90U2:
@@ -1277,12 +1325,10 @@ public class Ticket {
             case TN_UL1D:
             case TN_UL3D:
             case TN_UL7D:
-                break;
+                return true;
             default:
-                addParserError("Wrong type");
-                break;
+                return false;
         }
-        this.mTicketType = ticketType;
     }
 
     /**
@@ -1291,9 +1337,23 @@ public class Ticket {
 	public int getTicketType() { return mTicketType; }
 
     public void setApp(int app) {
+        if (! isAppValid(app))
+                addParserError("Wrong App");
         mApp = app;
     }
 
+    public static boolean isAppValid(int app) {
+        switch (app) {
+            case A_METRO:
+            case A_GROUND:
+            case A_SOCIAL:
+            case A_METRO_LIGHT:
+            case A_UNIVERSAL:
+                return true;
+            default:
+                return false;
+        }
+    }
     /**
      * @return {@link Ticket#mApp}
      */
@@ -1454,6 +1514,13 @@ public class Ticket {
     }
 
     public void setTicketClass(@TicketClass int ticketClass) {
+        if (!isTicketClassValid(ticketClass))
+                addParserError("Wrong ticket class");
+
+        this.mTicketClass = ticketClass;
+    }
+
+    public static boolean isTicketClassValid(int ticketClass) {
         switch (ticketClass) {
             case Ticket.C_UNKNOWN:
             case Ticket.C_OLD_METRO:
@@ -1464,28 +1531,34 @@ public class Ticket {
             case Ticket.C_UNIVERSAL:
             case Ticket.C_UNLIM_DAYS:
             case Ticket.C_90UNIVERSAL:
-                break;
+            case Ticket.C_SPECIAL:
+                return true;
             default:
-                addParserError("Wrong ticket class");
-                break;
+                return false;
         }
-
-        this.mTicketClass = ticketClass;
     }
 
     public int getTicketClass() { return mTicketClass; }
 
     public void setLayout(int layout) {
+        if (! isLayoutValid(layout))
+                addParserError("Wrong layout");
+
+        this.mLayout = layout;
+    }
+
+    public static boolean isLayoutValid(int layout) {
         switch (layout) {
+            case 0x04:
             case 0x08:
             case 0x0d:
             case 0x0a:
-                break;
+                return true;
             default:
-                addParserError("Wrong layout");
+                return false;
         }
 
-        this.mLayout = layout;
+
     }
 
 	public int getLayout() { return mLayout; }
@@ -1865,7 +1938,11 @@ public class Ticket {
                 mPassesTotal = -1;
                 setTicketClass(C_OLD_SPECIAL);
                 break;
-            
+
+            case TN_BAG:
+                mPassesTotal = 1;
+                setTicketClass(C_SPECIAL);
+                break;
             case TN_G1:
                 mPassesTotal = 1;
                 setTicketClass(C_GROUND);
@@ -2159,8 +2236,54 @@ public class Ticket {
         }
     }
 
+/* Dump CRC16 related functions */
+    private static byte[] intDumpToByteArray(ArrayList<Integer> al) {
+        byte[] out = new byte[al.size()*4];
+        for (int i = 0; i < al.size(); i++) {
+            out[i*4]     = (byte) (al.get(i) & 0x000000ff);
+            out[i*4 + 1] = (byte)((al.get(i) & 0x0000ff00) >> 8 * 1);
+            out[i*4 + 2] = (byte)((al.get(i) & 0x00ff0000) >> 8 * 2);
+            out[i*4 + 3] = (byte)((al.get(i) & 0xff000000) >> 8 * 3);
+        }
+        return out;
+    }
+
+    /**
+     *  Get of bytes and return its 16 bit
+     *  Cylcic Redundancy Check (CRC-CCIIT 0xFFFF).
+     *
+     *  1 + x + x^5 + x^12 + x^16 is irreducible polynomial.
+     *
+     *  http://introcs.cs.princeton.edu/java/61data/CRC16CCITT.java
+     *
+     * @param dmp
+     * @return
+     */
+    private static int getDumpCRC16(byte[] dmp) {
+        int crc = 0xFFFF;          // initial value
+        int polynomial = 0x1021;   // 0001 0000 0010 0001  (0, 5, 12)
+        for (byte b : dmp) {
+            for (int i = 0; i < 8; i++) {
+                boolean bit = ((b   >> (7-i) & 1) == 1);
+                boolean c15 = ((crc >> 15    & 1) == 1);
+                crc <<= 1;
+                if (c15 ^ bit) crc ^= polynomial;
+            }
+        }
+        crc &= 0xffff;
+        return crc;
+    }
+
+    public static String getDumpCRC16AsHexString (ArrayList<Integer> al) {
+        return String.format("%04x",
+                getDumpCRC16(
+                        intDumpToByteArray(al)
+                )
+        );
+    }
+
 /* WebView UI related functions */
-    public String getTicketNumberAsHTML() {
+    public String getTicketNumberAsString() {
         return String.format("%010d", getTicketNumber());
     }
 
@@ -2226,44 +2349,44 @@ public class Ticket {
         return sb.toString();
     }
 
-    public String getValidDaysAsHTML() { return String.format("%d", getValidDays()); }
+    public String getValidDaysAsString() { return String.format("%d", getValidDays()); }
 
-    public String getStartUseBeforeASHTML() {
+    public String getStartUseBeforeAsString() {
         return String.format("%s",
                 DF.format(mStartUseBefore.getTime())
         );
     }
 
-    public String getTicketTypeAsHTML() {
+    public String getTicketTypeAsString() {
         String tv = "";
         if (getTicketTypeVersion() != 0)
             tv = String.format("(v%d)", getTicketTypeVersion()); 
         return String.format("%1$d (0x%1$03x)%2$s", getTicketType(), tv);
     }
 
-    public String getTicketAppIDAsHTML() {
+    public String getTicketAppIDAsString() {
         return String.format("%1$d (0x%1$03x)", getApp());
     }
 
-    public String getTicketLayoutAsHTML() {
+    public String getTicketLayoutAsString() {
         return String.format("%1$d (0x%1$02x)", getLayout());
     }
 
-    public String getTurnstileEnteredAsHTML() {
+    public String getTurnstileEnteredAsString() {
         return String.format("%1$d [0x%1$04x]", getTurnstileEntered());
 
     }
 
-    public String getEntrancrEnteredAsHTML() {
+    public String getEntrancrEnteredAsString() {
         return String.format("%1$d [0x%1$04x]", getEntranceEntered());
 
     }
 
-    public String getPassesLeftAsHTML() {
+    public String getPassesLeftAsString() {
         return String.format("%d", getPassesLeft());
     }
 
-    public String getTripSeqNumbetAsHTML() {
+    public String getTripSeqNumbetAsString() {
         return String.format("%d", getTripSeqNumber());
     }
 

@@ -1180,7 +1180,7 @@ public class NFCaDump {
 
     }
 
-    public String getUIDAsHTML(){
+    public String getUIDAsString(){
         return String.format("%08x%08x", getPageAsInt(0), getPageAsInt(1));
     }
 

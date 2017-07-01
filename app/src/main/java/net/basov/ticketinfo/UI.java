@@ -26,7 +26,6 @@ package net.basov.ticketinfo;
 
 import android.content.Context;
 import android.nfc.NfcAdapter;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -37,8 +36,6 @@ import net.basov.util.TextTools;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -80,6 +77,7 @@ public class UI {
         visibilityMap.put("t_station", "vt_station");
         visibilityMap.put("t_90m_header_fake", "vt_90m_header");
         visibilityMap.put("t_90m_details", "vt_90m_details");
+        visibilityMap.put("t_dump_crc16", "vt_dump_crc16");
         visibilityMap.put("i_get_version", "vi_get_version");
         visibilityMap.put("i_counters", "vi_counters");
         visibilityMap.put("i_read_sig", "vi_read_sig");
@@ -266,10 +264,10 @@ public class UI {
         if (t.getTicketState() == Ticket.TS_UNKNOWN)
             t.detectTicketState();
         this.setTicketHeader("h_state", t.getTicketStateAsHTML(c));
-        this.setTicketHeader("h_number", t.getTicketNumberAsHTML());
+        this.setTicketHeader("h_number", t.getTicketNumberAsString());
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType(), t.getTicketTypeVersion()));
         if (t.getValidDays() != 0) {
-            this.setTicket("t_valid_days",t.getValidDaysAsHTML());
+            this.setTicket("t_valid_days",t.getValidDaysAsString());
         }
 
         if (t.getIssued() != null) {
@@ -305,9 +303,9 @@ public class UI {
                     Calendar tmpCal = (Calendar) t.getIssued().clone();
                     tmpCal.add(Calendar.DATE, t.getValidDays());
                     if (t.getStartUseBefore().after(tmpCal))
-                        this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
+                        this.setTicket("t_start_use_before", t.getStartUseBeforeAsString());
                 } else
-                    this.setTicket("t_start_use_before", t.getStartUseBeforeASHTML());
+                    this.setTicket("t_start_use_before", t.getStartUseBeforeAsString());
             }
         }
 
@@ -318,9 +316,9 @@ public class UI {
         }
 
         if (t.getPassesLeft() > 0)
-            this.setTicket("t_trips_left", t.getPassesLeftAsHTML());
+            this.setTicket("t_trips_left", t.getPassesLeftAsString());
         if ((t.getTurnstileEntered() != 0) || (t.getEntranceEntered() != 0)) {
-            this.setTicket("t_trip_seq_number", t.getTripSeqNumbetAsHTML());
+            this.setTicket("t_trip_seq_number", t.getTripSeqNumbetAsString());
             if (t.getTripStart() != null) {
                 this.setTicket("t_trip_start_date",
                         Ticket.DF.format(t.getTripStart().getTime()));
@@ -328,10 +326,10 @@ public class UI {
                         Ticket.TF.format(t.getTripStart().getTime()));
             }
             if (t.getTurnstileEntered() != 0) {
-                this.setTicket("t_station_id", t.getTurnstileEnteredAsHTML());
+                this.setTicket("t_station_id", t.getTurnstileEnteredAsString());
                 this.setTicket("t_station", t.getTurnstileDescAsHTML(c));
             } else if (t.getEntranceEntered() !=0) {
-                this.setTicket("t_station_id", t.getEntrancrEnteredAsHTML());
+                this.setTicket("t_station_id", t.getEntrancrEnteredAsString());
                 this.setTicket("t_station", t.getStationDescAsHTML(c));
             }
             this.setTicket("t_transport_type", t.getTransportTypeAsHTML(c));
@@ -385,12 +383,14 @@ public class UI {
             this.setTicket("t_real_file_name", t.getRealFileName());
         if (d.getRemark().length() > 0)
             this.setTicket("t_note_text", d.getRemark());
-        this.setTicket("t_layout", t.getTicketLayoutAsHTML());
-        this.setTicket("t_app_id", t.getTicketAppIDAsHTML());
-        this.setTicket("t_type_id", t.getTicketTypeAsHTML());
+        this.setTicket("t_layout", t.getTicketLayoutAsString());
+        this.setTicket("t_app_id", t.getTicketAppIDAsString());
+        this.setTicket("t_type_id", t.getTicketTypeAsString());
         this.setTicket("t_hash", t.getHashAsHexString());
-        this.setTicket("t_number", t.getTicketNumberAsHTML());
-        this.setTicket("t_ic_uid", d.getUIDAsHTML());
+        this.setTicket("t_number", t.getTicketNumberAsString());
+        this.setTicket("t_ic_uid", d.getUIDAsString());
+        if(!t.isTicketFormatValid())
+            this.setTicket("t_dump_crc16", Ticket.getDumpCRC16AsHexString(t.getDump()));
         this.setTicket("i_manufacturer", d.getManufacturerAsHTML());
         this.setTicket("i_chip_names", d.getChipNamesAsHTML());
         this.setTicket("i_std_bytes", d.getChipCapacityAsHTML());

@@ -62,4 +62,5 @@
     <string name="pref_lang_def">ru</string>
     <string name="ws_ground">продан на земле</string>
     <string name="ws_metro">продан в метро</string>
+    <string name="t_baggage">Багажный билет (метро, монорельс)</string>
 </resources>

@@ -61,6 +61,8 @@ public class Decode {
                 return c.getString(R.string.vesb);
 
             // New layout 0x0d
+            case Ticket.TN_BAG:
+                return "1 "+c.getString(R.string.t_baggage);
             case Ticket.TN_G1: // 1 passes, ground (0002277252)(0002550204, with paper check)
                 return "1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_G2: // 2 passes ground (0001585643, with paper check)

@@ -65,4 +65,5 @@
     <string name="t90_minutes">90 minutes</string>
     <string name="ws_ground">sell on ground</string>
     <string name="ws_metro">sell in metro</string>
+    <string name="t_baggage">Baggage place (metro, monorail)</string>
 </resources>
