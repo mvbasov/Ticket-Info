@@ -64,6 +64,7 @@ public class WebViewJSCallback {
             if (parserErrors != null && parserErrors.length() != 0) {
                 emaText += "\n\n--- Don't edit after this line, please ---\n";
                 emaText += parserErrors;
+                emaText += "\n--- End of diagnostic ---\n";
             }
             i.putExtra(Intent.EXTRA_TEXT, emaText);
             i.putExtra(Intent.EXTRA_STREAM, path);
