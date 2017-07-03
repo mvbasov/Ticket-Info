@@ -66,4 +66,6 @@
     <string name="ws_ground">sell on ground</string>
     <string name="ws_metro">sell in metro</string>
     <string name="t_baggage">Baggage place (metro, monorail)</string>
+    <string name="ema_text">Put your comment here if you wish.</string>
+    <string name="send_dump_by_email">Send dump by E-Mail…</string>
 </resources>
