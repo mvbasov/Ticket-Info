@@ -45,9 +45,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- New ticket type: Baggage fo metro and monorail.
-- New file name system for unknown or partialy known tickets.
-- Send dump to E-Mail.
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 

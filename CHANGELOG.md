@@ -1,5 +1,12 @@
 ### Change log.
 
+#### Version 3.01b
+##### Date:   Mon Jul 3 19:06:23 2017 +0300, commit 01f28cff1ee641be083455a57a2885c2ba3042be
+
+- New ticket type: Baggage fo metro and monorail.
+- New file name system for unknown or partialy known tickets.
+- Send dump to E-Mail.
+
 #### Version 3.00b
 ##### Date:   Fri Jun 30 16:50:23 2017 +0300, commit b30c4d3f980266b828eb2dc61f334503fbd64afe
 
