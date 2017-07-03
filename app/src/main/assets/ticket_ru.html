@@ -161,6 +161,7 @@ xxx</pre>
 
         <div class="frame">
         <!-- ticket layout frame -->
+        <div style="width:80%; display:table-cell;">
             <pre>
 Layout: <span id="t_layout">xx (0xx)</span>
 App ID: <span id="t_app_id">xxx (0xxxx)</span>
@@ -169,6 +170,10 @@ Hash: <span id="t_hash">xxxxxxxx</span>
 Ticket number: <span id="t_number">xxxxxxxxxx</span>
 IC UID: <span id="t_ic_uid">xxxxxxxxxxxxxxxx</span><span id="vt_dump_crc16" style="display:none">
 Dump CRC16: 0x<span id="t_dump_crc16">xxxx</span></span></pre>
+        </div>
+        <div style="display:table-cell;">
+        <button id="btnEMail" style="width:100%" onclick="eCallback()">Отправить дамп</button>
+        </div>
         </div>
     </div><!-- class="tab" id="Ticket" -->
 

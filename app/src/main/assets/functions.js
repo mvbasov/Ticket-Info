@@ -41,3 +41,7 @@ function jreplace(jcontent) {
 function aCallback () {
     Android.launchPreferences();
 }
+
+function eCallback () {
+    Android.sendDump(document.getElementById("t_file_name").textContent);
+}
