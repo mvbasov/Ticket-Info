@@ -161,8 +161,8 @@ xxx</pre>
 
         <div class="frame">
         <!-- ticket layout frame -->
-        <div style="width:90%; display:table-cell;">
-            <pre>
+            <div style="width:90%; display:table-cell;">
+                <pre>
 Layout: <span id="t_layout">xx (0xx)</span>
 App ID: <span id="t_app_id">xxx (0xxxx)</span>
 Ticket type: <span id="t_type_id">xxx (0xxxx)</span>
@@ -170,10 +170,12 @@ Hash: <span id="t_hash">xxxxxxxx</span>
 Ticket number: <span id="t_number">xxxxxxxxxx</span>
 IC UID: <span id="t_ic_uid">xxxxxxxxxxxxxxxx</span><span id="vt_dump_crc16" style="display:none">
 Dump CRC16: 0x<span id="t_dump_crc16">xxxx</span></span></pre>
+            </div>
         </div>
-        <div style="display:table-cell;">
-        <button id="btnEMail" style="width:100%" onclick="eCallback()">Send dump</button>
-        </div>
+        <div class="frame" id="vt_parser_error" style="display:none">
+        <!-- Parser error -->
+            <pre>
+<span id="t_parser_error"></span></pre>
         </div>
     </div><!-- class="tab" id="Ticket" -->
 
@@ -274,6 +276,9 @@ Dump legend:
    reserved for 
    internal use
             </pre>
+            <div class="fragment" style="margin-top:1em">
+                <button id="btnEMail" style="width:100%" onclick="eCallback()">Send dump</button>
+            </div>
         </div>
     </div>
 

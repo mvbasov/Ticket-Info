@@ -43,5 +43,8 @@ function aCallback () {
 }
 
 function eCallback () {
-    Android.sendDump(document.getElementById("t_file_name").textContent);
+    Android.sendDump(
+            document.getElementById("t_file_name").textContent,
+            document.getElementById("t_parser_error").textContent
+    );
 }

@@ -51,7 +51,7 @@ public class WebViewJSCallback {
     }
 
     @JavascriptInterface
-    public void sendDump(String fileName) {
+    public void sendDump(String fileName, String parserErrors) {
         if (fileName != null && fileName.length() != 0) {
             String filename = "AutoDumps/" + fileName;
             File filelocation = new File(mContext.getExternalFilesDir(null).getAbsolutePath(), filename);
@@ -60,7 +60,12 @@ public class WebViewJSCallback {
             i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{EMA + "@" + EMA_DOM});
             i.putExtra(Intent.EXTRA_SUBJECT, "Ticket-Info dump: " + fileName);
-            i.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ema_text));
+            String emaText = mContext.getString(R.string.ema_text);
+            if (parserErrors != null && parserErrors.length() != 0) {
+                emaText += "\n\n--- Don't edit after this line, please ---\n";
+                emaText += parserErrors;
+            }
+            i.putExtra(Intent.EXTRA_TEXT, emaText);
             i.putExtra(Intent.EXTRA_STREAM, path);
             try {
                 mContext.startActivity(Intent.createChooser(i, mContext.getString(R.string.send_dump_by_email)));

@@ -78,6 +78,7 @@ public class UI {
         visibilityMap.put("t_90m_header_fake", "vt_90m_header");
         visibilityMap.put("t_90m_details", "vt_90m_details");
         visibilityMap.put("t_dump_crc16", "vt_dump_crc16");
+        visibilityMap.put("t_parser_error", "vt_parser_error");
         visibilityMap.put("i_get_version", "vi_get_version");
         visibilityMap.put("i_counters", "vi_counters");
         visibilityMap.put("i_read_sig", "vi_read_sig");
@@ -391,6 +392,13 @@ public class UI {
         this.setTicket("t_ic_uid", d.getUIDAsString());
         if(!t.isTicketFormatValid())
             this.setTicket("t_dump_crc16", Ticket.getDumpCRC16AsHexString(t.getDump()));
+        if (t.getParserError() != null && t.getParserError().length() != 0)
+            this.setTicket(
+                    "t_parser_error",
+                    "<font color=\"red\">Parser error:\n  "
+                    + t.getParserError()
+                    +"</font>"
+            );
         this.setTicket("i_manufacturer", d.getManufacturerAsHTML());
         this.setTicket("i_chip_names", d.getChipNamesAsHTML());
         this.setTicket("i_std_bytes", d.getChipCapacityAsHTML());
