@@ -2,13 +2,15 @@ This is Android application to see what inside Moscow trasportation system ticke
 
 <table>
   <tr>
-    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.0b-Ticket.jpg" width="320"/> </td>
-    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.0b-IC.jpg" width="320"/> </td>
-    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.0b-Dump.jpg" width="320"/> </td>
+    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.02b-Ticket.jpg" width="320"/> </td>
+    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.02b-IC.jpg" width="320"/> </td>
+    <td> <img src="https://github.com/mvbasov/Ticket-Info/wiki/images/Ticket-Info.3.02b-Dump.jpg" width="320"/> </td>
   </tr>
 </table>
 
-Tis project is update to actual state of another [old project](https://github.com/ValleZ/Ticket-Info.git)
+Latest [stable version](https://github.com/mvbasov/Ticket-Info/releases/download/v3.02b/Ticket-Info.3.02b.apk)
+
+This project is update to actual state of another [old project](https://github.com/ValleZ/Ticket-Info.git)
 
 This project has no value as Android application because several projects with better functionality exist in Android Market now (for example [Транспортные карты Москвы](https://play.google.com/store/apps/details?id=eu.dedb.nfc.moscow)).
 This project interesting as open source example of working with NFC and for understanding "How things made" (about Moscow transportation system tickets). It is not a target of this project "brake" security system to make "unlimited" ticket.
@@ -45,7 +47,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Last changes:
 
-- 
+- Add remark to dump from application
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
