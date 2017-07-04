@@ -83,6 +83,6 @@ public class WebViewJSCallback {
         String filename = "AutoDumps/" + fileName;
         File file = new File(mContext.getExternalFilesDir(null).getAbsolutePath(), filename);
         if (FileIO.appendRemarkToDump(file, remark))
-            Toast.makeText(mContext, "Remark added to dump file.", Toast.LENGTH_LONG);
+            Toast.makeText(mContext, "Remark added to dump file.", Toast.LENGTH_SHORT).show();
     }
 }
