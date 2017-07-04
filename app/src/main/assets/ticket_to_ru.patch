@@ -1,5 +1,5 @@
---- ticket.html	2017-07-01 17:35:48.759842796 +0300
-+++ ticket_ru.html	2017-07-01 17:36:53.336035093 +0300
+--- ticket.html	2017-07-04 20:04:01.086258454 +0300
++++ ticket_ru.html	2017-07-04 20:03:50.030173475 +0300
 @@ -9,7 +9,7 @@
      <script> var DEBUG = true; </script>
      -->
@@ -19,12 +19,13 @@
      </h3>
      <div>
 -        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Ticket</button>
-+        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
-         <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">IC</button>
+-        <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">IC</button>
 -        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Dump</button>
--        <button class="btn" id="btnSettings" onclick="aCallback()">Settings</button>
+-        <button class="btn" id="btnSettings" style="outline:0" onclick="aCallback()">Settings</button>
++        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
++        <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">Чип</button>
 +        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Дамп</button>
-+        <button class="btn" id="btnSettings" onclick="aCallback()">Настройки</button>
++        <button class="btn" id="btnSettings" style="outline:0" onclick="aCallback()">Настройки</button>
      </div>
  
      <div id="Ticket" class="tab" style="display:none">
@@ -40,7 +41,7 @@
          <!-- ticket info frame -->
              <div id="vt_start_use_before" style="display:none">
                  <pre>
--Blank start before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
+-Blank start use before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
 +Билет использоать до: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
              </div>
  
@@ -53,13 +54,13 @@
 -  from  <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
 -    to  <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
 +   с <span id="t_from_datetime">xx.xx.xxxx xx:xx</span>
-+  по <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
++  до <span id="t_to_datetime">xx.xx.xxxx xx:xx</span></pre>
              </div>
  
              <div id="vt_from_to_date" style="display:none">
                  <pre>
 -  from  <span id="t_from_date">xx.xx.xxxx</span> to <span id="t_to_date">xx.xx.xxxx</span></pre>
-+  с <span id="t_from_date">xx.xx.xxxx</span> по <span id="t_to_date">xx.xx.xxxx</span></pre>
++  с <span id="t_from_date">xx.xx.xxxx</span> до <span id="t_to_date">xx.xx.xxxx</span></pre>
              </div>
  
              <div id="vt_start_use_till" style="display:none">
@@ -87,7 +88,23 @@
                  </div>
                  <div>
                      <pre>
-@@ -176,14 +176,14 @@
+@@ -157,13 +157,13 @@
+ </pre>
+             </div>
+             <div class="fragment" style="margin-top:0.5em">
+-                <button id="btnRemarkAdd" style="width:100%;outline:0" onclick="rCallback()">Add remark</button>
++                <button id="btnRemarkAdd" style="width:100%;outline:0" onclick="rCallback()">Добавить коментарий</button>
+             </div>
+         </div>
+ 
+         <div class="frame">
+         <!-- ticket layout frame -->
+-            <div style="width:90%; display:table-cell;">
++            <div style="width:80%; display:table-cell;">
+                 <pre>
+ Layout: <span id="t_layout">xx (0xx)</span>
+ App ID: <span id="t_app_id">xxx (0xxxx)</span>
+@@ -187,14 +187,14 @@
          <div id="i_general" class="f_frame">
          <!-- IC general info frame -->
              <pre>
@@ -106,7 +123,7 @@
          </div>
  
          <div id="i_uid_otp" class="frame">
-@@ -210,7 +210,7 @@
+@@ -221,7 +221,7 @@
              <!-- IC counters fragment -->
  <hr/>
                  <pre>
@@ -115,3 +132,12 @@
  <span id="i_counters">  0: 000000</span></pre>
              </div>
              <div id="vi_read_sig" class="fragment" style="display:none">
+@@ -281,7 +281,7 @@
+    internal use
+             </pre>
+             <div class="fragment" style="margin-top:1em">
+-                <button id="btnEMail" style="width:100%;outline:0" onclick="eCallback()">Send dump</button>
++                <button id="btnEMail" style="width:100%;outline:0" onclick="eCallback()">Отпривить дамп</button>
+             </div>
+         </div>
+     </div>

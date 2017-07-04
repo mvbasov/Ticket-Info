@@ -31,7 +31,6 @@ package net.basov.ticketinfo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -49,9 +48,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import net.basov.metro.Ticket;
@@ -109,6 +110,7 @@ public class MainActivity extends Activity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         mainUI_WV.addJavascriptInterface(new WebViewJSCallback(this), "Android");
+        mainUI_WV.setWebChromeClient(new myWebChromeClient());
 
         /* Enable chome remote debuging for WebView (Ctrl-Shift-I) */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -403,6 +405,46 @@ public class MainActivity extends Activity {
             //ui.setWelcome("w_debug", "<font color=\"red\">Intent</font>");
             ui.displayWelcomeByNFC(mainUI_WV);
         }
+    }
+
+    private class myWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onJsPrompt(
+                WebView view,
+                String url,
+                String message,
+                String defaultValue,
+                final JsPromptResult result) {
+
+            final EditText input = new EditText(MainActivity.this);
+
+            new AlertDialog.Builder(MainActivity.this)
+                    .setView(input)
+                    .setTitle(R.string.add_remark_to_dump)
+                    .setPositiveButton(android.R.string.ok,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    String value = input.getText().toString();
+                                    result.confirm(value);
+                                }
+                            })
+                    .setNegativeButton(android.R.string.cancel,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    result.cancel();
+                                }
+                            })
+                    .setOnCancelListener(
+                            new DialogInterface.OnCancelListener() {
+                                public void onCancel(DialogInterface dialog) {
+                                    result.cancel();
+                                }
+                            })
+                    .show();
+
+            return true;
+        }
+
     }
 }
 

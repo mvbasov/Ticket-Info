@@ -30,12 +30,11 @@ import android.content.Context;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import net.basov.ticketinfo.MainActivity;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
@@ -98,4 +97,21 @@ public class FileIO {
 		NFCaDump.parseDump(dump, file_content);
 		return true;
 	}
+
+	public static boolean appendRemarkToDump(File f, String rem) {
+        boolean rc = false;
+
+        if (f.exists()) {
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(f, true);
+                outputStream.write(rem.getBytes());
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            rc = true;
+        }
+        return rc;
+    }
 }

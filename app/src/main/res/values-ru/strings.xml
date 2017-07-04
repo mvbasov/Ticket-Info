@@ -65,4 +65,5 @@
     <string name="t_baggage">Багажный билет (метро, монорельс)</string>
     <string name="ema_text">Если хотите, напишите здесь Ваш коментарий.</string>
     <string name="send_dump_by_email">Отпривить Dump по E-Mail…</string>
+    <string name="add_remark_to_dump">Добавить коментарий к дампу</string>
 </resources>

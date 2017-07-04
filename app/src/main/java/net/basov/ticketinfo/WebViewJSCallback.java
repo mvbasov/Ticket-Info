@@ -30,6 +30,8 @@ import android.net.Uri;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
+import net.basov.util.FileIO;
+
 import java.io.File;
 
 public class WebViewJSCallback {
@@ -74,5 +76,13 @@ public class WebViewJSCallback {
                 Toast.makeText(mContext, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @JavascriptInterface
+    public void appendRemark(String fileName, String remark) {
+        String filename = "AutoDumps/" + fileName;
+        File file = new File(mContext.getExternalFilesDir(null).getAbsolutePath(), filename);
+        if (FileIO.appendRemarkToDump(file, remark))
+            Toast.makeText(mContext, "Remark added to dump file.", Toast.LENGTH_LONG);
     }
 }
