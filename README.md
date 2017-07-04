@@ -45,9 +45,9 @@ Set Signing options according to you local settings. If you want to build only u
 * [NFC TagInfo](https://play.google.com/store/apps/details?id=at.mroland.android.apps.nfctaginfo) - to get information about chip, memory r/w status etc.
 * [MIFARE++ Ultralight](https://play.google.com/store/apps/details?id=com.samsung.sprc.fileselector) - to dump tickets.
 
-### Last changes:
+### Latest changes:
 
-- Add remark to dump from application
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
