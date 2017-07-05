@@ -317,7 +317,7 @@ public class MainActivity extends Activity {
                                 // TODO: display somthig interesting
                             } else {
                                 t.setFileName(
-                                        Ticket.createDumpFileName(t));
+                                        Ticket.createAutoDumpFileName(t));
                                 if (FileIO.writeAutoDump(dump, MainActivity.this)) {
                                     Toast toast = Toast.makeText(MainActivity.this, "Dump saved.", Toast.LENGTH_LONG);
                                     toast.show();
@@ -328,7 +328,7 @@ public class MainActivity extends Activity {
                                                 .getExternalFilesDir(null)
                                                 .getAbsolutePath();
                                         String fName = storage +
-                                                "/AutoDumps/" +
+                                                "/" +
                                                 t.getFileName() +
                                                 Ticket.FILE_EXT;
                                         if (FileIO.ReadDump(d_tmp, fName)) {
@@ -384,11 +384,14 @@ public class MainActivity extends Activity {
                     } else {
                         t = new Ticket(d);
                     }
+                    int pathLength = MainActivity.this
+                            .getExternalFilesDir(null)
+                            .getAbsolutePath().length() + 1;
                     t.setRealFileName(
-                            rcvUri.getLastPathSegment()
+                            rcvUri.getPath().substring(pathLength)
                     );
                     t.setFileName(
-                            Ticket.createDumpFileName(t)
+                            Ticket.createAutoDumpFileName(t)
                     );
                     if (d.getPagesNumber() < 12) {
                         // TODO: display something interesting

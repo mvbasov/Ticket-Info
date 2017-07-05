@@ -1,5 +1,5 @@
---- ticket.html	2017-07-04 20:04:01.086258454 +0300
-+++ ticket_ru.html	2017-07-04 20:03:50.030173475 +0300
+--- ticket.html	2017-07-05 23:24:26.121043067 +0300
++++ ticket_ru.html	2017-07-05 23:24:44.585090665 +0300
 @@ -9,7 +9,7 @@
      <script> var DEBUG = true; </script>
      -->
@@ -88,7 +88,7 @@
                  </div>
                  <div>
                      <pre>
-@@ -157,13 +157,13 @@
+@@ -159,13 +159,13 @@
  </pre>
              </div>
              <div class="fragment" style="margin-top:0.5em">
@@ -104,7 +104,7 @@
                  <pre>
  Layout: <span id="t_layout">xx (0xx)</span>
  App ID: <span id="t_app_id">xxx (0xxxx)</span>
-@@ -187,14 +187,14 @@
+@@ -189,14 +189,14 @@
          <div id="i_general" class="f_frame">
          <!-- IC general info frame -->
              <pre>
@@ -123,7 +123,7 @@
          </div>
  
          <div id="i_uid_otp" class="frame">
-@@ -221,7 +221,7 @@
+@@ -223,7 +223,7 @@
              <!-- IC counters fragment -->
  <hr/>
                  <pre>
@@ -132,7 +132,7 @@
  <span id="i_counters">  0: 000000</span></pre>
              </div>
              <div id="vi_read_sig" class="fragment" style="display:none">
-@@ -281,7 +281,7 @@
+@@ -283,7 +283,7 @@
     internal use
              </pre>
              <div class="fragment" style="margin-top:1em">

@@ -30,7 +30,6 @@ import android.content.Context;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,18 +46,15 @@ public class FileIO {
         File fileW;
         boolean rc = false;
         Ticket ticket = new Ticket(dump);
- 		String dumpFileName = Ticket.createDumpFileName(ticket);
+ 		String dumpFileName = Ticket.createAutoDumpFileName(ticket);
 		String dumpContent = NFCaDump.getDumpAsString(dump);
 
         FileOutputStream outputStream;
         File sdcard;
-        String fNamePrefix = "AutoDumps/";
-        String fName;
         try {
 
             sdcard = c.getExternalFilesDir(null);
-            fName = "/" + fNamePrefix + "/" + dumpFileName;
-            fileW = new File(sdcard, fName + Ticket.FILE_EXT);
+            fileW = new File(sdcard, dumpFileName + Ticket.FILE_EXT);
             if (!fileW.getParentFile().exists())
                 fileW.getParentFile().mkdirs();
             if (!fileW.exists()) {
@@ -102,11 +98,11 @@ public class FileIO {
         boolean rc = false;
 
         if (f.exists()) {
-            FileOutputStream outputStream = null;
+            FileOutputStream outputRemarkStream = null;
             try {
-                outputStream = new FileOutputStream(f, true);
-                outputStream.write(rem.getBytes());
-                outputStream.close();
+                outputRemarkStream = new FileOutputStream(f, true);
+                outputRemarkStream.write(rem.getBytes());
+                outputRemarkStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

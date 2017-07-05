@@ -73,6 +73,7 @@ public class Ticket {
     // Constants definition
 
     public static final String FILE_EXT = ".txt";
+    public static final String AUTO_DUMP_DIRECTORY = "AutoDumps/";
 
 
     /* Used transport types */
@@ -633,10 +634,10 @@ public class Ticket {
         processTicket();
     }
 
-    public static String createDumpFileName(Ticket ticket) {
+    public static String createAutoDumpFileName(Ticket ticket) {
 
         StringBuilder dName = new StringBuilder();
-        dName.append("");
+        dName.append(AUTO_DUMP_DIRECTORY);
 
         dName.append(String.format("%010d", ticket.getTicketNumber()));
         if (ticket.isTicketFormatValid()) {
@@ -693,6 +694,7 @@ public class Ticket {
             if (score == 3) {
                 // Create IC UID and crc16 based file name for other cases
                 dName = new StringBuilder();
+                dName.append(AUTO_DUMP_DIRECTORY);
                 dName.append(String.format("%08x%08x",
                         ticket.getDump().get(0),
                         ticket.getDump().get(1)

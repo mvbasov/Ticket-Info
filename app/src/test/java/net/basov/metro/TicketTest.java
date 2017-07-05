@@ -285,8 +285,8 @@ public class TicketTest {
     @Test
     public void testCreateDumpFileName() throws Exception {
         Assert.assertEquals(
-                Ticket.createDumpFileName(this.expectedTicket),
-                Ticket.createDumpFileName(this.realTicket)
+                Ticket.createAutoDumpFileName(this.expectedTicket),
+                Ticket.createAutoDumpFileName(this.realTicket)
         );
     }
 }
