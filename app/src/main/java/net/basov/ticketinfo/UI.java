@@ -26,8 +26,8 @@ package net.basov.ticketinfo;
 
 import android.content.Context;
 import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
@@ -223,12 +223,15 @@ public class UI {
     }
 
     public void displayWelcome(final WebView wv) {
-        wv.setWebViewClient(new WebViewClient() {
+        wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(wv, url);
-
-                view.evaluateJavascript("javascript:jreplace('" + welcome_json.toString() +"')",null);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.evaluateJavascript("javascript:jreplace('" + welcome_json.toString() +"')",null);
+                } else {
+                    view.loadUrl("javascript:jreplace('" + welcome_json.toString() +"')",null);
+                }
                 // TODO: remove debug
                 //Log.d("tttttt",welcome_json.toString());
                 wv.clearCache(true);
@@ -239,16 +242,22 @@ public class UI {
     }
 
     public void displayUI(final WebView wv) {
-        wv.setWebViewClient(new WebViewClient() {
+        wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(wv, url);
 
-                view.evaluateJavascript("javascript:jreplace('" + header_json.toString() +"')", null);
-                view.evaluateJavascript("javascript:jreplace('" + ticket_json.toString() +"')", null);
-                view.evaluateJavascript("javascript:jreplace('" + ic_json.toString() +"')",null);
-                view.evaluateJavascript("javascript:jreplace('" + dump_json.toString() +"')",null);
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.evaluateJavascript("javascript:jreplace('" + header_json.toString() + "')", null);
+                    view.evaluateJavascript("javascript:jreplace('" + ticket_json.toString() + "')", null);
+                    view.evaluateJavascript("javascript:jreplace('" + ic_json.toString() + "')", null);
+                    view.evaluateJavascript("javascript:jreplace('" + dump_json.toString() + "')", null);
+                } else {
+                    view.loadUrl("javascript:jreplace('" + header_json.toString() + "')");
+                    view.loadUrl("javascript:jreplace('" + ticket_json.toString() + "')");
+                    view.loadUrl("javascript:jreplace('" + ic_json.toString() + "')");
+                    view.loadUrl("javascript:jreplace('" + dump_json.toString() + "')");
+                }
                 wv.clearCache(true);
                 //TODO: remove debug
                 //Log.d("hhhh", header_json.toString());

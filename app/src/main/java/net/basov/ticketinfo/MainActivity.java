@@ -28,7 +28,6 @@ package net.basov.ticketinfo;
  * Created by mvb on 6/15/17.
  * New version of UI based on WebView
  */
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -51,10 +50,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.webkit.JsPromptResult;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
-import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -457,34 +454,5 @@ public class MainActivity extends Activity {
 
     }
 
-    /**
-     * Redirect external URLs to browser
-     */
-    private class MyWebViewClient extends WebViewClient {
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            final Uri uri = Uri.parse(url);
-            return processUri(uri);
-        }
-
-        @TargetApi(Build.VERSION_CODES.N)
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-            final Uri uri = request.getUrl();
-            return processUri(uri);
-        }
-
-        private boolean processUri(final Uri uri) {
-            if (uri.getHost().length() == 0) {
-                return false;
-            } else {
-                final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-                return true;
-            }
-        }
-    }
 }
 
