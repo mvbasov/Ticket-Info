@@ -33,6 +33,7 @@ import android.widget.Toast;
 import net.basov.util.FileIO;
 
 import java.io.File;
+import android.os.*;
 
 public class WebViewJSCallback {
 
@@ -61,12 +62,21 @@ public class WebViewJSCallback {
             i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{EMA + "@" + EMA_DOM});
             i.putExtra(Intent.EXTRA_SUBJECT, "Ticket-Info dump: " + fileName);
-            String emaText = mContext.getString(R.string.ema_text);
+            String emaText = mContext.getString(R.string.ema_text);            
+            emaText += "\n\n--- Don't edit after this line, please ---\n";
             if (parserErrors != null && parserErrors.length() != 0) {
-                emaText += "\n\n--- Don't edit after this line, please ---\n";
+                emaText += "--- Parser errors ---\n";
                 emaText += parserErrors;
-                emaText += "\n--- End of diagnostic ---\n";
+                emaText += "\n--- End of parse errors ---\n";
             }
+            emaText += "--- Platform information ---\n";
+            //emaText += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+            emaText += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
+            emaText += " Manufacturer: " + Build.MANUFACTURER + "\n";
+            emaText += " Device: " + android.os.Build.DEVICE + "\n";
+            emaText += " Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")\n";
+            emaText += "--- End of platform information ---\n";
+
             i.putExtra(Intent.EXTRA_TEXT, emaText);
             i.putExtra(Intent.EXTRA_STREAM, path);
             try {
