@@ -36,8 +36,10 @@ import net.basov.util.TextTools;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import ru.valle.tickets.ui.Decode;
 
@@ -159,8 +161,6 @@ public class UI {
                 welcome_json.put(VISIBILITY, vv);
                 welcome_json.getJSONObject(VISIBILITY).put(name,"");
             }
-            // TODO: remove debug
-            //Log.d("vvvvWelcome",welcome_json.getJSONObject("visibility").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -177,8 +177,6 @@ public class UI {
                 ticket_json.put(VISIBILITY, vv);
                 ticket_json.getJSONObject(VISIBILITY).put(name,"");
             }
-            // TODO: remove debug
-            //Log.d("vvvvWelcome",welcome_json.getJSONObject("visibility").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -195,8 +193,6 @@ public class UI {
                 ic_json.put(VISIBILITY, vv);
                 ic_json.getJSONObject(VISIBILITY).put(name,"");
             }
-            // TODO: remove debug
-            //Log.d("vvvvWelcome",welcome_json.getJSONObject("visibility").toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -232,8 +228,6 @@ public class UI {
                 } else {
                     view.loadUrl("javascript:jreplace('" + welcome_json.toString() +"')",null);
                 }
-                // TODO: remove debug
-                //Log.d("tttttt",welcome_json.toString());
                 wv.clearCache(true);
             }
         });
@@ -269,12 +263,48 @@ public class UI {
         wv.loadUrl("file:///android_asset/" + c.getString(R.string.ticket_ui_file));
     }
 
+    public void displayTicketInfo(String appTitle, List<String> dumpContent, String fileName, String realFileName, String remark, WebView wv){
+        NFCaDump dmp = new NFCaDump();
+        Ticket ticket;
+        if (dumpContent != null) {
+            NFCaDump.parseDump(dmp, dumpContent);
+            if (remark != null && remark.length() != 0)
+                dmp.setRemark(remark);
+            if (dmp.getDDD() != null) {
+                ArrayList<Integer> tmpDump = new ArrayList<Integer>();
+
+                for (int i = 0; i < 12; i++) {
+                    tmpDump.add(dmp.getPageAsInt(i));
+                }
+
+                ticket = new Ticket(tmpDump, dmp.getDDD());
+                ticket.setDDDRem(dmp.getDDDRem());
+            } else {
+                ticket = new Ticket(dmp);
+            }
+
+            ticket.setFileName(fileName);
+            ticket.setRealFileName(realFileName);
+            displayTicketInfo(dmp, ticket, wv);
+        } else {
+            setWelcome("w_header", appTitle);
+            displayWelcomeByNFC(wv);
+        }
+    }
+
     public void displayTicketInfo(NFCaDump d, Ticket t, WebView wv) {
         Context c = wv.getContext();
         if (t.getTicketState() == Ticket.TS_UNKNOWN)
             t.detectTicketState();
         this.setTicketHeader("h_state", t.getTicketStateAsHTML(c));
         this.setTicketHeader("h_number", t.getTicketNumberAsString());
+        if (t.isDebugTimeSet()) {
+            this.setTicket("t_debug",
+                    "<font color=\"Violet\">Debug time is: " +
+                            Ticket.DTF.format(t.getTimeToCompare().getTime()) +
+                            "</font>"
+            );
+        }
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType(), t.getTicketTypeVersion()));
         if (t.getValidDays() != 0) {
             this.setTicket("t_valid_days",t.getValidDaysAsString());
@@ -339,7 +369,7 @@ public class UI {
                 this.setTicket("t_station_id", t.getTurnstileEnteredAsString());
                 this.setTicket("t_station", t.getTurnstileDescAsHTML(c));
             } else if (t.getEntranceEntered() !=0) {
-                this.setTicket("t_station_id", t.getEntrancrEnteredAsString());
+                this.setTicket("t_station_id", t.getEntranceEnteredAsString());
                 this.setTicket("t_station", t.getStationDescAsHTML(c));
             }
             this.setTicket("t_transport_type", t.getTransportTypeAsHTML(c));
@@ -389,7 +419,7 @@ public class UI {
             this.setTicket("t_90m_details", sb.toString());
         }
         this.setTicket("t_file_name", t.getFileName()+Ticket.FILE_EXT);
-        if (! t.getRealFileName().equals(t.getFileName()+Ticket.FILE_EXT))
+        if (t.getRealFileName() != null && !t.getRealFileName().equals(t.getFileName()+Ticket.FILE_EXT))
             this.setTicket("t_real_file_name", t.getRealFileName());
         if (d.getRemark().length() > 0)
             this.setTicket("t_note_text", d.getRemark());
@@ -433,6 +463,5 @@ public class UI {
             this.setIC("i_tech",d.getATechAsHTML());
         this.setDump(d.getDumpAsHTMLString());
         this.displayUI(wv);
-
     }
 }

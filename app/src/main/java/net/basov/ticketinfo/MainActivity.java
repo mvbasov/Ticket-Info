@@ -61,6 +61,7 @@ import net.basov.util.FileIO;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -72,9 +73,13 @@ public class MainActivity extends Activity {
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
     private IntentFilter[] filters;
+    private List<String> d_file_content;
+    private String d_remark;
+    private String d_auto_file_name;
+    private String d_real_file_name;
     private NFCaDump d;
     private String[][] techList;
-    private String title;
+    private String app_title;
     private String currentLang;
 
     private UI ui;
@@ -133,25 +138,22 @@ public class MainActivity extends Activity {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             int git_describe_id = getResources().getIdentifier("git_describe", "string", getPackageName());
             if (git_describe_id == 0)
-                title = getResources().getString(R.string.app_name)
+                app_title = getResources().getString(R.string.app_name)
                         + " "
                         + pInfo.versionName
                         + "-AIDE";
             else {
                 String git_describe = getResources().getString(git_describe_id);
                 if (!git_describe.isEmpty())
-                    title = getResources().getString(R.string.app_name)
+                    app_title = getResources().getString(R.string.app_name)
                             + " "
                             + git_describe;
                 else
-                    title = getResources().getString(R.string.app_name)
+                    app_title = getResources().getString(R.string.app_name)
                             + " "
                             + pInfo.versionName;
             }
-
-            //ui.setWelcome("w_debug", "<font color=\"red\">Inside get package name try</font>");
-            ui.setWelcome("w_header", title);
-            ui.displayWelcome(mainUI_WV);
+            ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
@@ -189,9 +191,6 @@ public class MainActivity extends Activity {
             nfcEnableDialog.show();
 
         }
-        // TODO: If I enable it reading saved dump dowsn't operate, but if disabled wrong NFC state displayed
-//        ui.setWelcome("w_debug", "<font colo=\"red\">After NFC check</font>");
-//        ui.displayWelcomeByNFC(c, adapter, mainUI_WV);
 
         pendingIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -217,6 +216,12 @@ public class MainActivity extends Activity {
             Intent intent = getIntent();
             finish();
             startActivity(intent);
+//TODO: remove debug
+//            Toast.makeText(
+//                    MainActivity.this,
+//                    "Main activity recreated because language changed",
+//                    Toast.LENGTH_SHORT
+//            ).show();
         }
 
     }
@@ -232,16 +237,41 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //outState.putString("app_lang", sharedPref.getString("appLang", "en"));
+        outState.putString("app_title", app_title);
+        outState.putStringArrayList("d_file_content", (ArrayList<String>) d_file_content);
+        outState.putString("d_auto_file_name", d_auto_file_name);
+        outState.putString("d_real_file_name", d_real_file_name);
+        outState.putString("d_remark", d_remark);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        d_file_content = savedInstanceState.getStringArrayList("d_file_content");
+        d_auto_file_name = savedInstanceState.getString("d_auto_file_name");
+        d_real_file_name = savedInstanceState.getString("d_real_file_name");
+        d_remark = savedInstanceState.getString("d_remark");
+        app_title = savedInstanceState.getString("app_title");
+
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == NFC_DIALOG_REQUEST_CODE) {
             /* Process NFC enable dialog */
-            //ui.setWelcome("w_debug", "<font color=\"red\">onActivity result</font>");
             ui.displayWelcomeByNFC(mainUI_WV);
         }
     }
 
     @Override
     public void onNewIntent(Intent intent) {
+        /* NFC tag read event */
         if (intent != null && intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
             try {
                 Bundle extras = intent.getExtras();
@@ -258,6 +288,12 @@ public class MainActivity extends Activity {
 //                ).show();
 
                 final NfcA nfca = NfcA.get(tag);
+
+                // Reading new tag. Clean previous content.
+                d_file_content = null;
+                d_remark = null;
+                d_auto_file_name = null;
+                d_real_file_name = null;
 
                 ui.setWelcome("w_msg", getString(R.string.ticket_is_reading));
                 ui.displayWelcome(mainUI_WV);
@@ -311,29 +347,35 @@ public class MainActivity extends Activity {
                     protected void onPostExecute(NFCaDump dump) {
                         if (dump != null) {
                             ui.dataClean();
-                            Ticket t = new Ticket(dump);
+
+                            d_file_content = new ArrayList<String>();
+                            for (String line : NFCaDump.getDumpAsString(dump).split("\\r?\\n"))
+                                d_file_content.add(line);
+                            d_auto_file_name = Ticket.createAutoDumpFileName(new Ticket(dump));
 
                             if (dump.getPagesNumber() < 12) {
                                 // TODO: display somthig interesting
                             } else {
-                                t.setFileName(
-                                        Ticket.createAutoDumpFileName(t));
                                 if (FileIO.writeAutoDump(dump, MainActivity.this)) {
-                                    Toast toast = Toast.makeText(MainActivity.this, "Dump saved.", Toast.LENGTH_LONG);
-                                    toast.show();
+                                    Toast.makeText(
+                                            MainActivity.this,
+                                            "Dump saved.",
+                                            Toast.LENGTH_LONG
+                                            ).show();
                                 } else {
+                                    NFCaDump d_tmp = new NFCaDump();
                                     try {
-                                        NFCaDump d_tmp = new NFCaDump();
                                         String storage = MainActivity.this
                                                 .getExternalFilesDir(null)
                                                 .getAbsolutePath();
                                         String fName = storage +
                                                 "/" +
-                                                t.getFileName() +
+                                                d_auto_file_name +
                                                 Ticket.FILE_EXT;
                                         if (FileIO.ReadDump(d_tmp, fName)) {
                                             dump.setRemark(d_tmp.getRemark());
-
+                                            d_remark = d_tmp.getRemark();
+                                            //d_real_file_name = t.getRealFileName();
                                         }
                                     } catch (NullPointerException e) {
                                         // TODO: display somthig interesting
@@ -341,7 +383,7 @@ public class MainActivity extends Activity {
                                 }
                             }
 
-                            ui.displayTicketInfo(dump, t, mainUI_WV);
+                            ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
@@ -356,6 +398,7 @@ public class MainActivity extends Activity {
                 ui.displayWelcome(mainUI_WV);
                 Log.e(TAG, "read err", th);
             }
+        /* Dump shared by another application */
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
                 || intent.getAction().equals(Intent.ACTION_VIEW))
                 && intent.getType().startsWith("text/")){
@@ -371,46 +414,31 @@ public class MainActivity extends Activity {
             if (rcvUri != null) {
                 FileIO.ReadDump(d, rcvUri.getPath());
                 if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
-                    Ticket t;
-                    if (d.getDDD() != null) {
-                        ArrayList<Integer> tmpDump = new ArrayList<Integer>();
 
-                        for (int i = 0; i < 12; i++) {
-                            tmpDump.add(d.getPageAsInt(i));
-                        }
+                    d_file_content = new ArrayList<String>();
+                    for (String line : NFCaDump.getDumpAsString(d).split("\\r?\\n"))
+                        d_file_content.add(line);
 
-                        t = new Ticket(tmpDump, d.getDDD());
-                        t.setDDDRem(d.getDDDRem());
-                    } else {
-                        t = new Ticket(d);
-                    }
+                    d_remark = d.getRemark();
+
                     int pathLength = MainActivity.this
                             .getExternalFilesDir(null)
                             .getAbsolutePath().length() + 1;
-                    t.setRealFileName(
-                            rcvUri.getPath().substring(pathLength)
-                    );
-                    t.setFileName(
-                            Ticket.createAutoDumpFileName(t)
-                    );
+                    d_real_file_name = rcvUri.getPath().substring(pathLength);
+
+                    d_auto_file_name = Ticket.createAutoDumpFileName(new Ticket(d));
+
                     if (d.getPagesNumber() < 12) {
                         // TODO: display something interesting
                     }
-                    if (t.isDebugTimeSet()) {
-                        ui.setTicket("t_debug",
-                                "<font color=\"Violet\">Debug time is: " +
-                                Ticket.DTF.format(t.getTimeToCompare().getTime()) +
-                                "</font>"
-                        );
-                    }
 
-                    ui.displayTicketInfo(d, t, mainUI_WV);
+                    ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                 }
             }
         } else {
-            //ui.setWelcome("w_debug", "<font color=\"red\">Intent</font>");
-            ui.displayWelcomeByNFC(mainUI_WV);
+            /* Other intent ??? */
+            ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
         }
     }
 

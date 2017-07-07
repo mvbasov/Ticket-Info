@@ -48,7 +48,6 @@ public class WebViewJSCallback {
 
     @JavascriptInterface
     public void launchPreferences() {
-        // TODO: Move settings to apropriate place
         Intent i = new Intent(mContext, AppPreferencesActivity.class);
         mContext.startActivity(i);
     }

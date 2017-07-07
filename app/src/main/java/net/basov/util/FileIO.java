@@ -70,7 +70,7 @@ public class FileIO {
         return rc;
     }
 	
-	public static boolean ReadDump(NFCaDump dump, String fileName) {
+	public static ArrayList<String> ReadDump(String fileName) {
 		ArrayList<String> file_content = new ArrayList<String>();
 		try {
 			BufferedReader input = new BufferedReader(new FileReader(fileName));
@@ -87,12 +87,20 @@ public class FileIO {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
         }
-		dump.setReadFrom(NFCaDump.READ_FROM_FILE);
-		NFCaDump.parseDump(dump, file_content);
-		return true;
+		return file_content;
 	}
+
+    public static boolean ReadDump(NFCaDump dump, String fileName) {
+        ArrayList<String> dump_content = ReadDump(fileName);
+        if (dump_content.size() !=0) {
+            dump.setReadFrom(NFCaDump.READ_FROM_FILE);
+            NFCaDump.parseDump(dump, dump_content);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 	public static boolean appendRemarkToDump(File f, String rem) {
         boolean rc = false;

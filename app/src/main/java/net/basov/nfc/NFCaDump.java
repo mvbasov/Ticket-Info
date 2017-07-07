@@ -85,6 +85,7 @@ public class NFCaDump {
 
     // Data fields definition
     private byte ReadFrom;
+    // Each page is 4 bytes array
     private ArrayList<byte[]> Pages;
     private int LastBlockValidPages;
     private boolean LastBlockVerified;
