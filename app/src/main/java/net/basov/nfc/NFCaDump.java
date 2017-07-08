@@ -913,8 +913,9 @@ public class NFCaDump {
         dText.append(dump.getDetectedICTypeAsString());
 
         dText.append("---\n");
-        if (dump.getRemark() != null && dump.getRemark().length() != 0) {
-            dText.append(dump.getRemark());
+        String dumpRemark = dump.getRemark();
+        if (dumpRemark != null && dumpRemark.length() != 0) {
+            dText.append(dumpRemark);
         } else {
             dText.append("DD: ");
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

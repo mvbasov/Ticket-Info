@@ -299,10 +299,20 @@ public class UI {
         this.setTicketHeader("h_state", t.getTicketStateAsHTML(c));
         this.setTicketHeader("h_number", t.getTicketNumberAsString());
         if (t.isDebugTimeSet()) {
+            String DDDrem;
+            if (d.getDDDRem() != null) {
+                DDDrem =
+                        "<pre style=\"white-space: pre-wrap\">"
+                        + d.getDDDRem()
+                        + "</pre>";
+            } else {
+                DDDrem = "";
+            }
             this.setTicket("t_debug",
-                    "<font color=\"Violet\">Debug time is: " +
-                            Ticket.DTF.format(t.getTimeToCompare().getTime()) +
-                            "</font>"
+                    "<font color=\"Violet\">Debug time is: "
+                    + Ticket.DTF.format(t.getTimeToCompare().getTime())
+                    + "</font>"
+                    + DDDrem
             );
         }
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType(), t.getTicketTypeVersion()));
