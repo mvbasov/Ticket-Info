@@ -69,10 +69,11 @@ public class NFCaDump {
 
     public static final byte IC_UNKNOWN = 0;
     public static final byte IC_MF0ICU1 = IC_UNKNOWN + 1;
-    public static final byte IC_MF0UL11 = IC_UNKNOWN + 2;
-    public static final byte IC_MF0UL21 = IC_UNKNOWN + 3;
-    public static final byte IC_MIK640D = IC_UNKNOWN + 4;
-    public static final byte IC_MIK1312ED = IC_UNKNOWN + 5;
+    public static final byte IC_MF0ICU2 = IC_UNKNOWN + 2;
+    public static final byte IC_MF0UL11 = IC_UNKNOWN + 3;
+    public static final byte IC_MF0UL21 = IC_UNKNOWN + 4;
+    public static final byte IC_MIK640D = IC_UNKNOWN + 5;
+    public static final byte IC_MIK1312ED = IC_UNKNOWN + 6;
 
     public static final byte READ_UNSET = 0;
     public static final byte READ_FROM_NFC = READ_UNSET + 1;
@@ -471,15 +472,18 @@ public class NFCaDump {
 */
                         IC_Type = IC_MF0UL11;
                     }
-                } else if (getPagesNumber() == 44 &&
-                        isVERSIONNotEmpty()) {
-                    if (getVersionInfo()[0] == (byte) 0x00 &&
-                            getVersionInfo()[1] == (byte) 0x04 &&
-                            getVersionInfo()[2] == (byte) 0x03 &&
-                            getVersionInfo()[4] == (byte) 0x01 &&
-                            getVersionInfo()[5] == (byte) 0x00 &&
-                            getVersionInfo()[6] == (byte) 0x0e) {
-                        IC_Type = IC_MF0UL21;
+                } else if (getPagesNumber() == 44) {
+                    if (isVERSIONNotEmpty()) {
+                        if (getVersionInfo()[0] == (byte) 0x00 &&
+                                getVersionInfo()[1] == (byte) 0x04 &&
+                                getVersionInfo()[2] == (byte) 0x03 &&
+                                getVersionInfo()[4] == (byte) 0x01 &&
+                                getVersionInfo()[5] == (byte) 0x00 &&
+                                getVersionInfo()[6] == (byte) 0x0e) {
+                            IC_Type = IC_MF0UL21;
+                        }
+                    } else {
+                        IC_Type = IC_MF0ICU2;
                     }
                 } else if (getPagesNumber() == 16) {
                     IC_Type = IC_MF0ICU1;
@@ -520,6 +524,8 @@ public class NFCaDump {
         switch (getIC_Type()) {
             case IC_MF0ICU1:
                 return "(probably)MF0ICU1 (64 bytes) [Mifare Ultralight]";
+            case IC_MF0ICU2:
+                return "(probably)MF0ICU2 (176 bytes) [Mifare Ultralight C]";
             case IC_MF0UL11:
                 return "MF0UL(H)11 (80 bytes) [Mifare Ultralight EV1]";
             case IC_MF0UL21:
@@ -1236,6 +1242,8 @@ public class NFCaDump {
         switch (getIC_Type()) {
             case IC_MF0ICU1:
                 return "  (probably) MF0ICU1\n  [Mifare Ultralight]";
+            case IC_MF0ICU2:
+                return "  (probably) MF0ICU2\n  [Mifare Ultralight C]";
             case IC_MF0UL11:
                 return "  MF0UL(H)11\n  [Mifare Ultralight EV1]";
             case IC_MF0UL21:
@@ -1254,6 +1262,8 @@ public class NFCaDump {
         switch (getIC_Type()) {
             case IC_MF0ICU1:
                 return "64";
+            case IC_MF0ICU2:
+                return "176";
             case IC_MF0UL11:
                 return "80";
             case IC_MF0UL21:
