@@ -913,11 +913,15 @@ public class NFCaDump {
         dText.append(dump.getDetectedICTypeAsString());
 
         dText.append("---\n");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dText.append("DD: ");
-        Calendar c = Calendar.getInstance();
-        dText.append(df.format(c.getTime()));
-        dText.append("\n");
+        if (dump.getRemark() != null && dump.getRemark().length() != 0) {
+            dText.append(dump.getRemark());
+        } else {
+            dText.append("DD: ");
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Calendar c = Calendar.getInstance();
+            dText.append(df.format(c.getTime()));
+            dText.append("\n");
+        }
 
         return dText.toString();
     }
