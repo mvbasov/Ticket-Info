@@ -24,7 +24,7 @@ I doing my best to make this project actual.
 
 Some restrictions exist:
 
-* Work only with "paper" tickets (Mifare Ultralight and modern Micron JSC). It because new android phones use NFC chip with reduced functionality. Modern Broadcom NFC chip can't read Mifare Classic 1K (Troika ticket based on it)
+* Work only with "paper" tickets (Mifare Ultralight&#174; and modern Micron JSC). It because new android phones use NFC chip with reduced functionality. Modern Broadcom NFC chip can't read Mifare Classic 1K (Troika ticket based on it)
 * All information for this project gathered by reverce engeneering and information may be not correct. I don't know official source of information about tickets format and used chips. 
 
 ### Version numbering:
@@ -51,4 +51,8 @@ Set Signing options according to you local settings. If you want to build only u
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
+
+MIFARE&#174; is a trademark of NXP B.V.
+
+MIFARE Ultralight&#174; is a trademark of NXP B.V.
 
