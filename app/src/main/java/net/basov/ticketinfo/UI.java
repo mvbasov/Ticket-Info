@@ -27,15 +27,18 @@ package net.basov.ticketinfo;
 import android.content.Context;
 import android.nfc.NfcAdapter;
 import android.os.Build;
+import android.os.Environment;
 import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
+import net.basov.util.FileIO;
 import net.basov.util.TextTools;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -201,8 +204,12 @@ public class UI {
     public void displayWelcomeByNFC(WebView wv) {
         Context c = wv.getContext();
         NfcAdapter adapter = NfcAdapter.getDefaultAdapter(c);
+        //TODO: remove debug
+//        setWelcome("w_debug",
+//                FileIO.getFilesDir(wv.getContext()).getAbsolutePath()
+//        );
         if (adapter == null || ! adapter.isEnabled()){
-            setWelcome("w_msg", 
+            setWelcome("w_msg",
                     "<font color=\"darkred\">"
                     + c.getString(R.string.welcome_without_nfc)
                     + "<font>"
@@ -214,7 +221,6 @@ public class UI {
                     + "<font>"
             );
         }
-        //setWelcome("w_debug", "<font color=\"red\">Inside Welcome by NFC</font>");
         displayWelcome(wv);
     }
 

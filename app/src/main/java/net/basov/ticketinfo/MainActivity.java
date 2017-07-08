@@ -208,7 +208,8 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
+        if (adapter != null)
+            adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String resumeLang = sharedPref.getString("appLang", "en");
@@ -229,7 +230,8 @@ public class MainActivity extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-        adapter.disableForegroundDispatch(this);
+        if (adapter != null)
+            adapter.disableForegroundDispatch(this);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         currentLang = sharedPref.getString("appLang", "en");
@@ -365,8 +367,8 @@ public class MainActivity extends Activity {
                                 } else {
                                     NFCaDump d_tmp = new NFCaDump();
                                     try {
-                                        String storage = MainActivity.this
-                                                .getExternalFilesDir(null)
+                                        String storage =
+                                                FileIO.getFilesDir(MainActivity.this)
                                                 .getAbsolutePath();
                                         String fName = storage +
                                                 "/" +
@@ -421,8 +423,8 @@ public class MainActivity extends Activity {
 
                     d_remark = d.getRemark();
 
-                    int pathLength = MainActivity.this
-                            .getExternalFilesDir(null)
+                    int pathLength =
+                            FileIO.getFilesDir(MainActivity.this)
                             .getAbsolutePath().length() + 1;
                     d_real_file_name = rcvUri.getPath().substring(pathLength);
 

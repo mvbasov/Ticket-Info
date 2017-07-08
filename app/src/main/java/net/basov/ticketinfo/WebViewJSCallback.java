@@ -55,7 +55,7 @@ public class WebViewJSCallback {
     @JavascriptInterface
     public void sendDump(String fileName, String parserErrors) {
         if (fileName != null && fileName.length() != 0) {
-            File fileLocation = new File(mContext.getExternalFilesDir(null).getAbsolutePath(), fileName);
+            File fileLocation = new File(FileIO.getFilesDir(mContext).getAbsolutePath(), fileName);
             Uri path = Uri.fromFile(fileLocation);
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("message/rfc822");
@@ -88,7 +88,7 @@ public class WebViewJSCallback {
 
     @JavascriptInterface
     public void appendRemark(String fileName, String remark) {
-        File file = new File(mContext.getExternalFilesDir(null).getAbsolutePath(), fileName);
+        File file = new File(FileIO.getFilesDir(mContext).getAbsolutePath(), fileName);
         if (FileIO.appendRemarkToDump(file, remark))
             Toast.makeText(mContext, "Remark added to dump file.", Toast.LENGTH_SHORT).show();
     }
