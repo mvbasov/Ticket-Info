@@ -1408,35 +1408,33 @@ public class Ticket {
                 toCal.add(Calendar.MINUTE, getFirstUseTime());
                 if (toCal.before(getTimeToCompare())) {
                     setTicketState(TS_EXPIRED);
-                    unsetTicketState(TS_READY);
+                    //unsetTicketState(TS_READY);
                 }
-             
             } else if (getStartUseTill() != null) {
                 setTicketState(TS_NEVER_USED);
+                if (getStartUseTill().before(getTimeToCompare())) {
+                    setTicketState(TS_EXPIRED);
+                    //unsetTicketState(TS_READY);
+                }
             }
-                       
-           
-
-               
-            
         } else {
-        if (getPassesLeft() == 0) {
-            setTicketState(TS_EMPTY);
-            unsetTicketState(TS_READY);
-        } else if (mIssued == null && mStartUseBefore != null) {
-            if (mStartUseBefore.before(getTimeToCompare())) {
-                setTicketState(TS_EXPIRED);
-                unsetTicketState(TS_READY);
+            if (getPassesLeft() == 0) {
+                setTicketState(TS_EMPTY);
+                //unsetTicketState(TS_READY);
+            } else if (mIssued == null && mStartUseBefore != null) {
+                if (mStartUseBefore.before(getTimeToCompare())) {
+                    setTicketState(TS_EXPIRED);
+                    //unsetTicketState(TS_READY);
+                }
+            } else if (mIssued != null) {
+                tmpCal = (Calendar) mIssued.clone();
+                tmpCal.add(Calendar.DATE, getValidDays());
+                if (tmpCal.before(getTimeToCompare()) &&
+                        getTicketClass() != C_UNLIM_DAYS) {
+                    setTicketState(TS_EXPIRED);
+                    //unsetTicketState(TS_READY);
+                }
             }
-        } else if (mIssued != null) {
-            tmpCal = (Calendar) mIssued.clone();
-            tmpCal.add(Calendar.DATE, getValidDays());
-            if (tmpCal.before(getTimeToCompare()) &&
-                    getTicketClass() != C_UNLIM_DAYS) {
-                setTicketState(TS_EXPIRED);
-                unsetTicketState(TS_READY);
-            }
-        }     
         }
         if (getTripSeqNumber() == 0)
             setTicketState(TS_NEVER_USED);
@@ -1450,7 +1448,9 @@ public class Ticket {
             mTicketState = ts;
         else {
             //mTicketState ^= TS_UNKNOWN;  // toggle bit
-            mTicketState &= ~TS_UNKNOWN; // clear bit
+            unsetTicketState(TS_UNKNOWN); // clear bit
+            if ((ts & TS_EXPIRED) != 0 || (ts & TS_EMPTY) != 0)
+                unsetTicketState(TS_READY);
             mTicketState |= ts;
         }
     }
