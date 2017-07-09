@@ -1402,6 +1402,24 @@ public class Ticket {
         Calendar tmpCal = null;
 
         setTicketState(TS_READY);
+        if (getTicketClass() == C_UNLIM_DAYS) {
+            if (getTripSeqNumber() != 0 && getUseTillDate() != null) {
+                Calendar toCal = (Calendar) getUseTillDate().clone();
+                toCal.add(Calendar.MINUTE, getFirstUseTime());
+                if (toCal.before(getTimeToCompare())) {
+                    setTicketState(TS_EXPIRED);
+                    unsetTicketState(TS_READY);
+                }
+             
+            } else if (getStartUseTill() != null) {
+                setTicketState(TS_NEVER_USED);
+            }
+                       
+           
+
+               
+            
+        } else {
         if (getPassesLeft() == 0) {
             setTicketState(TS_EMPTY);
             unsetTicketState(TS_READY);
@@ -1418,36 +1436,8 @@ public class Ticket {
                 setTicketState(TS_EXPIRED);
                 unsetTicketState(TS_READY);
             }
+        }     
         }
-
-        if (getTicketClass() == C_UNLIM_DAYS) {
-            if (mIssued == null) {
-                if (mStartUseBefore.after(tmpCal)) {
-                    setTicketState(TS_EXPIRED);
-                    unsetTicketState(TS_READY);
-                } else {
-                    setTicketState(TS_NEVER_USED);
-                }
-            } else {
-
-                tmpCal = (Calendar) mIssued.clone();
-                tmpCal.add(Calendar.HOUR, 24 * getValidDays());
-
-                if (DEBUG_TIME)
-                    Log.d(TAG, String.format("Compare: %s\n", DDF.format(tmpCal.getTime())));
-
-                if (tmpCal.compareTo(getTimeToCompare()) < 0) {
-                    setTicketState(TS_EXPIRED);
-                    unsetTicketState(TS_READY);
-                } else if (mTimeToNextTrip > 0) {
-                    //sb.append("\n\tW A I T\n");
-                }
-                if (tmpCal.after(getTimeToCompare())
-                        && getTripSeqNumber() == 0)
-                    setTicketState(TS_NEVER_USED);
-            }
-        }
-
         if (getTripSeqNumber() == 0)
             setTicketState(TS_NEVER_USED);
 
