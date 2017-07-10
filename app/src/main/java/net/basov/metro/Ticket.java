@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import net.basov.ticketinfo.R;
+import net.basov.util.FileIO;
 
 import ru.valle.tickets.ui.Lang;
 
@@ -1744,7 +1745,7 @@ public class Ticket {
      * @return data file URI (as String)
      */
     private String getDataFileURIasString(Context c) {
-        String sdcardPath = c.getExternalFilesDir(null).getPath();
+        String sdcardPath = FileIO.getFilesDir(c).getPath();
         URI dataFileURI = null;
         try {
             dataFileURI = new URI("file://" + sdcardPath + "/.db/" + "metro.xml");
