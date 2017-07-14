@@ -69,4 +69,6 @@
     <string name="ema_text">Put your comment here if you wish.</string>
     <string name="send_dump_by_email">Send dump by E-Mail…</string>
     <string name="add_remark_to_dump">Add your remark to dump</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
 </resources>

@@ -1,0 +1,40 @@
+--- start.html	2017-07-14 16:18:41.792493099 +0300
++++ start_ru.html	2017-07-14 16:26:29.401007408 +0300
+@@ -5,7 +5,7 @@
+     <script> var DEBUG = true; </script>
+     -->
+ 
+-    <title>Ticket info</title>
++    <title>Информация о билете</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+ 
+@@ -30,24 +30,20 @@
+     </div>
+ 
+     <h3>
+-        <span id="w_header">TIW</span>
++        <span id="w_header">Информация о билете</span>
+     </h3>
+ 
+     <div id="vw_msg" style="display:none" class="frame"><span id="w_msg">Some message</span></div>
+ 
+     <div class="frame">
+         <table>
+-            <caption>Settings</caption>
++            <caption>Настройки</caption>
+             <tr>
+-                <td>Application language:</td>
++                <td>Язык приложения:</td>
+                 <td><span id="s_lang"></span></td>
+             </tr>
+             <tr>
+-                <td>Transliterate stations names:</td>
+-                <td><span id="s_translit"></span></td>
+-            </tr>
+-            <tr>
+-                <td>Send device info with dump:</td>
++                <td>Отправлять информацию об устройстве вместе с дампом:</td>
+                 <td><span id="s_sendinfo"></span></td>
+             </tr>
+         </table>

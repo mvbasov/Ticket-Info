@@ -4,7 +4,6 @@ package net.basov.ticketinfo;
  * Created by mvb on 6/22/17.
  */
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -43,10 +42,10 @@ public class AppPreferencesActivity extends PreferenceActivity implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
         Preference pref = findPreference(key);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         if (pref instanceof ListPreference) {
             ListPreference etp = (ListPreference) pref;
             pref.setSummary(etp.getEntry());
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             String appLangPref = sharedPref.getString("appLang", "en");
             if ("appLang".equals(key)) {
                 switch (appLangPref) {
@@ -65,6 +64,8 @@ public class AppPreferencesActivity extends PreferenceActivity implements
                 recreate();
             }
         }
+        sharedPref.edit().putBoolean("changed", true).apply();
+
     }
 
 

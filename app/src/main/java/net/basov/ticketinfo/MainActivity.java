@@ -224,7 +224,12 @@ public class MainActivity extends Activity {
 //                    Toast.LENGTH_SHORT
 //            ).show();
         }
-
+        if (sharedPref.getBoolean("changed", true)) {
+            sharedPref.edit().putBoolean("changed", false).apply();
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
     }
 
     @Override

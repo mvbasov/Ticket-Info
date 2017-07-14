@@ -32,10 +32,26 @@
     <h3>
         <span id="w_header">TIW</span>
     </h3>
+
     <div id="vw_msg" style="display:none" class="frame"><span id="w_msg">Some message</span></div>
+
     <div class="frame">
-        <div class="fragment">To see and change application settings press button below:</div>
-        <div id="wrapper" class="fragment"><button class="btn" id="btnSettings" onclick="aCallback()">Settings</button></div>
+        <table>
+            <caption>Settings</caption>
+            <tr>
+                <td>Application language:</td>
+                <td><span id="s_lang"></span></td>
+            </tr>
+            <tr>
+                <td>Transliterate stations names:</td>
+                <td><span id="s_translit"></span></td>
+            </tr>
+            <tr>
+                <td>Send device info with dump:</td>
+                <td><span id="s_sendinfo"></span></td>
+            </tr>
+        </table>
+        <div id="wrapper" class="fragment"><button class="btn" id="btnSettings" onclick="aCallback()">Change settings</button></div>
     </div>
 
 </body>

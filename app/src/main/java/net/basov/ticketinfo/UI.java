@@ -25,20 +25,19 @@
 package net.basov.ticketinfo;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.os.Build;
-import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
-import net.basov.util.FileIO;
 import net.basov.util.TextTools;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -225,6 +224,19 @@ public class UI {
     }
 
     public void displayWelcome(final WebView wv) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
+
+        setWelcome("s_lang", sharedPref.getString("appLang", "en"));
+        if (sharedPref.getBoolean("transliterateFlag", false))
+            setWelcome("s_translit", wv.getContext().getString(R.string.yes));
+        else
+            setWelcome("s_translit", wv.getContext().getString(R.string.no));
+
+        if (sharedPref.getBoolean("sendPlatformInfo", false))
+            setWelcome("s_sendinfo", wv.getContext().getString(R.string.yes));
+        else
+            setWelcome("s_sendinfo", wv.getContext().getString(R.string.no));
+
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {

@@ -12,4 +12,8 @@
         android:title="Transliterate stations names"
         android:defaultValue="false"
         android:key="transliterateFlag" />
+    <CheckBoxPreference
+        android:title="Send device info with dump"
+        android:defaultValue="true"
+        android:key="sendPlatformInfo" />
 </PreferenceScreen>

@@ -26,7 +26,9 @@ package net.basov.ticketinfo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
@@ -54,6 +56,8 @@ public class WebViewJSCallback {
 
     @JavascriptInterface
     public void sendDump(String fileName, String parserErrors) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+
         if (fileName != null && fileName.length() != 0) {
             File fileLocation = new File(FileIO.getFilesDir(mContext).getAbsolutePath(), fileName);
             Uri path = Uri.fromFile(fileLocation);
@@ -68,14 +72,15 @@ public class WebViewJSCallback {
                 emaText += parserErrors;
                 emaText += "\n--- End of parse errors ---\n";
             }
-            emaText += "--- Platform information ---\n";
-            //emaText += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
-            emaText += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
-            emaText += " Manufacturer: " + Build.MANUFACTURER + "\n";
-            emaText += " Device: " + android.os.Build.DEVICE + "\n";
-            emaText += " Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")\n";
-            emaText += "--- End of platform information ---\n";
-
+            if (sharedPref.getBoolean("sendPlatformInfo", true)) {
+                emaText += "--- Platform information ---\n";
+                //emaText += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+                emaText += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
+                emaText += " Manufacturer: " + Build.MANUFACTURER + "\n";
+                emaText += " Device: " + android.os.Build.DEVICE + "\n";
+                emaText += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
+                emaText += "--- End of platform information ---\n";
+            }
             i.putExtra(Intent.EXTRA_TEXT, emaText);
             i.putExtra(Intent.EXTRA_STREAM, path);
             try {
