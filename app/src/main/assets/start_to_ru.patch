@@ -1,5 +1,5 @@
---- start.html	2017-07-14 16:18:41.792493099 +0300
-+++ start_ru.html	2017-07-14 16:26:29.401007408 +0300
+--- start.html	2017-07-14 20:52:19.751997126 +0300
++++ start_ru.html	2017-07-14 20:49:00.432063104 +0300
 @@ -5,7 +5,7 @@
      <script> var DEBUG = true; </script>
      -->
@@ -9,11 +9,11 @@
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
  
-@@ -30,24 +30,20 @@
+@@ -30,29 +30,25 @@
      </div>
  
      <h3>
--        <span id="w_header">TIW</span>
+-        <span id="w_header">Ticket info</span>
 +        <span id="w_header">Информация о билете</span>
      </h3>
  
@@ -38,3 +38,9 @@
                  <td><span id="s_sendinfo"></span></td>
              </tr>
          </table>
+         <div id="wrapper" class="fragment">
+-            <button class="btn" id="btnSettings" onclick="aCallback()">Change settings</button>
++            <button class="btn" id="btnSettings" style="border-radius:7px" onclick="aCallback()">Изменить настройки</button>
+         </div>
+     </div>
+ 

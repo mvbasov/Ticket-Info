@@ -227,16 +227,25 @@ public class UI {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
 
         setWelcome("s_lang", sharedPref.getString("appLang", "en"));
-        if (sharedPref.getBoolean("transliterateFlag", false))
-            setWelcome("s_translit", wv.getContext().getString(R.string.yes));
-        else
-            setWelcome("s_translit", wv.getContext().getString(R.string.no));
+        if (sharedPref.getBoolean("transliterateFlag", false)) {
+            //setWelcome("s_translit", wv.getContext().getString(R.string.yes));
+            //setWelcome("s_translit", "&#x2611;");
+            setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
 
-        if (sharedPref.getBoolean("sendPlatformInfo", false))
-            setWelcome("s_sendinfo", wv.getContext().getString(R.string.yes));
-        else
-            setWelcome("s_sendinfo", wv.getContext().getString(R.string.no));
-
+        } else {
+            //setWelcome("s_translit", wv.getContext().getString(R.string.no));
+            //setWelcome("s_translit", "&#x2610;");
+            setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\">");
+        }
+        if (sharedPref.getBoolean("sendPlatformInfo", false)) {
+            //setWelcome("s_sendinfo", wv.getContext().getString(R.string.yes));
+            //setWelcome("s_sendinfo", "&#x2611;");
+            setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
+        } else {
+            //setWelcome("s_sendinfo", wv.getContext().getString(R.string.no));
+            //setWelcome("s_sendinfo", "&#x2610;");
+            setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\">");
+        }
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {

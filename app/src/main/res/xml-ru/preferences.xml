@@ -7,4 +7,9 @@
         android:defaultValue="@string/pref_lang_def"
         android:entries="@array/listLangNames"
         android:entryValues="@array/listLangValues" />
+    <CheckBoxPreference
+        android:title="Отправлять информацию"
+        android:summary="об устройстве вместе с дампом"
+        android:defaultValue="true"
+        android:key="sendPlatformInfo" />
 </PreferenceScreen>
