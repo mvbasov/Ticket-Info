@@ -47,10 +47,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Latest changes:
 
-- Support MF0ICU2 (Mifare Ultralight C) IC
-- Optional send platform information with dump
-- Fix Day limited ticket state display
-- Several fixes
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 

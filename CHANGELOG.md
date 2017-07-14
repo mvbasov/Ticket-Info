@@ -1,5 +1,13 @@
 ### Change log.
 
+#### Version 3.03b
+##### Date:   Sat Jul 15 00:51:58 2017 +0300, commit 74fd7420b6038863f7970bab0a20d70b1f0590dd
+
+- Support MF0ICU2 (Mifare Ultralight C) IC
+- Optional send platform information with dump
+- Fix Day limited ticket state display
+- Several fixes
+
 #### Version 3.02b
 ##### Date:   Tue Jul 4 20:58:10 2017 +0300, commit c617b9e989d371f1c45e6fe3adbf8288b7b16b30
 
