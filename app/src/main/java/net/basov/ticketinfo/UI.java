@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
@@ -223,6 +224,19 @@ public class UI {
         displayWelcome(wv);
     }
 
+    public void displayHelp(final  WebView wv) {
+        wv.setWebViewClient(new MyWebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(wv, url);
+                //wv.clearCache(true);
+            }
+        });
+        Context c = wv.getContext();
+        wv.loadUrl("file:///android_asset/" + c.getString(R.string.help_ui_file));
+
+    }
+
     public void displayWelcome(final WebView wv) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
 
@@ -280,6 +294,7 @@ public class UI {
                     view.loadUrl("javascript:jreplace('" + dump_json.toString() + "')");
                 }
                 wv.clearCache(true);
+                wv.clearHistory();
                 //TODO: remove debug
                 //Log.d("hhhh", header_json.toString());
                 //Log.d("tttt", ticket_json.toString());

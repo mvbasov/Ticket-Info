@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!--
+    <script> var DEBUG = true; </script>
+    -->
+
+    <title>Ticket info</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link rel="stylesheet" type="text/css" href="common.css">
+    <style>
+    </style>
+
+    <script type="text/javascript" src="functions.js"></script>
+    <script type="text/javascript" src="debug_start.js"></script>
+
+</head>
+<body onload="debug();">
+
+    <div id="vh_debug" class="frame" style="display:none">
+        <span id="h_debug">some debug text</span>
+    </div>
+
+    <h3>
+        <span id="h_header">Ticket info</span>
+    </h3>
+    <div id="h_settings" class="frame">
+        <div class="fragment">
+            To change settings press button below:
+            <button class="btn" id="btnSettings" style="width:100%;outline:0;margin-top:0.5em" onclick="aCallback()">Change settings</button>
+        </div>
+    </div>
+
+    <div id="h_msg" class="frame">
+        <div class="fragment">
+            This program for view information from Moscow transportation system contactless tickets.
+            It operate only with "paper" tickets.
+            You can see ticket state, valid time perion, how many trips it has.
+            Also application can show information about used IC.
+            You can send dump by E-Mail also.
+        </div>
+    </div>
+
+</body>
+
+</html>

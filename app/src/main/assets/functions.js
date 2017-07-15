@@ -51,6 +51,13 @@ function aCallback () {
 }
 
 /**
+ * Callback function to show help
+ */
+function hCallback () {
+    Android.launchHelp();
+}
+
+/**
  * Callback function to send dump by E-Mail
  */
 function eCallback () {

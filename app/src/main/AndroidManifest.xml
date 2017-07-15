@@ -1,49 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-		  package="net.basov.ticketinfo">
+    package="net.basov.ticketinfo">
 
-	<supports-screens
-	          android:largeScreens="true"
-	          android:normalScreens="true"
-	          android:smallScreens="true"
-	          android:anyDensity="true" />
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
 
-  	<application android:label="@string/app_name"
-		android:theme="@android:style/Theme.Light.NoTitleBar"
-		android:resizeableActivity = "true"
-		android:icon="@mipmap/ticket_info_a">
+    <uses-permission android:name="android.permission.NFC" />
 
-		<activity android:name="MainActivity"
-			android:label="@string/app_name"
-			android:configChanges="orientation|screenSize|keyboard|keyboardHidden|locale"
-			android:launchMode="singleTop">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			    <action android:name="android.nfc.action.TECH_DISCOVERED"/>
-			</intent-filter>
-			<intent-filter>
-				<action android:name="android.intent.action.SEND" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="text/plain" />
-			</intent-filter>
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data android:mimeType="text/plain" />
-			</intent-filter>
-			<meta-data android:name="android.nfc.action.TECH_DISCOVERED"
-    				android:resource="@xml/nfc_tech_filter" />
-		</activity>
-		<activity android:name=".AppPreferencesActivity"
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
+
+    <application
+        android:icon="@mipmap/ticket_info_a"
+        android:label="@string/app_name"
+        android:resizeableActivity="true"
+        android:theme="@android:style/Theme.Light.NoTitleBar">
+
+        <activity
+            android:name="MainActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|locale"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.basov.ticketinfo.LAUNCH_HELP" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+        </activity>
+
+        <activity
+            android:name=".AppPreferencesActivity"
             android:label="@string/prefTitle"
             android:screenOrientation="nosensor">
             <intent-filter>
                 <action android:name=".Preferences" />
                 <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
-		</activity>
-	</application>
-	<uses-permission android:name="android.permission.NFC" />
-	<uses-feature android:name="android.hardware.nfc" android:required="false" />
+        </activity>
+
+    </application>
+
 </manifest>

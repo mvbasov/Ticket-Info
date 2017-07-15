@@ -37,6 +37,7 @@
     <string name="menu_settings">Настройки</string>
     <string name="ticket_ui_file">ticket_ru.html</string>
     <string name="welcome_ui_file">start_ru.html</string>
+    <string name="help_ui_file">help_ru.html</string>
     <string name="ts_unknown">Неизветсно</string>
     <string name="ts_never_used">Не использовался</string>
     <string name="ts_ready">Годен</string>

@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
@@ -35,7 +36,6 @@ import android.widget.Toast;
 import net.basov.util.FileIO;
 
 import java.io.File;
-import android.os.*;
 
 public class WebViewJSCallback {
 
@@ -51,6 +51,13 @@ public class WebViewJSCallback {
     @JavascriptInterface
     public void launchPreferences() {
         Intent i = new Intent(mContext, AppPreferencesActivity.class);
+        mContext.startActivity(i);
+    }
+
+    @JavascriptInterface
+    public void launchHelp() {
+        Intent i = new Intent();
+        i.setAction("net.basov.ticketinfo.LAUNCH_HELP");
         mContext.startActivity(i);
     }
 

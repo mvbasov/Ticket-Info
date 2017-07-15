@@ -48,6 +48,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.JsPromptResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -67,7 +69,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     static final String TAG = "tickets";
-    static final int NFC_DIALOG_REQUEST_CODE = 653;
+    static final Integer NFC_DIALOG_REQUEST_CODE = 653;
 
     private WebView mainUI_WV;
     private NfcAdapter adapter;
@@ -408,19 +410,19 @@ public class MainActivity extends Activity {
         /* Dump shared by another application */
         } else if((intent.getAction().equals(Intent.ACTION_SEND)
                 || intent.getAction().equals(Intent.ACTION_VIEW))
-                && intent.getType().startsWith("text/")){
+                && intent.getType().startsWith("text/")) {
 
             Uri rcvUri = null;
 
             if (intent.getAction().equals(Intent.ACTION_SEND)) {
                 rcvUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            } else if (intent.getAction().equals(Intent.ACTION_VIEW)){
+            } else if (intent.getAction().equals(Intent.ACTION_VIEW)) {
                 rcvUri = intent.getData();
             }
 
             if (rcvUri != null) {
                 FileIO.ReadDump(d, rcvUri.getPath());
-                if (d.getReadFrom()==NFCaDump.READ_FROM_FILE) {
+                if (d.getReadFrom() == NFCaDump.READ_FROM_FILE) {
 
                     d_file_content = new ArrayList<String>();
                     for (String line : NFCaDump.getDumpAsString(d).split("\\r?\\n"))
@@ -430,7 +432,7 @@ public class MainActivity extends Activity {
 
                     int pathLength =
                             FileIO.getFilesDir(MainActivity.this)
-                            .getAbsolutePath().length() + 1;
+                                    .getAbsolutePath().length() + 1;
                     d_real_file_name = rcvUri.getPath().substring(pathLength);
 
                     d_auto_file_name = Ticket.createAutoDumpFileName(new Ticket(d));
@@ -443,6 +445,29 @@ public class MainActivity extends Activity {
 
                 }
             }
+        } else if (intent.getAction().equals("net.basov.ticketinfo.LAUNCH_HELP")) {
+
+            /* Handle BACK button */
+            mainUI_WV.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                        WebView webView = (WebView) v;
+                        switch(keyCode) {
+                            case KeyEvent.KEYCODE_BACK:
+                                if(webView.canGoBack()) {
+                                    webView.goBack();
+                                    return true;
+                                }
+                                break;
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            ui.displayHelp(mainUI_WV);
+
         } else {
             /* Other intent ??? */
             ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
