@@ -79,6 +79,7 @@ public class NFCaDump {
     public static final byte READ_FROM_NFC = READ_UNSET + 1;
     public static final byte READ_FROM_FILE = READ_UNSET + 2;
 
+    public static final byte CMD_READ = (byte) 0x30;
     public static final byte CMD_GET_VERSION = (byte) 0x60;
     public static final byte CMD_READ_SIGN = (byte) 0x3C;
     public static final byte CMD_READ_CNT = (byte) 0x39;
@@ -202,7 +203,7 @@ public class NFCaDump {
 
     public void readPages(NfcA nfca) {
         for (int i = 0; i < (NFCaDump.MAX_PAGES / 4) + 1; i++) {
-            byte[] cmd = {0x30, (byte) (i * 4)};
+            byte[] cmd = {NFCaDump.CMD_READ, (byte) (i * 4)};
             try {
                 if (!nfca.isConnected()) nfca.connect();
 /*
