@@ -155,7 +155,7 @@ public class MainActivity extends Activity {
                             + " "
                             + pInfo.versionName;
             }
-            ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+            ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
@@ -305,7 +305,7 @@ public class MainActivity extends Activity {
                 d_real_file_name = null;
 
                 ui.setWelcome("w_msg", getString(R.string.ticket_is_reading));
-                ui.displayWelcome(mainUI_WV);
+                ui.displayWelcomeScreen(mainUI_WV);
 
                 new AsyncTask<NfcA, Void, NFCaDump>() {
 
@@ -391,12 +391,14 @@ public class MainActivity extends Activity {
                                     }
                                 }
                             }
+                            // TODO: remove debug
+                            Toast.makeText(MainActivity.this,"Read IC",Toast.LENGTH_SHORT).show();
 
-                            ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+                            ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
-                            ui.displayWelcome(mainUI_WV);
+                            ui.displayWelcomeScreen(mainUI_WV);
                             Log.e(TAG, "dump err");
                         }
                     }
@@ -404,7 +406,7 @@ public class MainActivity extends Activity {
 
             } catch (Throwable th) {
                 ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
-                ui.displayWelcome(mainUI_WV);
+                ui.displayWelcomeScreen(mainUI_WV);
                 Log.e(TAG, "read err", th);
             }
         /* Dump shared by another application */
@@ -441,7 +443,9 @@ public class MainActivity extends Activity {
                         // TODO: display something interesting
                     }
 
-                    ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+                    // TODO: remove debug
+                    Toast.makeText(MainActivity.this,"Read file Intent",Toast.LENGTH_SHORT).show();
+                    ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                 }
             }
@@ -456,7 +460,8 @@ public class MainActivity extends Activity {
                         switch(keyCode) {
                             case KeyEvent.KEYCODE_BACK:
                                 if(webView.canGoBack()) {
-                                    webView.goBack();
+                                    //webView.goBack();
+                                    ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
                                     return true;
                                 }
                                 break;
@@ -466,11 +471,13 @@ public class MainActivity extends Activity {
                 }
             });
 
-            ui.displayHelp(mainUI_WV);
+            ui.displayHelpScreen(mainUI_WV);
 
         } else {
             /* Other intent ??? */
-            ui.displayTicketInfo(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+            // TODO: remove debug
+            Toast.makeText(MainActivity.this,"Other Intent",Toast.LENGTH_SHORT).show();
+            ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
         }
     }
 

@@ -29,7 +29,6 @@ import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
 import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
@@ -221,10 +220,10 @@ public class UI {
                     + "<font>"
             );
         }
-        displayWelcome(wv);
+        displayWelcomeScreen(wv);
     }
 
-    public void displayHelp(final  WebView wv) {
+    public void displayHelpScreen(final  WebView wv) {
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -237,7 +236,7 @@ public class UI {
 
     }
 
-    public void displayWelcome(final WebView wv) {
+    public void displayWelcomeScreen(final WebView wv) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
 
         setWelcome("s_lang", sharedPref.getString("appLang", "en"));
@@ -276,7 +275,7 @@ public class UI {
         wv.loadUrl("file:///android_asset/" + c.getString(R.string.welcome_ui_file));
     }
 
-    public void displayUI(final WebView wv) {
+    public void displayMainScreen(final WebView wv) {
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -305,10 +304,10 @@ public class UI {
         wv.loadUrl("file:///android_asset/" + c.getString(R.string.ticket_ui_file));
     }
 
-    public void displayTicketInfo(String appTitle, List<String> dumpContent, String fileName, String realFileName, String remark, WebView wv){
+    public void displayUI(String appTitle, List<String> dumpContent, String fileName, String realFileName, String remark, WebView wv){
         NFCaDump dmp = new NFCaDump();
         Ticket ticket;
-        if (dumpContent != null) {
+        if (dumpContent != null && dumpContent.size() != 0) {
             NFCaDump.parseDump(dmp, dumpContent);
             if (remark != null && remark.length() != 0)
                 dmp.setRemark(remark);
@@ -514,6 +513,6 @@ public class UI {
         if (d.isAtechListNotEmpty())
             this.setIC("i_tech",d.getATechAsHTML());
         this.setDump(d.getDumpAsHTMLString());
-        this.displayUI(wv);
+        this.displayMainScreen(wv);
     }
 }
