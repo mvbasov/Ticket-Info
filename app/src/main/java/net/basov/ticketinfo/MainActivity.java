@@ -38,6 +38,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -92,17 +93,24 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String appLangPref = sharedPref.getString("appLang", "en");
+        String appLangPref = sharedPref.getString("appLang", "default");
+        Locale locale;
+        Configuration config = new Configuration();
         switch (appLangPref) {
             case "ru":
             case "en":
-                Locale locale = new Locale(appLangPref);
+                locale = new Locale(appLangPref);
                 Locale.setDefault(locale);
-                Configuration config = new Configuration();
                 config.locale = locale;
                 getBaseContext().getResources().updateConfiguration(config,
                         getBaseContext().getResources().getDisplayMetrics());
                 break;
+            case "default":
+                locale = new Locale(Resources.getSystem().getConfiguration().locale.getLanguage());
+                Locale.setDefault(locale);
+                config.locale = locale;
+                getBaseContext().getResources().updateConfiguration(config,
+                        getBaseContext().getResources().getDisplayMetrics());
             default:
                 break;
         }
