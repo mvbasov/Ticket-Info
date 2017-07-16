@@ -1924,7 +1924,11 @@ public class Ticket {
         return sb.toString();
     }
 
-    public String getValidDaysAsString() { return String.format("%d", getValidDays()); }
+    public String getValidDaysAsString(Context cont) {
+        return String.format("%d %s",
+                getValidDays(),
+                Lang.getNounCase(getValidDays(), R.array.day_cases, cont));
+    }
 
     public String getStartUseBeforeAsString() {
         return String.format("%s",

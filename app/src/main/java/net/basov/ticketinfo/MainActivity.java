@@ -392,7 +392,7 @@ public class MainActivity extends Activity {
                                 }
                             }
                             // TODO: remove debug
-                            Toast.makeText(MainActivity.this,"Read IC",Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MainActivity.this,"Read IC Intent",Toast.LENGTH_SHORT).show();
 
                             ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
@@ -444,7 +444,7 @@ public class MainActivity extends Activity {
                     }
 
                     // TODO: remove debug
-                    Toast.makeText(MainActivity.this,"Read file Intent",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this,"Read file Intent",Toast.LENGTH_SHORT).show();
                     ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                 }
@@ -476,7 +476,7 @@ public class MainActivity extends Activity {
         } else {
             /* Other intent ??? */
             // TODO: remove debug
-            Toast.makeText(MainActivity.this,"Other Intent",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this,"Other Intent",Toast.LENGTH_SHORT).show();
             ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
         }
     }

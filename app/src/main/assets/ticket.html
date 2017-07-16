@@ -76,7 +76,7 @@ span.d_internal { color: aqua }
 
     <div id="Ticket" class="tab" style="display:none">
 
-        <div id="tv_debug" class="frame" style="display:none">
+        <div id="vt_debug" class="frame" style="display:none">
             <span id="t_debug">some debug text</span>
         </div>
 
@@ -94,8 +94,10 @@ Trips left:<font color="green"><span id="t_trips_left">x</span></font></pre>
 Blank start use before: <span id="t_start_use_before">xx.xx.xxxx xx:xx</span></pre>
             </div>
 
-            <pre>
-Valid in days: <span id="t_valid_days">x</span></pre>
+            <div id="vt_valid_days" class="fragment" style="display:none">
+                <pre>
+Valid <span id="t_valid_days">x days</span></pre>
+            </div>
 
             <div id="vt_from_to_datetime" style="display:none">
                 <pre>

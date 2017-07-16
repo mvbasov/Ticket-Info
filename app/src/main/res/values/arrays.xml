@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string-array name="trip_cases">
-    <!-- Singular,Dual,Plural -->
-    <item>trip</item>
-    <item>trips</item>
-    <item>trips</item>
-  </string-array>
 
-  <string-array name="listLangNames">
-    <item>Russian</item>
-    <item>English</item>
-    <item>System default</item>
-  </string-array>
+    <string-array name="trip_cases">
+        <!-- Singular,Dual,Plural -->
+        <item>trip</item>
+        <item>trips</item>
+        <item>trips</item>
+    </string-array>
 
-  <string-array name="listLangValues" translatable="false">
-    <item>ru</item>
-    <item>en</item>
-    <item>default</item>
-  </string-array>
+    <string-array name="day_cases">
+        <!-- Singular,Dual,Plural -->
+        <item>day</item>
+        <item>days</item>
+        <item>days</item>
+    </string-array>
+
+    <string-array name="listLangNames">
+        <item>Russian</item>
+        <item>English</item>
+        <item>System default</item>
+    </string-array>
+
+    <string-array name="listLangValues" translatable="false">
+        <item>ru</item>
+        <item>en</item>
+        <item>default</item>
+    </string-array>
+
 </resources>

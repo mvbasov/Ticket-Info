@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-  <string-array name="trip_cases">
-    <!-- Singular,Dual,Plural -->
-    <item>поездка</item>
-    <item>поездки</item>
-    <item>поездок</item>
-  </string-array>
 
-  <string-array name="listLangNames">
-    <item>Русский</item>
-    <item>Английский</item>
-    <item>Установленный в системе</item>
-  </string-array>
+    <string-array name="trip_cases">
+        <!-- Singular,Dual,Plural -->
+        <item>поездка</item>
+        <item>поездки</item>
+        <item>поездок</item>
+    </string-array>
+
+    <string-array name="day_cases">
+        <!-- Singular,Dual,Plural -->
+        <item>день</item>
+        <item>дня</item>
+        <item>дней</item>
+    </string-array>
+
+    <string-array name="listLangNames">
+        <item>Русский</item>
+        <item>Английский</item>
+        <item>Установленный в системе</item>
+    </string-array>
 
 </resources>

@@ -64,7 +64,8 @@ public class UI {
         visibilityMap = new HashMap<String, String>();
         visibilityMap.put("w_debug", "vw_debug");
         visibilityMap.put("w_msg", "vw_msg");
-        visibilityMap.put("t_debug", "tv_debug");
+        visibilityMap.put("t_debug", "vt_debug");
+        visibilityMap.put("t_valid_days", "vt_valid_days");
         visibilityMap.put("t_from_datetime", "vt_from_to_datetime");
         visibilityMap.put("t_to_datetime", "vt_from_to_datetime");
         visibilityMap.put("t_from_date", "vt_from_to_date");
@@ -358,7 +359,7 @@ public class UI {
         }
         this.setTicket("t_desc", Decode.descCardType(c, t.getTicketType(), t.getTicketTypeVersion()));
         if (t.getValidDays() != 0) {
-            this.setTicket("t_valid_days",t.getValidDaysAsString());
+            this.setTicket("t_valid_days",t.getValidDaysAsString(c));
         }
 
         if (t.getIssued() != null) {

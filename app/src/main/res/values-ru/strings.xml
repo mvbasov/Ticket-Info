@@ -69,4 +69,5 @@
     <string name="add_remark_to_dump">Добавить коментарий к дампу</string>
     <string name="yes">да</string>
     <string name="no">нет</string>
+    <string name="t_unlim_passes">без ограничения числа поездок</string>
 </resources>
