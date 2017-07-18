@@ -305,7 +305,7 @@ public class UI {
         wv.loadUrl("file:///android_asset/" + c.getString(R.string.ticket_ui_file));
     }
 
-    public void displayUI(String appTitle, List<String> dumpContent, String fileName, String realFileName, String remark, WebView wv){
+    public void displayUI(String appTitle, String dbTS, String dbProvider, List<String> dumpContent, String fileName, String realFileName, String remark, WebView wv){
         NFCaDump dmp = new NFCaDump();
         Ticket ticket;
         if (dumpContent != null && dumpContent.size() != 0) {
@@ -329,6 +329,8 @@ public class UI {
             ticket.setRealFileName(realFileName);
             displayTicketInfo(dmp, ticket, wv);
         } else {
+            setWelcome("w_db_provider", dbProvider);
+            setWelcome("w_db_ts", dbTS);
             setWelcome("w_header", appTitle);
             displayWelcomeByNFC(wv);
         }

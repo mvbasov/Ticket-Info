@@ -58,6 +58,7 @@ import android.webkit.WebSettings;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import net.basov.metro.Lookup;
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
 import net.basov.util.FileIO;
@@ -83,6 +84,8 @@ public class MainActivity extends Activity {
     private NFCaDump d;
     private String[][] techList;
     private String app_title;
+    private String db_ts;
+    private String db_provider;
     private String currentLang;
 
     private UI ui;
@@ -163,7 +166,9 @@ public class MainActivity extends Activity {
                             + " "
                             + pInfo.versionName;
             }
-            ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+            db_ts = Lookup.findDBts(Ticket.getDataFileURIasString(MainActivity.this));
+            db_provider = Lookup.findDBprovider(Ticket.getDataFileURIasString(MainActivity.this));
+            ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
@@ -260,6 +265,8 @@ public class MainActivity extends Activity {
         //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         //outState.putString("app_lang", sharedPref.getString("appLang", "en"));
         outState.putString("app_title", app_title);
+        outState.putString("db_ts", db_ts);
+        outState.putString("db_provider", db_provider);
         outState.putStringArrayList("d_file_content", (ArrayList<String>) d_file_content);
         outState.putString("d_auto_file_name", d_auto_file_name);
         outState.putString("d_real_file_name", d_real_file_name);
@@ -275,6 +282,8 @@ public class MainActivity extends Activity {
         d_real_file_name = savedInstanceState.getString("d_real_file_name");
         d_remark = savedInstanceState.getString("d_remark");
         app_title = savedInstanceState.getString("app_title");
+        db_ts = savedInstanceState.getString("db_ts");
+        db_provider = savedInstanceState.getString("db_provider");
 
     }
 
@@ -402,7 +411,7 @@ public class MainActivity extends Activity {
                             // TODO: remove debug
                             //Toast.makeText(MainActivity.this,"Read IC Intent",Toast.LENGTH_SHORT).show();
 
-                            ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+                            ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                         } else {
                             ui.setWelcome("w_msg", getString(R.string.ticket_read_error));
@@ -453,7 +462,7 @@ public class MainActivity extends Activity {
 
                     // TODO: remove debug
                     //Toast.makeText(MainActivity.this,"Read file Intent",Toast.LENGTH_SHORT).show();
-                    ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+                    ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
                 }
             }
@@ -469,7 +478,7 @@ public class MainActivity extends Activity {
                             case KeyEvent.KEYCODE_BACK:
                                 if(webView.canGoBack()) {
                                     //webView.goBack();
-                                    ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+                                    ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
                                     return true;
                                 }
                                 break;
@@ -485,7 +494,7 @@ public class MainActivity extends Activity {
             /* Other intent ??? */
             // TODO: remove debug
             //Toast.makeText(MainActivity.this,"Other Intent",Toast.LENGTH_SHORT).show();
-            ui.displayUI(app_title, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
+            ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
         }
     }
 

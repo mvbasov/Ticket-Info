@@ -41,7 +41,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class Lookup {
 
-    public static String findTS(String dataFileURI) {
+    public static String findDBts(String dataFileURI) {
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
@@ -70,6 +70,36 @@ public class Lookup {
         return "";
 
     }
+
+	public static String findDBprovider(String dataFileURI) {
+		try {
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParser saxParser = factory.newSAXParser();
+
+			DefaultHandlerToSearch SearchHandlerForTS = new DefaultHandlerToSearch() {
+
+				public void startElement(String uri, String localName, String qName,
+										 Attributes attributes) throws SAXException {
+					if (qName.equalsIgnoreCase("metro")) {
+						result = attributes.getValue("provider");
+						throw new MySAXTerminationException();
+					}
+				}
+			};
+
+			try {
+				saxParser.parse(
+						dataFileURI,
+						SearchHandlerForTS
+				);
+			} catch (MySAXTerminationException done) {}
+			return SearchHandlerForTS.result;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+
+	}
 
 	public static String findStationById(String sId, String dataFileURI) {
         if (sId.length() > 0 && sId != null)

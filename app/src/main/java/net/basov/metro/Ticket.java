@@ -1744,12 +1744,14 @@ public class Ticket {
      * @param c application context
      * @return data file URI (as String)
      */
-    private String getDataFileURIasString(Context c) {
+    public static String getDataFileURIasString(Context c) {
         String sdcardPath = FileIO.getFilesDir(c).getPath();
         URI dataFileURI = null;
         try {
             dataFileURI = new URI("file://" + sdcardPath + "/.db/" + "metro.xml");
             File metroDataFile = new File(dataFileURI);
+            if (!metroDataFile.getParentFile().exists())
+                metroDataFile.getParentFile().mkdirs();
             if (!metroDataFile.exists()) {
                 InputStream in = null;
                 OutputStream out = null;
