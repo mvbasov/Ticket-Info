@@ -1738,6 +1738,32 @@ public class Ticket {
     }
 
     /**
+     * Update to asset provided db if newer then file stored
+     */
+    public static boolean updateDB(Context c) {
+        String sdcardPath = FileIO.getFilesDir(c).getPath();
+        URI dataFileURI = null;
+        try {
+            dataFileURI = new URI("file://" + sdcardPath + "/.db/" + "metro.xml");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        File metroDataFile = new File(dataFileURI);
+        if (metroDataFile.exists()) {
+            if (Lookup.findDBprovider(dataFileURI.toString()).equals("mvb")) {
+                String file_db_ts = Lookup.findDBts(dataFileURI.toString());
+                String asset_db_ts = Lookup.findDBts("file:///android_asset/.db/metro.xml");
+                if (file_db_ts.compareToIgnoreCase(asset_db_ts) > 0) {
+                    metroDataFile.delete();
+                    getDataFileURIasString(c); //to copy file
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get data file URI.
      * Use External storage stored datafile if exists.
      * As default use assets provided file (copy it).

@@ -166,8 +166,15 @@ public class MainActivity extends Activity {
                             + " "
                             + pInfo.versionName;
             }
+
+            /* Update DB if need */
+            if (Ticket.updateDB(MainActivity.this))
+                Toast.makeText(MainActivity.this, "Metro station DB updated.", Toast.LENGTH_SHORT).show();
+
+            /* Get actual DB information */
             db_ts = Lookup.findDBts(Ticket.getDataFileURIasString(MainActivity.this));
             db_provider = Lookup.findDBprovider(Ticket.getDataFileURIasString(MainActivity.this));
+
             ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
         } catch (Throwable th) {
