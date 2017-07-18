@@ -27,8 +27,8 @@ android {
         applicationId "net.basov.ticketinfo"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 304
-        versionName '3.04'
+        versionCode 305
+        versionName '3.05'
     }
     buildTypes {
         release {

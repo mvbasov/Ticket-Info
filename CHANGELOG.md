@@ -1,5 +1,14 @@
 ### Change log.
 
+#### Version 3.04b
+##### Date:   Tue Jul 18 22:45:13 2017 +0300, commit 0417d1f81b6b13b06e5e43f661fb780df565b61a
+
+- Add help
+- Translation updated
+- Several new stations in DB
+- Update metro station DB when new version installed
+- Display DB information on welcome screen
+
 #### Version 3.03b
 ##### Date:   Sat Jul 15 00:51:58 2017 +0300, commit 74fd7420b6038863f7970bab0a20d70b1f0590dd
 
