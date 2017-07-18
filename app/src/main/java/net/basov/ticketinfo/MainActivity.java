@@ -171,7 +171,7 @@ public class MainActivity extends Activity {
             if (Ticket.updateDB(MainActivity.this))
                 Toast.makeText(MainActivity.this, "Metro station DB updated.", Toast.LENGTH_SHORT).show();
 
-            /* Get actual DB information */
+            /* Get actual DB version information */
             db_ts = Lookup.findDBts(Ticket.getDataFileURIasString(MainActivity.this));
             db_provider = Lookup.findDBprovider(Ticket.getDataFileURIasString(MainActivity.this));
 
