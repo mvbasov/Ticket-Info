@@ -1753,7 +1753,7 @@ public class Ticket {
             if (Lookup.findDBprovider(dataFileURI.toString()).equals("mvb")) {
                 String file_db_ts = Lookup.findDBts(dataFileURI.toString());
                 String asset_db_ts = Lookup.findDBts("file:///android_asset/.db/metro.xml");
-                if (file_db_ts.compareToIgnoreCase(asset_db_ts) > 0) {
+                if (file_db_ts.compareToIgnoreCase(asset_db_ts) < 0) {
                     metroDataFile.delete();
                     getDataFileURIasString(c); //to copy file
                     return true;
