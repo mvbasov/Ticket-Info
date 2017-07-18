@@ -5,7 +5,7 @@
     <script> var DEBUG = true; </script>
     -->
 
-    <title>Ticket info</title>
+    <title>Информация о билете</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
@@ -24,22 +24,55 @@
     </div>
 
     <h3>
-        <span id="h_header">Ticket info</span>
+        <span id="h_header">Информация о билете</span>
     </h3>
     <div id="h_settings" class="frame">
         <div class="fragment">
-            To change settings press button below:
-            <button class="btn" id="btnSettings" style="width:100%;outline:0;margin-top:0.5em" onclick="aCallback()">Change settings</button>
+            Для изменения настроек нажмите эту кнопку:
+            <button class="btn" id="btnSettings" style="width:100%;outline:0;margin-top:0.5em" onclick="aCallback()">Изменить настройки</button>
         </div>
     </div>
 
     <div id="h_msg" class="frame">
         <div class="fragment">
-            This program for view information from Moscow transportation system contactless tickets.
-            It operate only with "paper" tickets.
-            You can see ticket state, valid time perion, how many trips it has.
-            Also application can show information about used IC.
-            You can send dump by E-Mail also.
+            <h4>Общая информация</h4>
+            Эта програма для просмотра информации Московских безконтактных билетов.
+            Она работнает только с "бумажными" билетами
+            Можно увидеть пригодность билета, время действия, как много осталось поездок.
+            Также можно посмотреть информацию о использованой в билете микросхеме.
+            Можно отослать дамп по E-Mail
+        </div>
+        <div class="fragment">
+            <h4>Режимы работы</h4>
+            Эта програма может показать информацию о билете полученую с помощью NFC
+            или использовать сохранённый дамп переданый другой програмой
+            (например OI File Manager или XPlore File manager)
+        </div>
+        <div class="fragment">
+            <h4>Описание кнопок</h4>
+            <button class="btn" style="width:100%;outline:0;margin-top:0.5em">Изменить настройки</button>
+            Посмотреть и изменить настройки
+            <hr/>
+            <button class="btn" style="width:100%;outline:0;margin-top:0.5em">Справка</button>
+            Показать эту справку
+            <hr/>
+            <button style="width:100%;outline:0">Отправить дамп</button>
+            Отправить дамп по E-Mail
+            <hr/>
+            <button class="btn">Билет</button><br/>
+            Показать страницу с информацией о билете.
+            Можно ли его использовать.
+            Информацию о поездке для 90 минутных билетов.
+            Некоторую техническую информацию (application, layout, type e.t.c)
+            <hr/>
+            <button class="btn">Микросхема</button><br/>
+            Показать страницу с нформацией о микросхеме.
+            Производитель, модель.
+            Подпись производителя и счётчики если есть.
+            <hr/>
+            <button class="btn">Дамп</button><br/>
+            Показать страницу с содержимым памяти микросхемы.
+            На этой странице расположена кнопка для отправки дампа по E-Mail
         </div>
     </div>
 
