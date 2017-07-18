@@ -8,7 +8,7 @@ This is Android application to see what inside Moscow trasportation system ticke
   </tr>
 </table>
 
-Latest [stable version](https://github.com/mvbasov/Ticket-Info/releases/download/v3.03b/Ticket-Info.3.04b.apk)
+Latest [stable version](https://github.com/mvbasov/Ticket-Info/releases/download/v3.04b/Ticket-Info.3.04b.apk)
 
 This project is update to actual state of another [old project](https://github.com/ValleZ/Ticket-Info.git)
 
