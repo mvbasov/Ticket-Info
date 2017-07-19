@@ -24,7 +24,6 @@
  
 package net.basov.metro;
 
-import java.io.InputStream;
 import java.util.Stack;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -72,7 +71,10 @@ public class Lookup {
         return "";
     }
 
-    public static String findDBts(InputSource dataFileStream) {
+    /*
+     * InputSource as argument need to find DB timestamp provided by assets
+     */
+    public static String findDBts(InputSource dataFileInputSource) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
@@ -90,7 +92,7 @@ public class Lookup {
 
             try {
                 saxParser.parse(
-                        dataFileStream,
+                        dataFileInputSource,
                         SearchHandlerForTS
                 );
             } catch (MySAXTerminationException done) {}

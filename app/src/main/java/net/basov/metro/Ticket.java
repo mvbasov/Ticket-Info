@@ -1746,7 +1746,7 @@ public class Ticket {
         String sdcardPath = FileIO.getFilesDir(c).getPath();
         URI dataFileURI = null;
         try {
-            dataFileURI = new URI("file://" + sdcardPath + "/.db/" + "metro.xml");
+            dataFileURI = new URI("file:///" + sdcardPath + "/.db/" + "metro.xml");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
