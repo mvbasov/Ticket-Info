@@ -1,5 +1,11 @@
 ### Change log.
 
+#### Version 3.05b
+##### Date:   Wed Jul 19 20:05:57 2017 +0300, commit 20e1a4b79dd6c522cc65d1eb0da0cf66a3389503
+
+- Fix db update issue
+- Fix help related issue
+
 #### Version 3.04b
 ##### Date:   Tue Jul 18 22:45:13 2017 +0300, commit 0417d1f81b6b13b06e5e43f661fb780df565b61a
 
