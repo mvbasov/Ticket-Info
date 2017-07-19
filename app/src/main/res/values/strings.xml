@@ -32,7 +32,7 @@
     <string name="at">at</string>
     <string name="station">on station</string>
     <string name="unsupported_tag_type">0 pages read. Possible unsupported tag type.</string>
-    <string name="sell_by_driver">sell by ground transport driver</string>
+    <string name="sold_by_driver">sold by ground transport driver</string>
     <string name="mt_metro">Metro</string>
     <string name="mt_monorail">Monorail</string>
     <string name="mt_mcc">MCC</string>
@@ -64,8 +64,8 @@
     <string name="welcome_with_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
     <string name="prefTitle">pref_screen_title</string>
     <string name="t90_minutes">90 minutes</string>
-    <string name="ws_ground">sell on ground</string>
-    <string name="ws_metro">sell in metro</string>
+    <string name="ws_ground">sold on ground</string>
+    <string name="ws_metro">sold in metro</string>
     <string name="t_baggage">Baggage place (metro, monorail)</string>
     <string name="ema_text">Put your comment here if you wish.</string>
     <string name="send_dump_by_email">Send dump by E-Mail…</string>

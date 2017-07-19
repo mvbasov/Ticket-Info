@@ -69,9 +69,9 @@ public class Decode {
                 return "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case Ticket.TN_G3_G1_DRV: 
                 if (ctv == 2) // 1 passes, ground, sell by driver issued after 01.01.2016(0018004940)
-                    return "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
+                    return "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sold_by_driver)+")";
                 else// 3 passes, ground, sell by driver (0010197214)
-                    return "3 " + Lang.getNounCase(3, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver)+")";
+                    return "3 " + Lang.getNounCase(3, R.array.trip_cases, c)+" ("+c.getString(R.string.sold_by_driver)+")";
             case Ticket.TN_G5: // 5 passes ground (0000060635)(0002550205, with paper check)
                 return "5 " + Lang.getNounCase(5, R.array.trip_cases, c);
             case Ticket.TN_G11: // 11 passes ground (0002551460, with paper check)
@@ -84,13 +84,13 @@ public class Decode {
                 return "60 " + Lang.getNounCase(60, R.array.trip_cases, c);
 // TODO: Translate message
             case Ticket.TN_GB1_DRV: // 1 pass, ground, Zone B (0000021180 script on ticket)
-                return "Zone B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver) + ")";
+                return "Zone B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sold_by_driver) + ")";
             case Ticket.TN_GB2: // 2 pass, ground, Zone B (predicted)
                 return "(p) Zone B, " + "2 " + Lang.getNounCase(2, R.array.trip_cases, c);
             case Ticket.TN_GAB1: // 1 pass, ground, Zone A and B (0000021180 script on ticket)
-                return "Zone A and B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver) + ")";
+                return "Zone A and B, " + "1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sold_by_driver) + ")";
             case Ticket.TN_U1_DRV: // 1 pass, universal, sell by ground driver (0020905097)
-                return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sell_by_driver) + ")";
+                return c.getString(R.string.universal)+", 1 " + Lang.getNounCase(1, R.array.trip_cases, c)+" ("+c.getString(R.string.sold_by_driver) + ")";
             case Ticket.TN_U1: // 1 passes, universal (2462677850, with paper check)
                 return c.getString(R.string.universal) + ", 1 " + Lang.getNounCase(1, R.array.trip_cases, c);
             case Ticket.TN_U2: // 2 passes, universal (2523074756, with paper check)

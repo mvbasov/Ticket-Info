@@ -27,7 +27,7 @@
     <string name="at">в</string>
     <string name="station">станции</string>
     <string name="unsupported_tag_type">Не прочитанно ни одной страницы. Возможно, не поддерживаемый тип карты</string>
-    <string name="sell_by_driver">продан водителем наземного транспорта</string>
+    <string name="sold_by_driver">продан водителем наземного транспорта</string>
     <string name="mt_metro">Метро</string>
     <string name="mt_monorail">Монорельс</string>
     <string name="mt_mcc">МЦК</string>
