@@ -24,10 +24,12 @@
  
 package net.basov.metro;
 
+import java.io.InputStream;
 import java.util.Stack;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -42,33 +44,61 @@ import org.xml.sax.helpers.DefaultHandler;
 public class Lookup {
 
     public static String findDBts(String dataFileURI) {
-		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
-			SAXParser saxParser = factory.newSAXParser();
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
 
-			DefaultHandlerToSearch SearchHandlerForTS = new DefaultHandlerToSearch() {
+            DefaultHandlerToSearch SearchHandlerForTS = new DefaultHandlerToSearch() {
 
-				public void startElement(String uri, String localName, String qName,
-										 Attributes attributes) throws SAXException {
-					if (qName.equalsIgnoreCase("metro")) {
-							result = attributes.getValue("ts");
-						throw new MySAXTerminationException();
-					}
-				}
-			};
+                public void startElement(String uri, String localName, String qName,
+                                         Attributes attributes) throws SAXException {
+                    if (qName.equalsIgnoreCase("metro")) {
+                        result = attributes.getValue("ts");
+                        throw new MySAXTerminationException();
+                    }
+                }
+            };
 
-			try {
-				saxParser.parse(
-					dataFileURI,
-					SearchHandlerForTS
-				);
-			} catch (MySAXTerminationException done) {}
+            try {
+                saxParser.parse(
+                        dataFileURI,
+                        SearchHandlerForTS
+                );
+            } catch (MySAXTerminationException done) {}
             return SearchHandlerForTS.result;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "";
+    }
 
+    public static String findDBts(InputSource dataFileStream) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            DefaultHandlerToSearch SearchHandlerForTS = new DefaultHandlerToSearch() {
+
+                public void startElement(String uri, String localName, String qName,
+                                         Attributes attributes) throws SAXException {
+                    if (qName.equalsIgnoreCase("metro")) {
+                        result = attributes.getValue("ts");
+                        throw new MySAXTerminationException();
+                    }
+                }
+            };
+
+            try {
+                saxParser.parse(
+                        dataFileStream,
+                        SearchHandlerForTS
+                );
+            } catch (MySAXTerminationException done) {}
+            return SearchHandlerForTS.result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 	public static String findDBprovider(String dataFileURI) {

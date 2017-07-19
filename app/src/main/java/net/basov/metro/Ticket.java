@@ -52,6 +52,8 @@ import java.util.Calendar;
 import net.basov.ticketinfo.R;
 import net.basov.util.FileIO;
 
+import org.xml.sax.InputSource;
+
 import ru.valle.tickets.ui.Lang;
 
 /**
@@ -1752,7 +1754,12 @@ public class Ticket {
         if (metroDataFile.exists()) {
             if (Lookup.findDBprovider(dataFileURI.toString()).equals("mvb")) {
                 String file_db_ts = Lookup.findDBts(dataFileURI.toString());
-                String asset_db_ts = Lookup.findDBts("file:///android_asset/.db/metro.xml");
+                String asset_db_ts = null;
+                try {
+                    asset_db_ts = Lookup.findDBts(new InputSource(c.getAssets().open("metro.xml")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 if (file_db_ts.compareToIgnoreCase(asset_db_ts) < 0) {
                     metroDataFile.delete();
                     getDataFileURIasString(c); //to copy file
