@@ -86,7 +86,6 @@ public class MainActivity extends Activity {
     private String app_title;
     private String db_ts;
     private String db_provider;
-    private String currentLang;
 
     private UI ui;
 
@@ -117,7 +116,6 @@ public class MainActivity extends Activity {
             default:
                 break;
         }
-        currentLang = appLangPref;
 
         d = new NFCaDump();
         ui = new UI();
@@ -234,18 +232,6 @@ public class MainActivity extends Activity {
             adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String resumeLang = sharedPref.getString("appLang", "en");
-        if (!currentLang.equals(resumeLang)) {
-            Intent intent = getIntent();
-            finish();
-            startActivity(intent);
-//TODO: remove debug
-//            Toast.makeText(
-//                    MainActivity.this,
-//                    "Main activity recreated because language changed",
-//                    Toast.LENGTH_SHORT
-//            ).show();
-        }
         if (sharedPref.getBoolean("changed", true)) {
             sharedPref.edit().putBoolean("changed", false).apply();
             Intent intent = getIntent();
@@ -259,18 +245,12 @@ public class MainActivity extends Activity {
         super.onPause();
         if (adapter != null)
             adapter.disableForegroundDispatch(this);
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        currentLang = sharedPref.getString("appLang", "en");
-
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //outState.putString("app_lang", sharedPref.getString("appLang", "en"));
         outState.putString("app_title", app_title);
         outState.putString("db_ts", db_ts);
         outState.putString("db_provider", db_provider);
