@@ -473,7 +473,7 @@ public class MainActivity extends Activity {
 
                 }
             }
-        } else if (intent.getAction().equals("net.basov.ticketinfo.LAUNCH_HELP")) {
+        } else if (intent.getAction().equals(MainActivity.this.getPackageName()+".LAUNCH_HELP")) {
 
             /* Handle BACK button */
             mainUI_WV.setOnKeyListener(new View.OnKeyListener() {
@@ -495,7 +495,7 @@ public class MainActivity extends Activity {
                 }
             });
 
-            ui.displayHelpScreen(mainUI_WV);
+            ui.displayHelpScreen(app_title, mainUI_WV);
 
         } else {
             /* Other intent ??? */

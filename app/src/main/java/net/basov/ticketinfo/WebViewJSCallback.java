@@ -57,7 +57,7 @@ public class WebViewJSCallback {
     @JavascriptInterface
     public void launchHelp() {
         Intent i = new Intent();
-        i.setAction("net.basov.ticketinfo.LAUNCH_HELP");
+        i.setAction(mContext.getPackageName()+".LAUNCH_HELP");
         mContext.startActivity(i);
     }
 

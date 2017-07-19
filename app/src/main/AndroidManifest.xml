@@ -41,7 +41,7 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
             <intent-filter>
-                <action android:name="net.basov.ticketinfo.LAUNCH_HELP" />
+                <action android:name="${applicationId}.LAUNCH_HELP" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 

@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
@@ -52,6 +53,7 @@ public class UI {
 
     private final static String VISIBILITY = "visibility";
 
+    private JSONObject help_json;
     private JSONObject welcome_json;
     private JSONObject header_json;
     private JSONObject ticket_json;
@@ -98,6 +100,7 @@ public class UI {
     }
 
     public void dataClean () {
+        help_json = new JSONObject();
         welcome_json = new JSONObject();
         header_json = new JSONObject();
         ticket_json = new JSONObject();
@@ -153,6 +156,32 @@ public class UI {
             setWelcomeVisibility(visibilityMap.get(field));
     }
 
+    public void setHelp(String field, String message) {
+        try {
+            help_json.put(field, TextTools.escapeCharsForJSON(message));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (visibilityMap.containsKey(field))
+            setHelpVisibility(visibilityMap.get(field));
+    }
+
+    private void setHelpVisibility(String name) {
+        try {
+            if (help_json.has(VISIBILITY)) {
+                if (! help_json.getJSONObject(VISIBILITY).has(name)) {
+                    help_json.getJSONObject(VISIBILITY).put(name,"");
+                }
+            } else {
+                JSONObject vv = new JSONObject();
+                help_json.put(VISIBILITY, vv);
+                help_json.getJSONObject(VISIBILITY).put(name,"");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setWelcomeVisibility(String name) {
         try {
             if (welcome_json.has(VISIBILITY)) {
@@ -204,10 +233,6 @@ public class UI {
     public void displayWelcomeByNFC(WebView wv) {
         Context c = wv.getContext();
         NfcAdapter adapter = NfcAdapter.getDefaultAdapter(c);
-        //TODO: remove debug
-//        setWelcome("w_debug",
-//                FileIO.getFilesDir(wv.getContext()).getAbsolutePath()
-//        );
         if (adapter == null || ! adapter.isEnabled()){
             setWelcome("w_msg",
                     "<font color=\"darkred\">"
@@ -224,12 +249,20 @@ public class UI {
         displayWelcomeScreen(wv);
     }
 
-    public void displayHelpScreen(final  WebView wv) {
+    public void displayHelpScreen(String title, final  WebView wv) {
+
+        setHelp("h_header", title);
+
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(wv, url);
-                //wv.clearCache(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.evaluateJavascript("javascript:jreplace('" + help_json.toString() + "')", null);
+                } else {
+                    view.loadUrl("javascript:jreplace('" + help_json.toString() + "')");
+                }
+                wv.clearCache(true);
             }
         });
         Context c = wv.getContext();
@@ -242,22 +275,14 @@ public class UI {
 
         setWelcome("s_lang", sharedPref.getString("appLang", "en"));
         if (sharedPref.getBoolean("transliterateFlag", false)) {
-            //setWelcome("s_translit", wv.getContext().getString(R.string.yes));
-            //setWelcome("s_translit", "&#x2611;");
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
 
         } else {
-            //setWelcome("s_translit", wv.getContext().getString(R.string.no));
-            //setWelcome("s_translit", "&#x2610;");
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\">");
         }
         if (sharedPref.getBoolean("sendPlatformInfo", false)) {
-            //setWelcome("s_sendinfo", wv.getContext().getString(R.string.yes));
-            //setWelcome("s_sendinfo", "&#x2611;");
             setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
         } else {
-            //setWelcome("s_sendinfo", wv.getContext().getString(R.string.no));
-            //setWelcome("s_sendinfo", "&#x2610;");
             setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\">");
         }
         wv.setWebViewClient(new MyWebViewClient() {
@@ -270,6 +295,7 @@ public class UI {
                     view.loadUrl("javascript:jreplace('" + welcome_json.toString() +"')",null);
                 }
                 wv.clearCache(true);
+                wv.clearHistory();
             }
         });
         Context c = wv.getContext();
