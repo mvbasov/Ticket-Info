@@ -58,6 +58,13 @@ function hCallback () {
 }
 
 /**
+ * Callback to launch File Manager
+ */
+function fCallback () {
+    Android.launchFileManager();
+}
+
+/**
  * Callback function to send dump by E-Mail
  */
 function eCallback () {

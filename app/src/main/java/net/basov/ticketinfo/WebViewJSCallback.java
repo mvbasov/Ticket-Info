@@ -64,6 +64,21 @@ public class WebViewJSCallback {
     }
 
     @JavascriptInterface
+    public void launchFileManager() {
+        Intent intent = new Intent();
+
+        /* For ES File Manager and X-plore File Manager */
+        intent.setAction("org.openintents.action.VIEW_DIRECTORY");
+        /* For OI File Manager */
+        //intent.setAction("android.intent.action.VIEW");
+
+        Uri uri = Uri.parse("file://" + FileIO.getFilesDir(mContext).getAbsolutePath() + "/AutoDumps/");
+        intent.setData(uri);
+        mContext.startActivity(Intent.createChooser(intent, "Open saved dumps"));
+        //mContext.startActivity(intent);
+    }
+
+    @JavascriptInterface
     public void sendDump(String fileName, String parserErrors) {
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 
