@@ -3,15 +3,7 @@
     <string name="app_name">Просмотр билета</string>
     <string name="ticket_is_reading">Чтение билета…</string>
     <string name="ticket_read_error">Не удалось прочитать билет</string>
-    <string name="ticket_num">Номер билета</string>
-    <string name="passes_left">Осталось поездок</string>
-    <string name="valid">Действителен</string>
     <string name="universal">Единый</string>
-    <string name="best_in_days">Годен дней</string>
-    <string name="station_last_enter">для входа через турникет</string>
-    <string name="ticket_hash">Хеш</string>
-    <string name="start_use_before">Начать использовать до</string>
-    <string name="unknown_layout">Неизвестная разметка билета</string>
     <string name="baggage_and_pass">багаж + проход</string>
     <string name="baggage_only">только багаж</string>
     <string name="universal_ultralight_70">единый ультралайт (70 поездок)</string>
@@ -23,10 +15,6 @@
     <string name="ticket_main_type_mosmetrolight">Билет легкого метро</string>
     <string name="ticket_main_type_mossocial">Единый социальный билет Москвы и МО</string>
     <string name="ticket_main_type_unknown">Билет неизвестного типа</string>
-    <string name="last_trip">Поездка</string>
-    <string name="at">в</string>
-    <string name="station">станции</string>
-    <string name="unsupported_tag_type">Не прочитанно ни одной страницы. Возможно, не поддерживаемый тип карты</string>
     <string name="sold_by_driver">продан водителем наземного транспорта</string>
     <string name="mt_metro">Метро</string>
     <string name="mt_monorail">Монорельс</string>
@@ -34,7 +22,6 @@
     <string name="mt_unknown">Метро 2 :) (на самом деле нет)</string>
     <string name="tt_ground">Наземный</string>
     <string name="tt_unknown">Тип неизвестен</string>
-    <string name="menu_settings">Настройки</string>
     <string name="ticket_ui_file">ticket_ru.html</string>
     <string name="welcome_ui_file">start_ru.html</string>
     <string name="help_ui_file">help_ru.html</string>
@@ -67,7 +54,5 @@
     <string name="ema_text">Если хотите, напишите здесь Ваш коментарий.</string>
     <string name="send_dump_by_email">Отпривить Dump по E-Mail…</string>
     <string name="add_remark_to_dump">Добавить коментарий к дампу</string>
-    <string name="yes">да</string>
-    <string name="no">нет</string>
     <string name="t_unlim_passes">без ограничения числа поездок</string>
 </resources>
