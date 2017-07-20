@@ -33,6 +33,8 @@ import android.preference.PreferenceManager;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
+import net.basov.metro.Lookup;
+import net.basov.metro.Ticket;
 import net.basov.util.FileIO;
 
 import java.io.File;
@@ -87,6 +89,12 @@ public class WebViewJSCallback {
                 emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
                 emaInfo += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
                 emaInfo += "--- End of platform information ---\n";
+                emaInfo += "--- Application information ---\n";
+                String DFPath = Ticket.getDataFileURIasString(mContext);
+                emaInfo += " Data file URI: " + DFPath + "\n";
+                emaInfo += " DB timestamp: " + Lookup.findDBts(DFPath) + "\n";
+                emaInfo += " DB provider: " + Lookup.findDBprovider(DFPath) + "\n";
+                emaInfo += "--- End of Application information ---\n";
             }
             if (emaInfo.length() != 0)
                 emaText += "\n\n--- Don't edit after this line, please ---\n" + emaInfo;
