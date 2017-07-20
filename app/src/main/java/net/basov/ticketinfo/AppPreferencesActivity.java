@@ -20,7 +20,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
-        SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
         ListPreference ListPref = (ListPreference) findPreference("appLang");
         ListPref
                 //.setSummary(sp.getString("appLang", "Some Default Text"));
@@ -42,11 +41,11 @@ public class AppPreferencesActivity extends PreferenceActivity implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
         Preference pref = findPreference(key);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         if (pref instanceof ListPreference) {
             ListPreference etp = (ListPreference) pref;
             pref.setSummary(etp.getEntry());
-            String appLangPref = sharedPref.getString("appLang", "en");
+            String appLangPref = defSharedPref.getString(MainActivity.PK_APP_LANG, "en");
             if ("appLang".equals(key)) {
                 switch (appLangPref) {
                     case "ru":
@@ -64,7 +63,7 @@ public class AppPreferencesActivity extends PreferenceActivity implements
                 recreate();
             }
         }
-        sharedPref.edit().putBoolean("changed", true).apply();
+        defSharedPref.edit().putBoolean(MainActivity.PK_PREF_CHANGED, true).apply();
 
     }
 

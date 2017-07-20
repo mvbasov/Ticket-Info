@@ -73,6 +73,12 @@ public class MainActivity extends Activity {
     static final String TAG = "tickets";
     static final Integer NFC_DIALOG_REQUEST_CODE = 653;
 
+    public static final String PK_PREF_VERSION = "prefVersion";
+    public static final String PK_TRANCLITERATE_FLAG = "transliterateFlag";
+    public static final String PK_APP_LANG = "appLang";
+    public static final String PK_PREF_CHANGED = "prefChanged";
+    public static final String PK_SEND_PLATFORM_INFO = "sendPlatformInfo";
+
     private WebView mainUI_WV;
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
@@ -94,8 +100,19 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String appLangPref = sharedPref.getString("appLang", "default");
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (defSharedPref.getInt(PK_PREF_VERSION, 0) == 0) {
+            SharedPreferences.Editor editor = defSharedPref.edit();
+            editor.putInt(PK_PREF_VERSION, 1);
+            editor.putBoolean(PK_TRANCLITERATE_FLAG, false);
+            editor.putString(PK_APP_LANG, "default");
+            editor.putBoolean(PK_PREF_CHANGED, false);
+            editor.putBoolean(PK_SEND_PLATFORM_INFO, true);
+            editor.commit();
+        }
+
+        String appLangPref = defSharedPref.getString(PK_APP_LANG, "default");
         Locale locale;
         Configuration config = new Configuration();
         switch (appLangPref) {
@@ -231,9 +248,9 @@ public class MainActivity extends Activity {
         if (adapter != null)
             adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPref.getBoolean("changed", true)) {
-            sharedPref.edit().putBoolean("changed", false).apply();
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if (defSharedPref.getBoolean(PK_PREF_CHANGED, true)) {
+            defSharedPref.edit().putBoolean(PK_PREF_CHANGED, false).apply();
             Intent intent = getIntent();
             finish();
             startActivity(intent);

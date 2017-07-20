@@ -271,16 +271,16 @@ public class UI {
     }
 
     public void displayWelcomeScreen(final WebView wv) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
 
-        setWelcome("s_lang", sharedPref.getString("appLang", "en"));
-        if (sharedPref.getBoolean("transliterateFlag", false)) {
+        setWelcome("s_lang", defSharedPref.getString(MainActivity.PK_APP_LANG, "en"));
+        if (defSharedPref.getBoolean(MainActivity.PK_TRANCLITERATE_FLAG, false)) {
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
 
         } else {
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\">");
         }
-        if (sharedPref.getBoolean("sendPlatformInfo", false)) {
+        if (defSharedPref.getBoolean(MainActivity.PK_SEND_PLATFORM_INFO, true)) {
             setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
         } else {
             setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\">");

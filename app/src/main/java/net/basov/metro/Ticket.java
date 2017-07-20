@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import net.basov.ticketinfo.MainActivity;
 import net.basov.ticketinfo.R;
 import net.basov.util.FileIO;
 
@@ -2059,8 +2060,8 @@ public class Ticket {
     }
 
     public String getStationDescAsHTML(Context c) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-        boolean needTransliterate = sharedPref.getBoolean("transliterateFlag", false);
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+        boolean needTransliterate = defSharedPref.getBoolean(MainActivity.PK_TRANCLITERATE_FLAG, false);
 
         if (needTransliterate) {
             return Lang.transliterate(
@@ -2073,8 +2074,8 @@ public class Ticket {
     }
 
     public String getTurnstileDescAsHTML(Context c) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-        boolean needTransliterate = sharedPref.getBoolean("transliterateFlag", false);
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+        boolean needTransliterate = defSharedPref.getBoolean(MainActivity.PK_TRANCLITERATE_FLAG, false);
 
         if (needTransliterate) {
             return Lang.transliterate(

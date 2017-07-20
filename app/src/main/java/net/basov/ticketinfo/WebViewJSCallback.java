@@ -63,7 +63,7 @@ public class WebViewJSCallback {
 
     @JavascriptInterface
     public void sendDump(String fileName, String parserErrors) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         if (fileName != null && fileName.length() != 0) {
             File fileLocation = new File(FileIO.getFilesDir(mContext).getAbsolutePath(), fileName);
@@ -72,22 +72,24 @@ public class WebViewJSCallback {
             i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{EMA + "@" + EMA_DOM});
             i.putExtra(Intent.EXTRA_SUBJECT, "Ticket-Info dump: " + fileName);
-            String emaText = mContext.getString(R.string.ema_text);            
-            emaText += "\n\n--- Don't edit after this line, please ---\n";
+            String emaText = mContext.getString(R.string.ema_text);
+            String emaInfo = "";
             if (parserErrors != null && parserErrors.length() != 0) {
-                emaText += "--- Parser errors ---\n";
-                emaText += parserErrors;
-                emaText += "\n--- End of parse errors ---\n";
+                emaInfo += "--- Parser errors ---\n";
+                emaInfo += parserErrors;
+                emaInfo += "\n--- End of parse errors ---\n";
             }
-            if (sharedPref.getBoolean("sendPlatformInfo", true)) {
-                emaText += "--- Platform information ---\n";
-                //emaText += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
-                emaText += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
-                emaText += " Manufacturer: " + Build.MANUFACTURER + "\n";
-                emaText += " Device: " + android.os.Build.DEVICE + "\n";
-                emaText += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
-                emaText += "--- End of platform information ---\n";
+            if (defSharedPref.getBoolean(MainActivity.PK_SEND_PLATFORM_INFO, true)) {
+                emaInfo += "--- Platform information ---\n";
+                //emaInfo += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+                emaInfo += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
+                emaInfo += " Manufacturer: " + Build.MANUFACTURER + "\n";
+                emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
+                emaInfo += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
+                emaInfo += "--- End of platform information ---\n";
             }
+            if (emaInfo.length() != 0)
+                emaText += "\n\n--- Don't edit after this line, please ---\n" + emaInfo;
             i.putExtra(Intent.EXTRA_TEXT, emaText);
             i.putExtra(Intent.EXTRA_STREAM, path);
             try {
