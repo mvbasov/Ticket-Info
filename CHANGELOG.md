@@ -1,5 +1,13 @@
 ### Change log.
 
+#### Version 3.06b
+##### Date:   Fri Jul 21 22:46:55 2017 +0300, commit 0bfa38679430c64f931f99f7d381b30cc6599982
+
+- Fix start loop
+- Remove unused resources
+- More information in help
+- Launch File Manager from application
+
 #### Version 3.05b
 ##### Date:   Wed Jul 19 20:05:57 2017 +0300, commit 20e1a4b79dd6c522cc65d1eb0da0cf66a3389503
 
