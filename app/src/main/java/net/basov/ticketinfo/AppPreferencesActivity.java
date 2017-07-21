@@ -45,7 +45,10 @@ public class AppPreferencesActivity extends PreferenceActivity implements
         if (pref instanceof ListPreference) {
             ListPreference etp = (ListPreference) pref;
             pref.setSummary(etp.getEntry());
-            String appLangPref = defSharedPref.getString(getString(R.string.pk_app_lang), "en");
+            String appLangPref = defSharedPref.getString(
+                    getString(R.string.pk_app_lang),
+                    getString(R.string.pref_lang_def)
+            );
             if ("appLang".equals(key)) {
                 switch (appLangPref) {
                     case "ru":

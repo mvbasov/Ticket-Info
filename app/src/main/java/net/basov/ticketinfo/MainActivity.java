@@ -117,7 +117,10 @@ public class MainActivity extends Activity {
         }
 
         /* Set application language according to preferences */
-        String appLangPref = defSharedPref.getString(getString(R.string.pk_app_lang), "default");
+        String appLangPref = defSharedPref.getString(
+                getString(R.string.pk_app_lang),
+                getString(R.string.pref_lang_def)
+        );
         Locale locale;
         Configuration config = new Configuration();
         switch (appLangPref) {

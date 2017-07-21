@@ -37,7 +37,6 @@
         <div class="fragment">
             <h4>General</h4>
             This program for view information from Moscow transportation system contactless tickets.
-            It operate only with "paper" tickets.
             You can see ticket state, valid time perion, how many trips it has.
             Also application can show information about used IC.
             You can send dump by E-Mail also.
@@ -47,6 +46,28 @@
             This program display ticket content scanned by NFC
             or show saved dump shared by another application
             (OI File Manager or X-plore file manager as example)
+        </div>
+        <div class="fragment">
+            <h4>Limitations</h4>
+            <ul>
+                <li>
+            Program has no Android permissions to read/write storage.
+            It can operate with files stored only there and below:
+            <font color="green">
+            <span id="h_storage" style="word-wrap: break-word"></span>
+            </font><br/>
+            This is place dedicated for this application.<br/>
+            When File Manager launched from this application
+            by pressing button this directory opens automaticaly.
+            Warning! When application deleted all files from this catalog deleted too!
+                </li>
+                <li>
+            It operate only with "paper" tickets based on ICs:
+            Mifare&#174;, Mifare Ultralight&#174;, several JSC Micron ICs.
+            It mean not operate with Mifare 1K&#174;.
+            So, Troika, Strelka and onther "plastic" cards can't be read.
+                </li>
+            </ul>
         </div>
         <div class="fragment">
             <h4>Buttons description</h4>
@@ -77,6 +98,27 @@
             Show IC memory content.
             At this page button to send dump.
         </div>
+        <div class="fragment">
+            <h4>Settings</h4>
+            <ul>
+                <li style="font-style:italic; font-weight:500">Interface language</li>
+                Set interface language. You can set English, Russian or use language set on system.
+                <li style="font-style:italic; font-weight:500">Transliterate stations names</li>
+                Transliterate stations name or display its original Russian names
+                <li style="font-style:italic; font-weight:500">Send device info with dump</li>
+                Send some general information about device and internal application information with dump.
+                <li style="font-style:italic; font-weight:500">Use VIEW_DIRECTORY</li>
+                Use different ways to launch File manager from application.
+                Some File Managers (X-plore File Manager, ES File Manager) require this option to be switched on.
+                Another (OI File Manager) require option to be switched off.
+            </ul>
+        </div>
+    </div>
+
+    <div class="frame">
+        MIFARE&#174; is a trademark of NXP B.V.<br/>
+        MIFARE Ultralight&#174; is a trademark of NXP B.V.<br/>
+        MIFARE 1K&#174; is a trademark of NXP B.V.<br/>
     </div>
 
 </body>

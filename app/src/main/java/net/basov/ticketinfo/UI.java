@@ -33,6 +33,7 @@ import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
+import net.basov.util.FileIO;
 import net.basov.util.TextTools;
 
 import org.json.JSONException;
@@ -251,6 +252,7 @@ public class UI {
     public void displayHelpScreen(String title, final  WebView wv) {
 
         setHelp("h_header", title);
+        setHelp("h_storage", FileIO.getFilesDir(wv.getContext()).getAbsolutePath());
 
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
@@ -272,7 +274,12 @@ public class UI {
     public void displayWelcomeScreen(final WebView wv) {
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
 
-        setWelcome("s_lang", defSharedPref.getString(wv.getContext().getString(R.string.pk_app_lang), "en"));
+        setWelcome("s_lang",
+                defSharedPref.getString(
+                        wv.getContext().getString(R.string.pk_app_lang),
+                        wv.getContext().getString(R.string.pref_lang_def)
+                )
+        );
         if (defSharedPref.getBoolean(wv.getContext().getString(R.string.pk_transliterate_flag), false)) {
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
 
