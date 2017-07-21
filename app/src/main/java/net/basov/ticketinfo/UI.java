@@ -29,7 +29,6 @@ import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.webkit.WebView;
 
 import net.basov.metro.Ticket;
@@ -273,18 +272,24 @@ public class UI {
     public void displayWelcomeScreen(final WebView wv) {
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(wv.getContext());
 
-        setWelcome("s_lang", defSharedPref.getString(MainActivity.PK_APP_LANG, "en"));
-        if (defSharedPref.getBoolean(MainActivity.PK_TRANCLITERATE_FLAG, false)) {
+        setWelcome("s_lang", defSharedPref.getString(wv.getContext().getString(R.string.pk_app_lang), "en"));
+        if (defSharedPref.getBoolean(wv.getContext().getString(R.string.pk_transliterate_flag), false)) {
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
 
         } else {
             setWelcome("s_translit", "<input type=\"checkbox\" disabled=\"disabled\">");
         }
-        if (defSharedPref.getBoolean(MainActivity.PK_SEND_PLATFORM_INFO, true)) {
+        if (defSharedPref.getBoolean(wv.getContext().getString(R.string.pk_send_platform_info), true)) {
             setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
         } else {
             setWelcome("s_sendinfo", "<input type=\"checkbox\" disabled=\"disabled\">");
         }
+        if (defSharedPref.getBoolean(wv.getContext().getString(R.string.pk_use_view_directory), false)) {
+            setWelcome("s_use_view_directory", "<input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\">");
+        } else {
+            setWelcome("s_use_view_directory", "<input type=\"checkbox\" disabled=\"disabled\">");
+        }
+
         wv.setWebViewClient(new MyWebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {

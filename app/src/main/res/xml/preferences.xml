@@ -3,17 +3,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference
         android:title="Interface language"
-        android:summary="Select application interface language"
-        android:key="appLang"
         android:defaultValue="@string/pref_lang_def"
         android:entries="@array/listLangNames"
-        android:entryValues="@array/listLangValues" />
+        android:entryValues="@array/listLangValues"
+        android:key="@string/pk_app_lang" />
     <CheckBoxPreference
         android:title="Transliterate stations names"
         android:defaultValue="false"
-        android:key="transliterateFlag" />
+        android:key="@string/pk_transliterate_flag" />
     <CheckBoxPreference
         android:title="Send device info with dump"
         android:defaultValue="true"
-        android:key="sendPlatformInfo" />
+        android:key="@string/pk_send_platform_info" />
+    <CheckBoxPreference
+        android:title="Use VIEW_DIRECTORY"
+        android:summary="Yes for X-plore or ES, no for OI File Managers"
+        android:defaultValue="false"
+        android:key="@string/pk_use_view_directory" />
 </PreferenceScreen>

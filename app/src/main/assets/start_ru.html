@@ -39,6 +39,11 @@
     </div>
 
     <div class="frame">
+        Для закпуска Файлового Менеджера нажмите эту кнопку:
+        <button class="btn" id="btnFileManager" style="width:100%;outline:0;margin-top:0.5em" onclick="fCallback()">File Manager</button>
+    </div>
+
+    <div class="frame">
         <table>
             <caption>Настройки</caption>
             <tr>
@@ -49,6 +54,11 @@
                 <td>Отправлять информацию об устройстве вместе с дампом:</td>
                 <td><span id="s_sendinfo"></span></td>
             </tr>
+            <tr>
+                <td>Использовать VIEW_DIRECTORY для файлового менеджера:</td>
+                <td><span id="s_use_view_directory"></span></td>
+            </tr>
+
         </table>
         <div id="wrapper" class="fragment">
             <button class="btn" id="btnSettings" style="width:100%;outline:0;margin-top:0.5em" onclick="aCallback()">Изменить настройки</button>

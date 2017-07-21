@@ -28,7 +28,6 @@ package net.basov.metro;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import net.basov.nfc.NFCaDump;
 
@@ -49,7 +48,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import net.basov.ticketinfo.MainActivity;
 import net.basov.ticketinfo.R;
 import net.basov.util.FileIO;
 
@@ -2061,7 +2059,7 @@ public class Ticket {
 
     public String getStationDescAsHTML(Context c) {
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-        boolean needTransliterate = defSharedPref.getBoolean(MainActivity.PK_TRANCLITERATE_FLAG, false);
+        boolean needTransliterate = defSharedPref.getBoolean(c.getString(R.string.pk_transliterate_flag), false);
 
         if (needTransliterate) {
             return Lang.transliterate(
@@ -2075,7 +2073,7 @@ public class Ticket {
 
     public String getTurnstileDescAsHTML(Context c) {
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(c);
-        boolean needTransliterate = defSharedPref.getBoolean(MainActivity.PK_TRANCLITERATE_FLAG, false);
+        boolean needTransliterate = defSharedPref.getBoolean(c.getString(R.string.pk_transliterate_flag), false);
 
         if (needTransliterate) {
             return Lang.transliterate(

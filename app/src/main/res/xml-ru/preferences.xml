@@ -3,13 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference
         android:title="Язык программы"
-        android:key="appLang"
         android:defaultValue="@string/pref_lang_def"
         android:entries="@array/listLangNames"
-        android:entryValues="@array/listLangValues" />
+        android:entryValues="@array/listLangValues"
+        android:key="@string/pk_app_lang" />
     <CheckBoxPreference
         android:title="Отправлять информацию"
         android:summary="об устройстве вместе с дампом"
         android:defaultValue="true"
-        android:key="sendPlatformInfo" />
+        android:key="@string/pk_send_platform_info" />
+    <CheckBoxPreference
+        android:title="Использовать VIEW_DIRECTORY"
+        android:summary="Да для X-plore или ES, нет для OI файловых менеджеров"
+        android:defaultValue="false"
+        android:key="@string/pk_use_view_directory" />
 </PreferenceScreen>

@@ -73,12 +73,6 @@ public class MainActivity extends Activity {
     static final String TAG = "tickets";
     static final Integer NFC_DIALOG_REQUEST_CODE = 653;
 
-    public static final String PK_PREF_VERSION = "prefVersion";
-    public static final String PK_TRANCLITERATE_FLAG = "transliterateFlag";
-    public static final String PK_APP_LANG = "appLang";
-    public static final String PK_PREF_CHANGED = "prefChanged";
-    public static final String PK_SEND_PLATFORM_INFO = "sendPlatformInfo";
-
     private WebView mainUI_WV;
     private NfcAdapter adapter;
     private PendingIntent pendingIntent;
@@ -100,19 +94,30 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /* Set default preferences at first run and after preferences version upgrade */
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (defSharedPref.getInt(PK_PREF_VERSION, 0) == 0) {
-            SharedPreferences.Editor editor = defSharedPref.edit();
-            editor.putInt(PK_PREF_VERSION, 1);
-            editor.putBoolean(PK_TRANCLITERATE_FLAG, false);
-            editor.putString(PK_APP_LANG, "default");
-            editor.putBoolean(PK_PREF_CHANGED, false);
-            editor.putBoolean(PK_SEND_PLATFORM_INFO, true);
-            editor.commit();
+        SharedPreferences.Editor editor = defSharedPref.edit();
+        switch (defSharedPref.getInt(getString(R.string.pk_pref_version), 0)) {
+            case 0: // initial
+                editor.putInt(getString(R.string.pk_pref_version), 2);
+                editor.putBoolean(getString(R.string.pk_transliterate_flag), false);
+                editor.putString(getString(R.string.pk_app_lang), "default");
+                editor.putBoolean(getString(R.string.pk_pref_changed), false);
+                editor.putBoolean(getString(R.string.pk_send_platform_info), true);
+                editor.putBoolean(getString(R.string.pk_use_view_directory), false);
+                editor.commit();
+                break;
+            case 1: // upgrade from v1 to v2
+                editor.putInt(getString(R.string.pk_pref_version), 2);
+                editor.putBoolean(getString(R.string.pk_use_view_directory), false);
+                editor.commit();
+                break;
+            default:
+                break;
         }
 
-        String appLangPref = defSharedPref.getString(PK_APP_LANG, "default");
+        /* Set application language according to preferences */
+        String appLangPref = defSharedPref.getString(getString(R.string.pk_app_lang), "default");
         Locale locale;
         Configuration config = new Configuration();
         switch (appLangPref) {
@@ -198,9 +203,7 @@ public class MainActivity extends Activity {
 
         onNewIntent(getIntent());
 
-/*
-  Check is NFC adapter present and switched on
-  */
+        /* Check is NFC adapter present and switched on */
         adapter = NfcAdapter.getDefaultAdapter(this);
         if ((adapter != null) && !adapter.isEnabled()) {
 
@@ -248,9 +251,10 @@ public class MainActivity extends Activity {
         if (adapter != null)
             adapter.enableForegroundDispatch(this, pendingIntent, filters, techList);
 
+        /* Recreate activity if language preferense changed */
         SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (defSharedPref.getBoolean(PK_PREF_CHANGED, true)) {
-            defSharedPref.edit().putBoolean(PK_PREF_CHANGED, false).apply();
+        if (defSharedPref.getBoolean(getString(R.string.pk_pref_changed), true)) {
+            defSharedPref.edit().putBoolean(getString(R.string.pk_pref_changed), false).apply();
             Intent intent = getIntent();
             finish();
             startActivity(intent);

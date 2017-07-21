@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="pref_lang_def">ru</string>
+    <string name="pref_lang_def" translatable="false">default</string>
     <string name="welcome_ui_file">start.html</string>
     <string name="ticket_ui_file">ticket.html</string>
     <string name="help_ui_file">help.html</string>
@@ -43,8 +43,8 @@
     <string name="nfc_enable_dialog">Turn NFC on by settings and press back to return to application.</string>
     <string name="nfc_dialog_go_btn">Turn On</string>
     <string name="nfc_dialog_cancel_btn">Close</string>
-    <string name="welcome_without_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from any file manager with this application.</string>
-    <string name="welcome_with_nfc">Bring a ticket or open saved dump by sharing it from any file manager with this application.</string>
+    <string name="welcome_without_nfc">NFC disabled or doesn\'t exists. Open saved dump by sharing it from file manager with this application.</string>
+    <string name="welcome_with_nfc">Bring a ticket or open saved dump by sharing it from file manager with this application.</string>
     <string name="prefTitle">pref_screen_title</string>
     <string name="t90_minutes">90 minutes</string>
     <string name="ws_ground">sold on ground</string>
@@ -54,4 +54,10 @@
     <string name="send_dump_by_email">Send dump by E-Mail…</string>
     <string name="add_remark_to_dump">Add your remark to dump</string>
     <string name="t_unlim_passes">unlimited passes</string>
+    <string name="pk_pref_version" translatable="false">prefVersion</string>
+    <string name="pk_transliterate_flag" translatable="false">transliterateFlag</string>
+    <string name="pk_app_lang" translatable="false">appLang</string>
+    <string name="pk_pref_changed" translatable="false">prefChanged</string>
+    <string name="pk_send_platform_info" translatable="false">sendPlatformInfo</string>
+    <string name="pk_use_view_directory" translatable="false">useViewDirectory</string>
 </resources>

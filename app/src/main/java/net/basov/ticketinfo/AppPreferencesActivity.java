@@ -45,7 +45,7 @@ public class AppPreferencesActivity extends PreferenceActivity implements
         if (pref instanceof ListPreference) {
             ListPreference etp = (ListPreference) pref;
             pref.setSummary(etp.getEntry());
-            String appLangPref = defSharedPref.getString(MainActivity.PK_APP_LANG, "en");
+            String appLangPref = defSharedPref.getString(getString(R.string.pk_app_lang), "en");
             if ("appLang".equals(key)) {
                 switch (appLangPref) {
                     case "ru":
@@ -63,7 +63,7 @@ public class AppPreferencesActivity extends PreferenceActivity implements
                 recreate();
             }
         }
-        defSharedPref.edit().putBoolean(MainActivity.PK_PREF_CHANGED, true).apply();
+        defSharedPref.edit().putBoolean(getString(R.string.pk_pref_changed), true).apply();
 
     }
 

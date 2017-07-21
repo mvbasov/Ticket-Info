@@ -37,7 +37,12 @@
         <span id="w_msg">Some message</span>
         <button class="btn" id="btnHelp" style="width:100%;outline:0;margin-top:0.5em" onclick="hCallback()">Help</button>
     </div>
-    
+
+    <div class="frame">
+        To launch File Manager press button below:
+        <button class="btn" id="btnFileManager" style="width:100%;outline:0;margin-top:0.5em" onclick="fCallback()">File Manager</button>
+    </div>
+
     <div class="frame">
         <table>
             <caption>Settings</caption>
@@ -52,6 +57,10 @@
             <tr>
                 <td>Send device info with dump:</td>
                 <td><span id="s_sendinfo"></span></td>
+            </tr>
+            <tr>
+                <td>Use VIEW_DIRECTORY for File Manager:</td>
+                <td><span id="s_use_view_directory"></span></td>
             </tr>
         </table>
         <div id="wrapper" class="fragment">

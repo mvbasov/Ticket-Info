@@ -67,14 +67,18 @@ public class WebViewJSCallback {
     public void launchFileManager() {
         Intent intent = new Intent();
 
-        /* For ES File Manager and X-plore File Manager */
-        intent.setAction("org.openintents.action.VIEW_DIRECTORY");
-        /* For OI File Manager */
-        //intent.setAction("android.intent.action.VIEW");
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (defSharedPref.getBoolean(mContext.getString(R.string.pk_use_view_directory), false)) {
+            /* For ES File Manager and X-plore File Manager */
+            intent.setAction("org.openintents.action.VIEW_DIRECTORY");
+        } else {
+            /* For OI File Manager */
+            intent.setAction("android.intent.action.VIEW");
+        }
 
         Uri uri = Uri.parse("file://" + FileIO.getFilesDir(mContext).getAbsolutePath() + "/AutoDumps/");
         intent.setData(uri);
-        mContext.startActivity(Intent.createChooser(intent, "Open saved dumps"));
+        mContext.startActivity(Intent.createChooser(intent, "Open/Share saved dumps"));
         //mContext.startActivity(intent);
     }
 
@@ -96,7 +100,7 @@ public class WebViewJSCallback {
                 emaInfo += parserErrors;
                 emaInfo += "\n--- End of parse errors ---\n";
             }
-            if (defSharedPref.getBoolean(MainActivity.PK_SEND_PLATFORM_INFO, true)) {
+            if (defSharedPref.getBoolean(mContext.getString(R.string.pk_send_platform_info), true)) {
                 emaInfo += "--- Platform information ---\n";
                 //emaInfo += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
                 emaInfo += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
