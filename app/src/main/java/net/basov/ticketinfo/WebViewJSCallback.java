@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import net.basov.metro.Lookup;
 import net.basov.metro.Ticket;
+import net.basov.nfc.NFCTools;
 import net.basov.util.FileIO;
 
 import java.io.File;
@@ -107,6 +108,11 @@ public class WebViewJSCallback {
                 emaInfo += " Manufacturer: " + Build.MANUFACTURER + "\n";
                 emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
                 emaInfo += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
+                emaInfo += " Mifare Classic support: ";
+                if (NFCTools.deviceSupportsMifareClassic(mContext))
+                    emaInfo +="yes\n";
+                else
+                    emaInfo +="no\n";
                 emaInfo += "--- End of platform information ---\n";
                 emaInfo += "--- Application information ---\n";
                 String DFPath = Ticket.getDataFileURIasString(mContext);
