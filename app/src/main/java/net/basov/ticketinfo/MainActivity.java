@@ -310,7 +310,7 @@ public class MainActivity extends Activity {
     public void onNewIntent(Intent intent) {
         /* NFC tag read event */
         if (intent == null || intent.getAction() == null){
-            ui.setWelcome("w_msg", getString(R.string.ticket_read_error)+"(null Intent or getAction())");
+            ui.setWelcome("w_msg", MainActivity.this.getString(R.string.ticket_read_error)+"(null Intent or getAction())");
             ui.displayWelcomeScreen(mainUI_WV);
         }
         else if (intent != null && intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
