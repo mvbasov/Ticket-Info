@@ -108,11 +108,15 @@ public class WebViewJSCallback {
                 emaInfo += " Manufacturer: " + Build.MANUFACTURER + "\n";
                 emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
                 emaInfo += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
-                emaInfo += " Mifare Classic support: ";
+                emaInfo += " Mifare Classic support: ";              
                 if (NFCTools.deviceSupportsMifareClassic(mContext))
                     emaInfo +="yes\n";
                 else
                     emaInfo +="no\n";
+                emaInfo += " Build.VERSION.INCREMENTAL: " + android.os.Build.VERSION.INCREMENTAL + "\n";
+                emaInfo += " Build.VERSION.CODENAME: " + android.os.Build.VERSION.CODENAME + "\n";
+                emaInfo += ".Build.VERSION.RELEASE : " + android.os.Build.VERSION.RELEASE + "\n";
+                emaInfo += " Build.DISPLAY: " + android.os.Build.DISPLAY + "\n";
                 emaInfo += "--- End of platform information ---\n";
                 emaInfo += "--- Application information ---\n";
                 String DFPath = Ticket.getDataFileURIasString(mContext);
