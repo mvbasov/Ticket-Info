@@ -47,7 +47,9 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Latest changes:
 
-- 
+- Fix several null pointer exceptions
+- More information about platform and application
+- New station in DB (Bitcesky park)
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 

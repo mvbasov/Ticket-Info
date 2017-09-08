@@ -129,7 +129,7 @@ public class WebViewJSCallback {
 					emaInfo += " CyanogenMod version: " + cmVersion + "\n";
                 emaInfo += "--- End of platform information ---\n";
                 emaInfo += "--- Application information ---\n";
-                emaInfo += appInfo + "\n";
+                emaInfo += " " + appInfo + "\n";
                 String DFPath = Ticket.getDataFileURIasString(mContext);
                 emaInfo += " Data file URI: " + DFPath + "\n";
                 emaInfo += " DB timestamp: " + Lookup.findDBts(DFPath) + "\n";
