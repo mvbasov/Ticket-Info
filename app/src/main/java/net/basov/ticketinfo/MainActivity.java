@@ -61,6 +61,7 @@ import android.widget.Toast;
 import net.basov.metro.Lookup;
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCaDump;
+import net.basov.util.AppDetails;
 import net.basov.util.FileIO;
 
 import java.io.IOException;
@@ -163,46 +164,23 @@ public class MainActivity extends Activity {
             { WebView.setWebContentsDebuggingEnabled(true); }
         }
 
+        app_title = getResources().getString(R.string.app_name);
 
         try {
-
-            /*
-             * AIDE has limited support of gradle.
-             * If program compiled by AndroidStudio R.string.git_describe is set by gradle.
-             * If program compiled by AIDE this resource doesn't exist.
-             */
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            int git_describe_id = getResources().getIdentifier("git_describe", "string", getPackageName());
-            if (git_describe_id == 0)
-                app_title = getResources().getString(R.string.app_name)
-                        + " "
-                        + pInfo.versionName
-                        + "-AIDE";
-            else {
-                String git_describe = getResources().getString(git_describe_id);
-                if (!git_describe.isEmpty())
-                    app_title = getResources().getString(R.string.app_name)
-                            + " "
-                            + git_describe;
-                else
-                    app_title = getResources().getString(R.string.app_name)
-                            + " "
-                            + pInfo.versionName;
-            }
-
-            /* Update DB if need */
-            if (Ticket.updateDB(MainActivity.this))
-                Toast.makeText(MainActivity.this, "Metro station DB updated.", Toast.LENGTH_SHORT).show();
-
-            /* Get actual DB version information */
-            db_ts = Lookup.findDBts(Ticket.getDataFileURIasString(MainActivity.this));
-            db_provider = Lookup.findDBprovider(Ticket.getDataFileURIasString(MainActivity.this));
-
-            ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
-
+            app_title += " " + AppDetails.getAppName(this);
         } catch (Throwable th) {
             Log.e(TAG, "get package info error", th);
         }
+
+        /* Update DB if need */
+        if (Ticket.updateDB(MainActivity.this))
+            Toast.makeText(MainActivity.this, "Metro station DB updated.", Toast.LENGTH_SHORT).show();
+
+        /* Get actual DB version information */
+        db_ts = Lookup.findDBts(Ticket.getDataFileURIasString(MainActivity.this));
+        db_provider = Lookup.findDBprovider(Ticket.getDataFileURIasString(MainActivity.this));
+
+        ui.displayUI(app_title, db_ts, db_provider, d_file_content, d_auto_file_name, d_real_file_name, d_remark, mainUI_WV);
 
         onNewIntent(getIntent());
 

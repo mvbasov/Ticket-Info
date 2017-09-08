@@ -27,6 +27,7 @@ package net.basov.ticketinfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -37,10 +38,9 @@ import net.basov.metro.Lookup;
 import net.basov.metro.Ticket;
 import net.basov.nfc.NFCTools;
 import net.basov.util.FileIO;
+import net.basov.util.AppDetails;
 
 import java.io.File;
-import java.io.*;
-import android.util.*;
 
 public class WebViewJSCallback {
 	
@@ -97,7 +97,13 @@ public class WebViewJSCallback {
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("message/rfc822");
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{EMA + "@" + EMA_DOM});
-            i.putExtra(Intent.EXTRA_SUBJECT, "Ticket-Info dump: " + fileName);
+            String appInfo = mContext.getResources().getString(R.string.app_name);
+            try {
+                appInfo += " " + AppDetails.getAppName(mContext);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            i.putExtra(Intent.EXTRA_SUBJECT, appInfo + ". Dump: " + fileName);
             String emaText = mContext.getString(R.string.ema_text);
             String emaInfo = "";
             if (parserErrors != null && parserErrors.length() != 0) {
@@ -106,25 +112,24 @@ public class WebViewJSCallback {
                 emaInfo += "\n--- End of parse errors ---\n";
             }
             if (defSharedPref.getBoolean(mContext.getString(R.string.pk_send_platform_info), true)) {
-                emaInfo += "--- Platform information ---\n";              
-                emaInfo += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
+                emaInfo += "--- Platform information ---\n";
                 emaInfo += " Manufacturer: " + Build.MANUFACTURER + "\n";
                 emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
                 emaInfo += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
-                emaInfo += " Mifare Classic support: ";              
+                emaInfo += " Mifare Classic support: ";
                 if (NFCTools.deviceSupportsMifareClassic(mContext))
                     emaInfo +="yes\n";
                 else
                     emaInfo +="no\n";
-                //emaInfo += " Build.VERSION.INCREMENTAL: " + android.os.Build.VERSION.INCREMENTAL + "\n";
-                //emaInfo += " Build.VERSION.CODENAME: " + android.os.Build.VERSION.CODENAME + "\n";
-                emaInfo += ".Build.VERSION.RELEASE : " + android.os.Build.VERSION.RELEASE + "\n";
+                emaInfo += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
+                emaInfo += " Android version : " + android.os.Build.VERSION.RELEASE + "\n";
                 emaInfo += " Build.DISPLAY: " + android.os.Build.DISPLAY + "\n";
-				String cmVersion = getSystemProperty("ro.cm.version");
+				String cmVersion = AppDetails.getSystemProperty("ro.cm.version");
 				if (cmVersion.length() != 0)
-					emaInfo += " Cyanogen version: " + cmVersion + "\n";				
+					emaInfo += " CyanogenMod version: " + cmVersion + "\n";
                 emaInfo += "--- End of platform information ---\n";
                 emaInfo += "--- Application information ---\n";
+                emaInfo += appInfo + "\n";
                 String DFPath = Ticket.getDataFileURIasString(mContext);
                 emaInfo += " Data file URI: " + DFPath + "\n";
                 emaInfo += " DB timestamp: " + Lookup.findDBts(DFPath) + "\n";
@@ -149,37 +154,5 @@ public class WebViewJSCallback {
         if (FileIO.appendRemarkToDump(file, remark))
             Toast.makeText(mContext, "Remark added to dump file.", Toast.LENGTH_SHORT).show();
     }
-	
-	/* From cmupdaterapp code. Original source deleted from code.google.com */
-	public static String getSystemProperty(String propName){
-		String line;
-		BufferedReader input = null;
-		try
-		{
-            Process p = Runtime.getRuntime().exec("getprop " + propName);
-			input = new BufferedReader(new InputStreamReader(p.getInputStream()), 1024);
-			line = input.readLine();
-			input.close();
-		}
-		catch (IOException ex)
-		{
-            Log.e(TAG, "Unable to read sysprop " + propName, ex);
-            return null;
-		}
-		finally
-		{
-            if(input != null)
-            {
-				try
-				{
-					input.close();
-				}
-				catch (IOException e)
-				{
-					Log.e(TAG, "Exception while closing InputStream", e);
-				}
-            }
-		}
-		return line;
-	}
+
 }

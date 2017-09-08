@@ -4,7 +4,7 @@
     <string name="welcome_ui_file">start.html</string>
     <string name="ticket_ui_file">ticket.html</string>
     <string name="help_ui_file">help.html</string>
-    <string name="app_name">Ticket info</string>
+    <string name="app_name">Ticket-Info</string>
     <string name="ticket_is_reading">Ticket reading</string>
     <string name="ticket_read_error">Unable to read the ticket</string>
     <string name="universal">Universal</string>
