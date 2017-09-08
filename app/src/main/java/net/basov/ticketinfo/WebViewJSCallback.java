@@ -39,8 +39,12 @@ import net.basov.nfc.NFCTools;
 import net.basov.util.FileIO;
 
 import java.io.File;
+import java.io.*;
+import android.util.*;
 
 public class WebViewJSCallback {
+	
+	public static final String TAG = "WebViewJSCallback";
 
     private final static String EMA = "ticket-info-dump";
     private final static String EMA_DOM = "basov.net";
@@ -102,8 +106,7 @@ public class WebViewJSCallback {
                 emaInfo += "\n--- End of parse errors ---\n";
             }
             if (defSharedPref.getBoolean(mContext.getString(R.string.pk_send_platform_info), true)) {
-                emaInfo += "--- Platform information ---\n";
-                //emaInfo += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+                emaInfo += "--- Platform information ---\n";              
                 emaInfo += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
                 emaInfo += " Manufacturer: " + Build.MANUFACTURER + "\n";
                 emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
@@ -113,10 +116,13 @@ public class WebViewJSCallback {
                     emaInfo +="yes\n";
                 else
                     emaInfo +="no\n";
-                emaInfo += " Build.VERSION.INCREMENTAL: " + android.os.Build.VERSION.INCREMENTAL + "\n";
-                emaInfo += " Build.VERSION.CODENAME: " + android.os.Build.VERSION.CODENAME + "\n";
+                //emaInfo += " Build.VERSION.INCREMENTAL: " + android.os.Build.VERSION.INCREMENTAL + "\n";
+                //emaInfo += " Build.VERSION.CODENAME: " + android.os.Build.VERSION.CODENAME + "\n";
                 emaInfo += ".Build.VERSION.RELEASE : " + android.os.Build.VERSION.RELEASE + "\n";
                 emaInfo += " Build.DISPLAY: " + android.os.Build.DISPLAY + "\n";
+				String cmVersion = getSystemProperty("ro.cm.version");
+				if (cmVersion.length() != 0)
+					emaInfo += " Cyanogen version: " + cmVersion + "\n";				
                 emaInfo += "--- End of platform information ---\n";
                 emaInfo += "--- Application information ---\n";
                 String DFPath = Ticket.getDataFileURIasString(mContext);
@@ -143,4 +149,37 @@ public class WebViewJSCallback {
         if (FileIO.appendRemarkToDump(file, remark))
             Toast.makeText(mContext, "Remark added to dump file.", Toast.LENGTH_SHORT).show();
     }
+	
+	/* From cmupdaterapp code. Original source deleted from code.google.com */
+	public static String getSystemProperty(String propName){
+		String line;
+		BufferedReader input = null;
+		try
+		{
+            Process p = Runtime.getRuntime().exec("getprop " + propName);
+			input = new BufferedReader(new InputStreamReader(p.getInputStream()), 1024);
+			line = input.readLine();
+			input.close();
+		}
+		catch (IOException ex)
+		{
+            Log.e(TAG, "Unable to read sysprop " + propName, ex);
+            return null;
+		}
+		finally
+		{
+            if(input != null)
+            {
+				try
+				{
+					input.close();
+				}
+				catch (IOException e)
+				{
+					Log.e(TAG, "Exception while closing InputStream", e);
+				}
+            }
+		}
+		return line;
+	}
 }
