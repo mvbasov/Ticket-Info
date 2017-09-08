@@ -1,5 +1,12 @@
 ### Change log.
 
+#### Version 3.07b
+##### Date:   Fri Sep 8 15:34:13 2017 +0300, commit 4c7a558184049f8e70a7d28ca897c4cb595f9e0f
+
+- Fix several null pointer exceptions
+- More information about platform and application
+- New station in DB (Bitcesky park)
+
 #### Version 3.06b
 ##### Date:   Fri Jul 21 22:46:55 2017 +0300, commit 0bfa38679430c64f931f99f7d381b30cc6599982
 
