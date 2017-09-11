@@ -112,29 +112,41 @@ public class WebViewJSCallback {
                 emaInfo += "\n--- End of parse errors ---\n";
             }
             if (defSharedPref.getBoolean(mContext.getString(R.string.pk_send_platform_info), true)) {
-                emaInfo += "--- Platform information ---\n";
-                emaInfo += " Manufacturer: " + Build.MANUFACTURER + "\n";
-                emaInfo += " Device: " + android.os.Build.DEVICE + "\n";
-                emaInfo += " Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
-                emaInfo += " Mifare Classic support: ";
+                emaInfo += " * ["
+                        + android.os.Build.MODEL
+                        +"](#"
+                        + Build.MANUFACTURER
+                        + "-"
+                        + android.os.Build.PRODUCT
+                        + ")\n";
+                emaInfo += "<a name=\""
+                        + Build.MANUFACTURER
+                        + "-"
+                        + android.os.Build.PRODUCT
+                        + "\"/>\n";
+                emaInfo += "##### Platform information #####\n";
+                emaInfo += "* Manufacturer: " + Build.MANUFACTURER + "\n";
+                emaInfo += "* Device: " + android.os.Build.DEVICE + "\n";
+                emaInfo += "* Model (and Product): " + android.os.Build.MODEL + " (" + android.os.Build.PRODUCT + ")\n";
+                emaInfo += "* Mifare Classic support: ";
                 if (NFCTools.deviceSupportsMifareClassic(mContext))
                     emaInfo +="yes\n";
                 else
                     emaInfo +="no\n";
-                emaInfo += " OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
-                emaInfo += " Android version : " + android.os.Build.VERSION.RELEASE + "\n";
-                emaInfo += " Build.DISPLAY: " + android.os.Build.DISPLAY + "\n";
+                emaInfo += "* OS API Level: " + android.os.Build.VERSION.SDK_INT + "\n";
+                emaInfo += "* Android version : " + android.os.Build.VERSION.RELEASE + "\n";
+                emaInfo += "* Build.DISPLAY: " + android.os.Build.DISPLAY + "\n";
 				String cmVersion = AppDetails.getSystemProperty("ro.cm.version");
 				if (cmVersion.length() != 0)
-					emaInfo += " CyanogenMod version: " + cmVersion + "\n";
-                emaInfo += "--- End of platform information ---\n";
-                emaInfo += "--- Application information ---\n";
-                emaInfo += " " + appInfo + "\n";
+					emaInfo += "* CyanogenMod version: " + cmVersion + "\n";
+                emaInfo += "\n";
+                emaInfo += "##### Application information #####\n";
+                emaInfo += "* " + appInfo + "\n";
                 String DFPath = Ticket.getDataFileURIasString(mContext);
-                emaInfo += " Data file URI: " + DFPath + "\n";
-                emaInfo += " DB timestamp: " + Lookup.findDBts(DFPath) + "\n";
-                emaInfo += " DB provider: " + Lookup.findDBprovider(DFPath) + "\n";
-                emaInfo += "--- End of Application information ---\n";
+                emaInfo += "* Data file URI: " + DFPath + "\n";
+                emaInfo += "* DB timestamp: " + Lookup.findDBts(DFPath) + "\n";
+                emaInfo += "* DB provider: " + Lookup.findDBprovider(DFPath) + "\n";
+                emaInfo += "- - -\n";
             }
             if (emaInfo.length() != 0)
                 emaText += "\n\n--- Don't edit after this line, please ---\n" + emaInfo;
