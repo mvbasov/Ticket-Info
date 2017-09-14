@@ -1,10 +1,17 @@
 body {
     background-color: LightYellow;
 }
-button {
-    width: 24%;
+button.btnT {
+    width: 24.2%;
     height: 100%;
     border-radius: 7px;
+}
+button.btnB {
+    width: 48.9%;
+    height: 100%;
+    border-radius: 7px;
+    margin-top: 0.3em;
+    margin-botom: 0.2em;
 }
 pre {
     margin-top: 0;
