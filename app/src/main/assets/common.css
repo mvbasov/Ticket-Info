@@ -2,7 +2,7 @@ body {
     background-color: LightYellow;
 }
 button.btnT {
-    width: 24.2%;
+    width: 24%;
     height: 100%;
     border-radius: 7px;
 }
@@ -10,8 +10,8 @@ button.btnB {
     width: 48.9%;
     height: 100%;
     border-radius: 7px;
-    margin-top: 0.3em;
-    margin-botom: 0.2em;
+    margin-top: 0.4em;
+    margin-botom: 0.1em;
 }
 pre {
     margin-top: 0;

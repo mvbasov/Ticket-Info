@@ -4,7 +4,7 @@
 function openTab(tabName, btnName) {
    var i;
    var t = document.getElementsByClassName("tab");
-   var b = document.getElementsByClassName("btn");
+   var b = document.getElementsByClassName("btnT");
 
    for (i = 0; i < t.length; i++) {
        t[i].style.display = "none";
