@@ -1,5 +1,11 @@
 ### Change log.
 
+#### Version 3.08b
+##### Date:   Fri Sep 15 21:06:51 2017 +0300, commit 26eba9f917ded2668750ea1f66f6522c70db8ef3
+
+- Send platform information in markdown format
+- "Send dump" on first ticket screen
+
 #### Version 3.07b
 ##### Date:   Fri Sep 8 15:34:13 2017 +0300, commit 4c7a558184049f8e70a7d28ca897c4cb595f9e0f
 

@@ -8,7 +8,7 @@ This is Android application to see what inside Moscow trasportation system ticke
   </tr>
 </table>
 
-Latest [stable version](https://github.com/mvbasov/Ticket-Info/releases/download/v3.08b/Ticket-Info.3.08b.apk)
+Latest [stable version](https://github.com/mvbasov/Ticket-Info/releases/download/v3.09b/Ticket-Info.3.09b.apk)
 
 This project is update to actual state of another [old project](https://github.com/ValleZ/Ticket-Info.git)
 
@@ -47,8 +47,7 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Latest changes:
 
-- Send platform information in markdown format
-- "Send dump" on first ticket screen
+- 
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
