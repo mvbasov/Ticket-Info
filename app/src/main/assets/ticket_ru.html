@@ -19,9 +19,11 @@ div.tab {
     border: 2px solid black;
     border-radius: 7px;
     margin-top: 0.5em;
+    margin-botom: 0.5em;
     padding: 0.3em;
     background-color: LightCyan;
-    height:82vh;
+    height:80vh;
+    width:92vw;
     overflow-y: scroll;
 }
 #Dump {
@@ -68,10 +70,10 @@ span.d_internal { color: aqua }
         <span id="h_state">Xxxxx</span>
     </h3>
     <div>
-        <button class="btn" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
-        <button class="btn" id="btnIC" onclick="openTab('IC', 'btnIC')">Чип</button>
-        <button class="btn" id="btnDump" onclick="openTab('Dump', 'btnDump')">Дамп</button>
-        <button class="btn" id="btnSettings" style="outline:0" onclick="hCallback()">Справка</button>
+        <button class="btnT" id="btnTicket" onclick="openTab('Ticket', 'btnTicket')">Билет</button>
+        <button class="btnT" id="btnIC" onclick="openTab('IC', 'btnIC')">Чип</button>
+        <button class="btnT" id="btnDump" onclick="openTab('Dump', 'btnDump')">Дамп</button>
+        <button class="btnT" id="btnSettings" style="outline:0" onclick="hCallback()">Справка</button>
     </div>
 
     <div id="Ticket" class="tab" style="display:none">
@@ -279,10 +281,11 @@ Dump legend:
    reserved for 
    internal use
             </pre>
-            <div class="fragment" style="margin-top:1em">
-                <button id="btnEMail" style="width:100%;outline:0" onclick="eCallback()">Отправить дамп</button>
-            </div>
         </div>
+    </div>
+    <div>
+        <button class="btnB" id="btnBSettings" style="outline:0" onclick="aCallback()">Настройки</button>
+        <button class="btnB" id="btnBSendDimp" style="outline:0" onclick="eCallback()">Отправить дамп</button>
     </div>
 
 </body>
