@@ -23,7 +23,7 @@
     <EditTextPreference
         android:defaultValue="@string/autodump_directory"
         android:key="@string/pk_dumps_directories"
-        android:selectAllOnFocus="true"
+        android:selectAllOnFocus="false"
         android:singleLine="true"
         android:title="Saved dumps (; separated)" />
 </PreferenceScreen>

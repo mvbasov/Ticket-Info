@@ -12,6 +12,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public class AppPreferencesActivity extends PreferenceActivity implements
@@ -22,14 +23,16 @@ public class AppPreferencesActivity extends PreferenceActivity implements
 
         addPreferencesFromResource(R.xml.preferences);
 
+        // Set summary of used language
         ListPreference ListPref = (ListPreference) findPreference("appLang");
         ListPref
                 //.setSummary(sp.getString("appLang", "Some Default Text"));
                 .setSummary(ListPref.getEntry());
 
-        Preference dir_pref = (Preference) findPreference(getString(R.string.pk_dumps_directories));
-        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        dir_pref.setSummary(defSharedPref.getString(getString(R.string.pk_dumps_directories),""));
+        // Set summary of used search directories
+        Preference dirsPref = findPreference(getString(R.string.pk_dumps_directories));
+        dirsPref.setSummary(autoDumpsMustBe());
+        dirsPref.setDefaultValue(autoDumpsMustBe());
     }
 
     protected void onResume() {
@@ -77,10 +80,33 @@ public class AppPreferencesActivity extends PreferenceActivity implements
         String pref_key_search_dir = getString(R.string.pk_dumps_directories);
 
         if (pref_key_search_dir.equals(key)) {
-            pref.setSummary(defSharedPref.getString(pref_key_search_dir,""));
+            pref.setSummary(autoDumpsMustBe());
+            pref.setDefaultValue(autoDumpsMustBe());
         }
         defSharedPref.edit().putBoolean(getString(R.string.pk_pref_changed), true).apply();
 
+    }
+
+    private String autoDumpsMustBe() {
+        String searchDirKey = getString(R.string.pk_dumps_directories);
+        String autoDumpDirectory = getString(R.string.autodump_directory);
+
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String cur_dir_search = defSharedPref.getString(
+                        searchDirKey,
+                        autoDumpDirectory
+        );
+        if( ! Arrays.asList(cur_dir_search.split(";")).contains(autoDumpDirectory)) {
+            cur_dir_search = autoDumpDirectory + ";" + cur_dir_search;
+            SharedPreferences.Editor editor = defSharedPref.edit();
+            editor.putString(searchDirKey, cur_dir_search);
+            editor.commit();
+            findPreference(searchDirKey)
+                    .setDefaultValue(cur_dir_search);
+            recreate();
+        }
+
+        return cur_dir_search;
     }
 
 

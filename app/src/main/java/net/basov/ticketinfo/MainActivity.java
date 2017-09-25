@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
             default:
                 break;
         }
-        
+
         /* Set application language according to preferences */
         String appLangPref = defSharedPref.getString(
                 getString(R.string.pk_app_lang),
