@@ -296,6 +296,10 @@ public class UI {
         } else {
             setWelcome("s_use_view_directory", "<input type=\"checkbox\" disabled=\"disabled\">");
         }
+        String[] dumpsPaths = defSharedPref.getString(wv.getContext().getString(R.string.pk_dumps_directories), "").split(";");
+        String dumpsPathsList = "";
+        for( String path : dumpsPaths ) dumpsPathsList += path + "<br/>";
+        setWelcome("s_dump_search_paths", dumpsPathsList );
 
         wv.setWebViewClient(new MyWebViewClient() {
             @Override

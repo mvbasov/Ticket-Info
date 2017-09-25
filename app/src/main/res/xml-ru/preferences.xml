@@ -13,8 +13,14 @@
         android:defaultValue="true"
         android:key="@string/pk_send_platform_info" />
     <CheckBoxPreference
-        android:title="Использовать VIEW_DIRECTORY"
-        android:summary="Да для X-plore или ES, нет для OI файловых менеджеров"
+        android:title="VIEW_DIRECTORY"
+        android:summary="для вызова файлового менеджера:\n - Да для X-plore или ES,\n - Нет для OI файловых менеджеров"
         android:defaultValue="false"
         android:key="@string/pk_use_view_directory" />
+    <EditTextPreference
+        android:defaultValue="@string/autodump_directory"
+        android:key="@string/pk_dumps_directories"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Каталоги дампов через ;" />
 </PreferenceScreen>

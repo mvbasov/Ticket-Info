@@ -19,11 +19,17 @@ public class AppPreferencesActivity extends PreferenceActivity implements
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         addPreferencesFromResource(R.xml.preferences);
+
         ListPreference ListPref = (ListPreference) findPreference("appLang");
         ListPref
                 //.setSummary(sp.getString("appLang", "Some Default Text"));
                 .setSummary(ListPref.getEntry());
+
+        Preference dir_pref = (Preference) findPreference(getString(R.string.pk_dumps_directories));
+        SharedPreferences defSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        dir_pref.setSummary(defSharedPref.getString(getString(R.string.pk_dumps_directories),""));
     }
 
     protected void onResume() {
@@ -65,6 +71,13 @@ public class AppPreferencesActivity extends PreferenceActivity implements
                 }
                 recreate();
             }
+
+        }
+
+        String pref_key_search_dir = getString(R.string.pk_dumps_directories);
+
+        if (pref_key_search_dir.equals(key)) {
+            pref.setSummary(defSharedPref.getString(pref_key_search_dir,""));
         }
         defSharedPref.edit().putBoolean(getString(R.string.pk_pref_changed), true).apply();
 

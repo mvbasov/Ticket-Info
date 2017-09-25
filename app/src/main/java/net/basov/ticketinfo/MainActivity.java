@@ -123,8 +123,8 @@ public class MainActivity extends Activity {
         }
 
         // TODO: Remove dirty hack after creating nornmal config for this.
-        editor.putString(getString(R.string.pk_dumps_directories), "AutoDumps;Garbage;NonMetro");
-        editor.commit();
+        //editor.putString(getString(R.string.pk_dumps_directories), "AutoDumps;Garbage;NonMetro");
+        //editor.commit();
 
 
 
