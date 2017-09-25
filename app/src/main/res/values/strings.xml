@@ -60,4 +60,6 @@
     <string name="pk_pref_changed" translatable="false">prefChanged</string>
     <string name="pk_send_platform_info" translatable="false">sendPlatformInfo</string>
     <string name="pk_use_view_directory" translatable="false">useViewDirectory</string>
+    <string name="pk_dumps_directories" translatable="false">dumpsDirectories</string>
+    <string name="autodump_directory" translatable="false">AutoDumps</string>
 </resources>

@@ -43,6 +43,17 @@ public class FileIO {
 
     static final String TAG = "tickets";
 
+    public static String findSavedDump(String dumpName, String[] dumpsPaths, Context c){
+
+        for( String dirName : dumpsPaths ){
+            String f = dirName + "/" + dumpName;
+            File fh = new File(getFilesDir(c), f);
+            if (fh.isFile()) return f;
+        }
+
+        return null;
+    }
+
     public static boolean writeAutoDump(NFCaDump dump, Context c) {
         File fileW;
         boolean rc = false;

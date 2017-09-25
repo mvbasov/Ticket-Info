@@ -75,6 +75,7 @@ public class Ticket {
     // Constants definition
 
     public static final String FILE_EXT = ".txt";
+    // TODO: check the same in preferences AutoDumps
     public static final String AUTO_DUMP_DIRECTORY = "AutoDumps/";
 
 
@@ -637,9 +638,13 @@ public class Ticket {
     }
 
     public static String createAutoDumpFileName(Ticket ticket) {
+        return AUTO_DUMP_DIRECTORY + createDumpFileName(ticket);
+    }
+
+    public static String createDumpFileName(Ticket ticket) {
 
         StringBuilder dName = new StringBuilder();
-        dName.append(AUTO_DUMP_DIRECTORY);
+        //dName.append(AUTO_DUMP_DIRECTORY);
 
         dName.append(String.format("%010d", ticket.getTicketNumber()));
         if (ticket.isTicketFormatValid()) {
