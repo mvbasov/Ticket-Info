@@ -121,14 +121,7 @@ public class MainActivity extends Activity {
             default:
                 break;
         }
-
-        // TODO: Remove dirty hack after creating nornmal config for this.
-        //editor.putString(getString(R.string.pk_dumps_directories), "AutoDumps;Garbage;NonMetro");
-        //editor.commit();
-
-
-
-
+        
         /* Set application language according to preferences */
         String appLangPref = defSharedPref.getString(
                 getString(R.string.pk_app_lang),
