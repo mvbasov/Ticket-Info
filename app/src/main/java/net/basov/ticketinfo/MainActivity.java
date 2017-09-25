@@ -36,7 +36,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -100,22 +99,35 @@ public class MainActivity extends Activity {
         SharedPreferences.Editor editor = defSharedPref.edit();
         switch (defSharedPref.getInt(getString(R.string.pk_pref_version), 0)) {
             case 0: // initial
-                editor.putInt(getString(R.string.pk_pref_version), 2);
+                editor.putInt(getString(R.string.pk_pref_version), 3);
                 editor.putBoolean(getString(R.string.pk_transliterate_flag), false);
                 editor.putString(getString(R.string.pk_app_lang), "default");
                 editor.putBoolean(getString(R.string.pk_pref_changed), false);
                 editor.putBoolean(getString(R.string.pk_send_platform_info), true);
                 editor.putBoolean(getString(R.string.pk_use_view_directory), false);
+                editor.putString(getString(R.string.pk_dumps_directories), getString(R.string.autodump_directory));
                 editor.commit();
                 break;
             case 1: // upgrade from v1 to v2
-                editor.putInt(getString(R.string.pk_pref_version), 2);
+                editor.putInt(getString(R.string.pk_pref_version), 3);
                 editor.putBoolean(getString(R.string.pk_use_view_directory), false);
+                editor.putString(getString(R.string.pk_dumps_directories), getString(R.string.autodump_directory));
                 editor.commit();
                 break;
+            case 2: // upgrade from v2 to v3
+                editor.putInt(getString(R.string.pk_pref_version), 3);
+                editor.putString(getString(R.string.pk_dumps_directories), getString(R.string.autodump_directory));
+                editor.commit();
             default:
                 break;
         }
+
+        // TODO: Remove dirty hack after creating nornmal config for this.
+        editor.putString(getString(R.string.pk_dumps_directories), "AutoDumps;Garbage;NonMetro");
+        editor.commit();
+
+
+
 
         /* Set application language according to preferences */
         String appLangPref = defSharedPref.getString(
@@ -370,35 +382,48 @@ public class MainActivity extends Activity {
                             d_file_content = new ArrayList<String>();
                             for (String line : NFCaDump.getDumpAsString(dump).split("\\r?\\n"))
                                 d_file_content.add(line);
+                            String d_file_name = Ticket.createDumpFileName(new Ticket(dump));
                             d_auto_file_name = Ticket.createAutoDumpFileName(new Ticket(dump));
 
                             if (dump.getPagesNumber() < 12) {
                                 // TODO: display somthig interesting
                             } else {
-                                if (FileIO.writeAutoDump(dump, MainActivity.this)) {
-                                    Toast.makeText(
-                                            MainActivity.this,
-                                            "Dump saved.",
-                                            Toast.LENGTH_LONG
-                                            ).show();
-                                } else {
+
+                                SharedPreferences defSharedPref =
+                                        PreferenceManager
+                                                .getDefaultSharedPreferences(MainActivity.this);
+
+                                String[] dumpsPaths = defSharedPref.getString(
+                                                        getString(R.string.pk_dumps_directories),
+                                                        getString(R.string.autodump_directory)
+                                                ).split(";");
+
+                                String fName = FileIO.findSavedDump(
+                                        d_file_name + Ticket.FILE_EXT,
+                                        dumpsPaths,
+                                        MainActivity.this);
+
+                                if (fName != null) {
                                     NFCaDump d_tmp = new NFCaDump();
                                     try {
                                         String storage =
                                                 FileIO.getFilesDir(MainActivity.this)
-                                                .getAbsolutePath();
-                                        String fName = storage +
-                                                "/" +
-                                                d_auto_file_name +
-                                                Ticket.FILE_EXT;
-                                        if (FileIO.ReadDump(d_tmp, fName)) {
+                                                        .getAbsolutePath();
+                                        if (FileIO.ReadDump(d_tmp, storage + "/" + fName)) {
                                             dump.setRemark(d_tmp.getRemark());
                                             d_remark = d_tmp.getRemark();
-                                            //d_real_file_name = t.getRealFileName();
+                                            d_real_file_name = fName;
                                         }
                                     } catch (NullPointerException e) {
                                         // TODO: display somthig interesting
                                     }
+                                } else {
+                                    FileIO.writeAutoDump(dump, MainActivity.this);
+                                    Toast.makeText(
+                                            MainActivity.this,
+                                            "Dump saved.",
+                                            Toast.LENGTH_LONG
+                                    ).show();
                                 }
                             }
                             // TODO: remove debug
