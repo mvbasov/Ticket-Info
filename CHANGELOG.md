@@ -1,5 +1,11 @@
 ### Change log.
 
+#### Version 3.09b
+##### Date:   Tue Sep 26 18:58:08 2017 +0300, commit a051f31c20caa1c4e52d8c4fa674b7a1f6689ea6
+
+- Saved dumps can be organized in subfolders.
+- RC edition.
+
 #### Version 3.08b
 ##### Date:   Fri Sep 15 21:06:51 2017 +0300, commit 26eba9f917ded2668750ea1f66f6522c70db8ef3
 
