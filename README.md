@@ -47,7 +47,8 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Latest changes:
 
-- 
+- Saved dumps can be organized in subfolders.
+- RC edition.
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
