@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 android {
+    def last_tag = getGitRevParseInfo("describe --tags --abbrev=0")
+    def commit_count = getGitRevParseInfo("rev-list --count ${last_tag}..")
+    def current_commit = getGitRevParseInfo("rev-parse --short")
+
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def outputFile = output.outputFile
@@ -21,7 +25,7 @@ android {
             storePassword 'android'
         }
     }
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "net.basov.ticketinfo"
@@ -30,27 +34,53 @@ android {
         versionCode 310
         versionName '3.10'
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             zipAlignEnabled true
             applicationIdSuffix '.r'
-            versionNameSuffix 'r'
+            versionNameSuffix "r-g" + current_commit
+            resValue "string", "git_describe", getGitRevParseInfo("describe --tags --abbrev=1")
             signingConfig signingConfigs.release
         }
         betta {
             applicationIdSuffix '.b'
-            versionNameSuffix 'b'
+            versionNameSuffix "b-g" + current_commit
             debuggable true
-            resValue "string", "git_describe", ""
+            resValue "string", "git_describe", getGitRevParseInfo("describe --tags --abbrev=1")
             signingConfig signingConfigs.debug
         }
         debug {
-            resValue "string", "git_describe", getGitRevParseInfo ( "describe --tags --abbrev=1" )
+            debuggable true
+            versionNameSuffix 'a-' + commit_count + "-g" + current_commit
+            resValue "string", "git_describe", getGitRevParseInfo("describe --tags --abbrev=1")
             signingConfig signingConfigs.debug
         }
     }
+
+//    buildTypes {
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+//            zipAlignEnabled true
+//            applicationIdSuffix '.r'
+//            versionNameSuffix 'r'
+//            signingConfig signingConfigs.release
+//        }
+//        betta {
+//            applicationIdSuffix '.b'
+//            versionNameSuffix 'b'
+//            debuggable true
+//            resValue "string", "git_describe", ""
+//            signingConfig signingConfigs.debug
+//        }
+//        debug {
+//            resValue "string", "git_describe", getGitRevParseInfo ( "describe --tags --abbrev=1" )
+//            signingConfig signingConfigs.debug
+//        }
+//    }
     productFlavors {
     }
 }
