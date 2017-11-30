@@ -27,6 +27,7 @@
 package net.basov.util;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 
 import java.io.BufferedReader;
@@ -131,10 +132,27 @@ public class FileIO {
         return rc;
     }
 
+//    public static File getFilesDir(Context c) {
+//        File filesDir;
+//        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+//            filesDir = c.getExternalFilesDir(null);
+//        } else {
+//            filesDir = c.getFilesDir();
+//        }
+//        return filesDir;
+//    }
+
     public static File getFilesDir(Context c) {
         File filesDir;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            filesDir = c.getExternalFilesDir(null);
+            if (Build.VERSION.SDK_INT <= 18)
+                filesDir = new File(Environment.getExternalStorageDirectory()
+                        + "/Android/data/"
+                        + c.getPackageName()
+                        +"/files"
+                );
+            else
+                filesDir = c.getExternalFilesDir(null);
         } else {
             filesDir = c.getFilesDir();
         }
