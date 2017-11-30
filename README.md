@@ -47,7 +47,9 @@ Set Signing options according to you local settings. If you want to build only u
 
 ### Latest changes:
 
-- 
+- Link to homepage at help and start screen
+- Automaticaly change application icon according to build type
+- Automaticaly generate apk file name
 
 You can see [full change log](https://github.com/mvbasov/Ticket-Info/blob/master/CHANGELOG.md)
 
